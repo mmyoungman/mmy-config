@@ -1,0 +1,63 @@
+xev
+
+https://unix.stackexchange.com/questions/205226/xkb-make-ctrlbackspace-behave-as-delete#205277
+
+setxkbmap -print
+
+/usr/include/X11/keysymdef.h
+/usr/share/X11/xkb/symbols/gb
+
+-under
+default  partial alphanumeric_keys
+xkb_symbols "basic" {
+
+-add
+	key <AB01> { [   z,	Z, n, N ] };
+	key <AB02> { [   x,	X, m, M ] };
+	key <AB03> { [   c,	C, comma, less ] };
+	key <AB04> { [   v,	V, period, greater ] };
+	key <AB05> { [   b,	B, slash, question ] };
+
+	key <AC01> { [   a,	A, h, H ] };
+	key <AC02> { [   s,	S, j, J ] };
+	key <AC03> { [   d,	D, k, K ] };
+	key <AC04> { [   f,	F, l, L ] };
+	key <AC05> { [   g,	G, semicolon, colon ] };
+
+	key <AD01> { [   q,	Q, y, Y ] };
+	key <AD02> { [   w,	W, u, U ] };
+	key <AD03> { [   e,	E, i, I ] };
+	key <AD04> { [   r,	R, o, O ] };
+	key <AD05> { [   t,	T, p, P ] };
+
+    key <AE01>	{ [         1,   exlam,  6,    asciicircum ]	};
+    key <AE02>	{ [         2,   quotedbl,  7,    ampersand ]	};
+    key <AE03>	{ [         3,   sterling, 8,    asterisk ]	};
+    key <AE04>	{ [         4,     dollar, 9,   parenleft ]	};
+    key <AE05>	{ [         5,     percent, 0,   parenright ]	};
+
+---
+
+	key <AB01> { [   z,	Z, n, N ] };
+	key <AB02> { [   x,	X, m, M ] };
+	key <AB03> { [   c,	C, comma, less ] };
+	key <AB04> { [   v,	V, period, greater ] };
+	key <AB05> { [   b,	B, Return, question ] };
+
+	key <AC01> { [   a,	A, h, H ] };
+	key <AC02> { [   s,	S, j, J ] };
+	key <AC03> { [   d,	D, k, K ] };
+	key <AC04> { [   f,	F, l, L ] };
+	key <AC05> { [   g,	G, BackSpace, colon ] };
+
+	key <AD01> { [   q,	Q, y, Y ] };
+	key <AD02> { [   w,	W, u, U ] };
+	key <AD03> { [   e,	E, i, I ] };
+	key <AD04> { [   r,	R, o, O ] };
+	key <AD05> { [   t,	T, p, P ] };
+
+    key <AE01>	{ [         1,   exlam,  6,    asciicircum ]	};
+    key <AE02>	{ [         2,   quotedbl,  7,    ampersand ]	};
+    key <AE03>	{ [         3,   sterling, 8,    asterisk ]	};
+    key <AE04>	{ [         4,     dollar, 9,   parenleft ]	};
+    key <AE05>	{ [         5,     percent, 0,   parenright ]	};
