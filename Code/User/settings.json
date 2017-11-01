@@ -1,5 +1,9 @@
 {
     "window.zoomLevel": 0,
     "telemetry.enableTelemetry": false,
-    "telemetry.enableCrashReporter": false
+    "telemetry.enableCrashReporter": false,
+    "rfLanguageServer.includePaths": [
+        "**/*.robot",
+        "**/*.py"
+    ]
 }
