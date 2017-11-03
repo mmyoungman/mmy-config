@@ -2,8 +2,15 @@
     "window.zoomLevel": 0,
     "telemetry.enableTelemetry": false,
     "telemetry.enableCrashReporter": false,
+    "[python]": {
+        "editor.tabSize": 2
+    },
+    "editor.wordWrap": "on",
     "rfLanguageServer.includePaths": [
         "**/*.robot",
         "**/*.py"
-    ]
+    ],
+    "editor.minimap.enabled": false,
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 200
 }
