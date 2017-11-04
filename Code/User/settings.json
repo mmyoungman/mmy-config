@@ -1,16 +1,27 @@
 {
-    "window.zoomLevel": 0,
     "telemetry.enableTelemetry": false,
     "telemetry.enableCrashReporter": false,
+    "window.zoomLevel": 0,
+    "editor.minimap.enabled": false,
+    "editor.wordWrap": "on",
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 200,
+
     "[python]": {
         "editor.tabSize": 2
     },
-    "editor.wordWrap": "on",
+
     "rfLanguageServer.includePaths": [
         "**/*.robot",
         "**/*.py"
     ],
-    "editor.minimap.enabled": false,
-    "files.autoSave": "afterDelay",
-    "files.autoSaveDelay": 200
+
+    "keyboard.dispatch": "keyCode",
+    "vim.easymotion": true,
+    "vim.enableNeovim": true,
+    "vim.neovimPath": "/usr/bin/nvim",
+    "vim.disableAnnoyingNeovimMessage": true,
+    "vim.otherModesKeyBindings": [
+        
+    ]
 }

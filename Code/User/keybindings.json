@@ -9,7 +9,7 @@
         "command": "workbench.action.navigateForward"
     },
     {
-        "key": "ctrl+shift+-",
-        "command": "-workbench.action.navigateForward"
+        "key": "ctrl+oem_8",
+        "command": "workbench.action.terminal.toggleTerminal"
     }
 ]
