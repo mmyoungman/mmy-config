@@ -1,11 +1,26 @@
 " Mark Youngman's Neovim Settings
-" Last change:	27 Sep 2016
+" Last change:	30 Nov 2017
 
-" For Pathogen plugin
-execute pathogen#infect()
+" vim-plug
+call plug#begin('~/.config/nvim/plugged')
+
+Plug 'easymotion/vim-easymotion'
+Plug 'ludovicchabant/vim-gutentags'
+
+Plug 'scrooloose/nerdtree'
+noremap <C-n> :NERDTreeToggle<CR>
+
+"Plug 'sirver/ultisnips'
+"Plug 'justmao945/vim-clang'
+
+"Plug 'mfukar/robotframework-vim'
+
+call plug#end()
 
 " set color scheme
-colorscheme altdesert 
+colorscheme desert
+"colorscheme altdesert
+
 "set encoding=utf-8 
 
 " Make backspace work in insert mode
@@ -14,38 +29,28 @@ set backspace=indent,eol,start
 " Switch syntax highlighting on
 syntax on
 
-" no Ex mode - conflict with "map Q gq" below?
-" nnoremap Q <nop>
-
 " Switch off network history
 let g:netrw_dirhistmax = 0
 
-" Mappings
 " Convenient cursor movement
-"nnoremap <C-k> <C-u>
-"nnoremap <C-j> <C-d>
 nnoremap <C-k> {
 nnoremap <C-j> }
 nnoremap <C-h> ^
 nnoremap <C-l> $
 
-" Don't skip wrapped long lines
-nnoremap k gk
-nnoremap j gj
-
 " Copy to end of line
 noremap Y y$
 
-" Forgotten what this is for - some weird paragraphing thing
-"map Q gq
+" Easier completion
+inoremap <C-Space> <C-x><C-]>
 
 " macros
 " @a adds curly brackets below and puts cursor inside them in insert mode
 let @a = 'o{o}O i'
 
 " Use space as leader key
-let mapleader = " "
-"let g:mapleader = " "
+let mapleader = "\\"
+"let g:mapleader = "\\"
 
 nnoremap <leader>w :update<cr>
 nnoremap <leader>q :qall<cr>
@@ -57,86 +62,23 @@ nnoremap <leader>< viw<esc>a><esc>hbi<<esc>lel
 nnoremap <leader>( viw<esc>a)<esc>hbi(<esc>lel
 "Test: flkjal alfkjalf lajslkf
 
-" So "cin(" or "dil<" insert/delete inside next/last ()/<> 
-onoremap in( :<c-u>normal! f(vi(<cr>
-onoremap il( :<c-u>normal! F)vi(<cr>
-onoremap in< :<c-u>normal! f<vi<<cr>
-onoremap il< :<c-u>normal! F>vi<<cr>
-" Same as above but delete surrounding ()/<>/ as well
-onoremap an( :<c-u>normal! f(va(<cr>
-onoremap al( :<c-u>normal! F)va(<cr>
-onoremap an< :<c-u>normal! f<va<<cr>
-onoremap al< :<c-u>normal! F>va<<cr>
-"Test for above: print foo(jflakjf) <jflkjafl> lkjalfkj
-
 " Add {}
-inoremap <leader>{ <esc>o{<esc>o}<esc>O
+inoremap <leader>{ <space>{<esc>o}<esc>O
 "nnoremap <leader>{ o{<esc>o}<esc>O<esc>
 
-" Quick way to open init.vim
+" Quick way to open and load init.vim
 nnoremap <leader>ev :vsplit $MYVIMRC<cr>
-" Quick way to load init.vim
 nnoremap <leader>sv :source $MYVIMRC<cr>
-
-" Auto refresh after editing .vimrc
-"augroup reload_vimrc
-"    autocmd!
-"    autocmd BufWritePost $MYVIMRC source $MYVIMRC
-"augroup END
-
-" View open buffers
-"map <leader>b :ls<cr>
 
 " C&P to clipboard
 nnoremap <leader>y "+y
 nnoremap <leader>p "+p
 " Because 'd' also copies:
 nnoremap <leader>P "0p
-"set clipboard+=unnamedplus
-
-" Change EasyMotion plugin default binding
-let g:EasyMotion_leader_key = '<Leader>t'
-
-" NERDTree plugin binding
-nnoremap <leader>n :NERDTreeToggle<cr>
 
 " session make and restore
 nnoremap <leader>m :mksession!<cr>
 nnoremap <leader>. :source Session.vim<cr>
-
-" Map local leader
-"let maplocalleader = ","
-"nnoremap <localleader>a = something
-
-" CTags bindings
-" Open in vertical split
-nnoremap <A-]> :vsp <cr>:exec("tag ".expand("<cword>"))<cr>
-" Search for tags file up to home dir
-"set tags=./tags;$HOME
-
-" Vim-clang plugin stuff
-let g:clang_diagsopt = '' 
-
-" Deoplete stuff, if I ever get it working...
-"let g:deoplete#enable_at_startup = 1
-"let g:deoplete#sources#clang#libclang_path = "/usr/lib/llvm-3.8/lib/libclang.so"
-"let g:deoplete#sources#clang#clang_header = "/usr/lib/llvn-3.8/lib/clang"   
-"let g:deoplete#sources#clang#clang_complete_database = ""
-" Have to manually access autocomp
-"let g:deoplete#disable_auto_complete 1
-" Automatically close scratch split
-"autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
-" Tab something or other 
-"inoremap <silent><expr> <tab> pumvisible() ? "\<C-n>" : deoplete#mappings#manual_complete()
-" Tab completion 
-"inoremap <silent><expr> <tab> pumvisible() ? "\<C-n>" : "\<tab>"
-
-" Try to avoid all hit-enter prompts - Doesn't work?
-"set shortmess=atI
-
-" Abbreviated stuff
-"iunmap ssig
-"iabbrev ssig -- <cr>Mark Milan<cr>mmyoungman@blah.com
 
 " persistent undo
 set undodir=~/.config/nvim/undo/
@@ -152,7 +94,7 @@ set splitright
 " au VimEnter * vsplit
 
 " Compile and Quickfix Stuff
-nnoremap <F9> :call CompileProgram()<cr><cr>
+nnoremap <F11> :call CompileProgram()<cr><cr>
 nnoremap <F12> :!./run.sh<cr>
 
 " mappings for quickfix window
@@ -219,11 +161,11 @@ set showbreak=↪
 " Find the next match as we search
 set incsearch
 
-" highlight search words, ctrl-l to switch off hl
+" highlight search words, ESC to switch off hl
 set hlsearch
-" so no highlight after reloading $MYVIMRC
-nohl
 nnoremap <ESC> :nohl<CR><ESC>
+" no highlight after reloading $MYVIMRC
+nohl
 
 " case insensitive search, except when using capital letters
 set ignorecase
@@ -242,7 +184,7 @@ set autoindent
 "filetype plugin indent on
 
 " Reload file changed outside nvim
-"set autoread
+set autoread
 
 "C indentation options
 set cindent
@@ -250,13 +192,13 @@ set cindent
 set cinoptions+=(0
 
 " Show syntax highlighting groups for word under cursor
-nnoremap <C-S-P> :call <SID>SynStack()<CR>
-function! <SID>SynStack()
-if !exists("*synstack")
-return
-endif
-echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
-endfunc
+"nnoremap <C-S-P> :call <SID>SynStack()<CR>
+"function! <SID>SynStack()
+"if !exists("*synstack")
+"return
+"endif
+"echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
+"endfunc
 
 " Tab stuff
 set shiftwidth=4
@@ -267,18 +209,6 @@ set smarttab
 
 " Scroll 8 lines before the bottom
 set scrolloff=8
-
-" Don't wrap
-"set nowrap
-" Wrap better
-"set linebreak
-"set sidescrolloff=15
-
-" Folding
-"set foldmethod = indent
-"set foldnestmax = 3
-" No fold by default
-"set nofoldenable
 
 " Keep backups of files
 set backup
@@ -298,36 +228,22 @@ set matchpairs+=<:>
 set number
 set numberwidth=4
 
-"set ruler
-"set cursorline
-
-" automatically save files
-" set autowrite
-
-" what is this for?
-" vnoremap _g y:exe "grep /" . escape(@", '\\/') . "/ *.c *.h"<CR>
-" autocmd FileType text setlocal textwidth=78
-
-" useful if using the same buffer for multiple files? not so useful for sp and
-" tabs?
-" set hidden
-
 " if gui running, remove gui menu and toolbar and scroll bars
-if has('gui_running')
-set guioptions-=m
-set guioptions-=T
-set guioptions-=r
-set guioptions-=L
-endif
+"if has('gui_running')
+"set guioptions-=m
+"set guioptions-=T
+"set guioptions-=r
+"set guioptions-=L
+"endif
 
 " ****
 " Windows GUI tweaks
 " ****
-if has("gui_win32")
-set guifont =DejaVu_Sans_Mono:h9:cANSI
+"if has("gui_win32")
+"set guifont =DejaVu_Sans_Mono:h9:cANSI
 "autocmd GUIEnter * :simalt ~x
 " set shellslash
-endif
+"endif
 
 " THIS CAUSES A BUG IN NEOVIM? " maximise gvim window at startup
 "set lines=99 columns=999
