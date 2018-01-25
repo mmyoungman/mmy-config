@@ -11,5 +11,13 @@
     {
         "key": "ctrl+oem_8",
         "command": "workbench.action.terminal.toggleTerminal"
+    },
+    {
+        "key": "ctrl+shift+left",
+        "command": "workbench.action.terminal.focusPrevious"
+    },
+    {
+        "key": "ctrl+shift+right",
+        "command": "workbench.action.terminal.focusNext"
     }
 ]
