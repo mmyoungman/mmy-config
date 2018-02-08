@@ -57,7 +57,7 @@ nnoremap <leader>q :qall<cr>
 nnoremap <leader>c :close<cr>
 
 " Surround word with "/</(
-nnoremap <leader>" v07 Febiw<esc>a"<esc>hbi"<esc>lel
+nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
 nnoremap <leader>< viw<esc>a><esc>hbi<<esc>lel
 nnoremap <leader>( viw<esc>a)<esc>hbi(<esc>lel
 "Test: flkjal alfkjalf lajslkf
