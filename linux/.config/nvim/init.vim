@@ -1,5 +1,5 @@
 " Mark Youngman's Neovim Settings
-" Last change:	30 Nov 2017
+" Last change:	07 Feb 2018
 
 " vim-plug
 call plug#begin('~/.config/nvim/plugged')
@@ -57,7 +57,7 @@ nnoremap <leader>q :qall<cr>
 nnoremap <leader>c :close<cr>
 
 " Surround word with "/</(
-nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
+nnoremap <leader>" v07 Febiw<esc>a"<esc>hbi"<esc>lel
 nnoremap <leader>< viw<esc>a><esc>hbi<<esc>lel
 nnoremap <leader>( viw<esc>a)<esc>hbi(<esc>lel
 "Test: flkjal alfkjalf lajslkf
@@ -91,69 +91,16 @@ set splitbelow
 set splitright
 
 " open vsp window at startup
-" au VimEnter * vsplit
+"au VimEnter * vsplit
 
 " Compile and Quickfix Stuff
-nnoremap <F11> :call CompileProgram()<cr><cr>
-nnoremap <F12> :!./run.sh<cr>
+set makeprg=./build.sh
+nnoremap <F12> :silent w<cr>:silent make<cr>:silent cwindow<cr>:silent cc<cr>
 
 " mappings for quickfix window
 nnoremap <leader>j :cnext<cr>
 nnoremap <leader>k :cprevious<cr>
-nnoremap <leader>l :call QuickfixToggle()<cr>
-
-" To complile a c++ program and put any errors in quickfix
-let g:quickfix_is_open = 0
-
-function! CompileProgram()
-    if has("unix")
-        "silent !g++ -ggdb % -lX11 2>quickfixerrorfile
-        silent !./build.sh 2>quickfixerrorfile
-        silent cfile quickfixerrorfile
-        if !empty(readfile("quickfixerrorfile"))
-            let g:quickfix_return_to_window = winnr()
-            copen
-            execute g:quickfix_return_to_window . "wincmd w"
-            let g:quickfix_is_open = 1
-            else
-            silent !rm quickfixerrorfile
-            echo "No errors found."
-            cclose
-            let g:quickfix_is_open = 0
-        endif
-    elseif has("win32")
-        " silent !cl /nologo /EHsc % >quickfixerrorfile
-        silent !build.bat >quickfixerrorfile
-        silent cfile quickfixerrorfile
-        if (match(readfile("quickfixerrorfile"), "error") + 1) || (match(readfile("quickfixerrorfile"), "warning") + 1)
-            let g:quickfix_return_to_window = winnr()
-            copen
-            execute g:quickfix_return_to_window . "wincmd w"
-            let g:quickfix_is_open = 1
-        else
-            silent !del quickfixerrorfile
-            echo "No errors found."
-            cclose
-            let g:quickfix_is_open = 0
-        endif
-    endif
-endfunction
-
-function! QuickfixToggle()
-    if g:quickfix_is_open
-        cclose
-        let g:quickfix_is_open = 0
-        execute g:quickfix_return_to_window . "wincmd w"
-    else
-        let g:quickfix_return_to_window = winnr()
-        copen
-        "vert copen 80 " vsp quickfix
-        execute g:quickfix_return_to_window . "wincmd w"
-        " quickfix buffer opens on bottom first time, then left afterwards
-        " autocmd FileType qf wincmd L
-        let g:quickfix_is_open = 1
-    endif
-endfunction
+nnoremap <leader>l :cclose<cr>
 
 " better line wrap
 set showbreak=↪
@@ -201,9 +148,9 @@ set cinoptions+=(0
 "endfunc
 
 " Tab stuff
-set shiftwidth=4
-set tabstop=4
-set softtabstop=4
+set shiftwidth=3
+set tabstop=3
+set softtabstop=3
 set expandtab
 set smarttab
 
