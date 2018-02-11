@@ -1,19 +1,25 @@
 " Mark Youngman's Neovim Settings
-" Last change:	07 Feb 2018
+" Last change:	08 Feb 2018
 
-" vim-plug
+" vim-plug for plugins
+" :PlugInstall on a new install
 call plug#begin('~/.config/nvim/plugged')
 
 Plug 'easymotion/vim-easymotion'
 Plug 'ludovicchabant/vim-gutentags'
 
 Plug 'scrooloose/nerdtree'
-noremap <C-n> :NERDTreeToggle<CR>
+noremap <leader>n :NERDTreeToggle<CR>
 
 "Plug 'sirver/ultisnips'
 "Plug 'justmao945/vim-clang'
 
+" For robot framework syntax highlighting and tags
 "Plug 'mfukar/robotframework-vim'
+"Plug 'mMontu/vim-RobotUtils'
+
+" Plugins to experiement with
+"Plug 'bling/vim-airline'
 
 call plug#end()
 
@@ -21,13 +27,26 @@ call plug#end()
 colorscheme desert
 "colorscheme altdesert
 
+" Switch syntax highlighting on
+syntax on
+
 "set encoding=utf-8 
+
+" persistent undo
+set undodir=~/.config/nvim/undo/
+set undofile
+set undolevels=1000
+set undoreload=10000
 
 " Make backspace work in insert mode
 set backspace=indent,eol,start
 
-" Switch syntax highlighting on
-syntax on
+" No auto insert comments on new line
+autocmd FileType * set formatoptions-=cro
+
+" Jump to definition in vertical split, but not a new split
+" <C-w>= to make splits equal width
+nnoremap <C-]> :execute "vertical ptag " . expand("<cword>")<cr><C-w>=
 
 " Switch off network history
 let g:netrw_dirhistmax = 0
@@ -38,17 +57,19 @@ nnoremap <C-j> }
 nnoremap <C-h> ^
 nnoremap <C-l> $
 
-" Copy to end of line
-noremap Y y$
+" Copy to end of line, to match behaviour of D and C
+nnoremap Y y$
 
 " Easier completion
 inoremap <C-Space> <C-x><C-]>
 
-" macros
-" @a adds curly brackets below and puts cursor inside them in insert mode
-let @a = 'o{o}O i'
+" Add {}
+" macro?
+"let @a = 'o{o}O i'
+inoremap <leader>{ <space>{<esc>o}<esc>O
+nnoremap <leader>{ a<space>{<esc>o}<esc>O
 
-" Use space as leader key
+" Use backslash as leader key
 let mapleader = "\\"
 "let g:mapleader = "\\"
 
@@ -56,15 +77,11 @@ nnoremap <leader>w :update<cr>
 nnoremap <leader>q :qall<cr>
 nnoremap <leader>c :close<cr>
 
-" Surround word with "/</(
+" Surround word with " or < or (
 nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
 nnoremap <leader>< viw<esc>a><esc>hbi<<esc>lel
 nnoremap <leader>( viw<esc>a)<esc>hbi(<esc>lel
 "Test: flkjal alfkjalf lajslkf
-
-" Add {}
-inoremap <leader>{ <space>{<esc>o}<esc>O
-"nnoremap <leader>{ o{<esc>o}<esc>O<esc>
 
 " Quick way to open and load init.vim
 nnoremap <leader>ev :vsplit $MYVIMRC<cr>
@@ -76,45 +93,36 @@ nnoremap <leader>p "+p
 " Because 'd' also copies:
 nnoremap <leader>P "0p
 
-" session make and restore
+" Session make and restore
 nnoremap <leader>m :mksession!<cr>
-nnoremap <leader>. :source Session.vim<cr>
+nnoremap <leader>. :source Session.vim<cr>:!rm Session.vim<cr>
 
-" persistent undo
-set undodir=~/.config/nvim/undo/
-set undofile
-set undolevels=1000
-set undoreload=10000
-
-" new sp windows open right or bottom
+" New sp windows open right or bottom
 set splitbelow
 set splitright
-
-" open vsp window at startup
-"au VimEnter * vsplit
 
 " Compile and Quickfix Stuff
 set makeprg=./build.sh
 nnoremap <F12> :silent w<cr>:silent make<cr>:silent cwindow<cr>:silent cc<cr>
 
-" mappings for quickfix window
+" Mappings for quickfix window
 nnoremap <leader>j :cnext<cr>
 nnoremap <leader>k :cprevious<cr>
 nnoremap <leader>l :cclose<cr>
 
-" better line wrap
+" Better line wrap
 set showbreak=↪
 
-" Find the next match as we search
+" Highlight match while typing search term
 set incsearch
 
-" highlight search words, ESC to switch off hl
+" Highlight search words, ESC to switch off hl
 set hlsearch
 nnoremap <ESC> :nohl<CR><ESC>
-" no highlight after reloading $MYVIMRC
+" No highlight after reloading $MYVIMRC
 nohl
 
-" case insensitive search, except when using capital letters
+" Case insensitive search, except when using capital letters
 set ignorecase
 set smartcase
 

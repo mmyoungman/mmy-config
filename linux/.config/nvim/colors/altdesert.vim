@@ -1,4 +1,4 @@
-" Mark Youngman's AltDesert.vim, based on Desert.vim
+" Mark Milan's AltDesert.vim, based on Desert.vim
 " Last change: 2016 Sep 1
 "
 " Original Desert.vim:
