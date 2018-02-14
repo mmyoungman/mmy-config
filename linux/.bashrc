@@ -5,7 +5,7 @@
 PS1='\[\033[01;31m\][\h\[\033[01;36m\] \W\[\033[01;31m\]]\$\[\033[00m\] '
 
 # Swap caps lock and escape
-setxkbmap -option "caps:swapescape"
+setxkbmap -option "caps:escape"
 
 # Set bash to vi mode
 # NOTE: .inputrc adds "ciw", "diw" and <C-l> to clear-screen
