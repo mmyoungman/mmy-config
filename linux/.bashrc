@@ -2,7 +2,7 @@
 # ~/.bashrc
 #
 
-PS1='\[\033[01;31m\][\h\[\033[01;36m\] \W\[\033[01;31m\]]\$\[\033[00m\] '
+PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] '
 
 # Swap caps lock and escape
 setxkbmap -option "caps:escape"
