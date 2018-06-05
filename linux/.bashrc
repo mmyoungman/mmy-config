@@ -11,6 +11,9 @@ setxkbmap -option "caps:escape"
 # NOTE: .inputrc adds "ciw", "diw" and <C-l> to clear-screen
 set -o vi
 
+# When using ctrl-r for reverse-i-search, ctrl-s for i-search
+stty -ixon
+
 # Tab completion for bash/git
 [ -r /usr/share/bash-completion/bash_completion ] && . /usr/share/bash-completion/bash_completion
 #source /usr/share/bash-completion/completions/git
