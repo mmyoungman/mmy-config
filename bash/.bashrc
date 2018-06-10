@@ -13,9 +13,6 @@ esac
 
 PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] '
 
-# Swap caps lock and escape
-setxkbmap -option "caps:escape"
-
 # Set bash to vi mode
 set -o vi
 
@@ -28,6 +25,10 @@ set -o vi
 if [ $machine = "linux" ] 
 then
    alias ls='ls --color=auto'
+
+   # Swap caps lock and escape
+   setxkbmap -option "caps:escape"
+
 elif [ $machine = "mac" ] 
 then
    alias ls='ls -G'
