@@ -10,14 +10,11 @@ setxkbmap -option "caps:escape"
 # Set bash to vi mode
 # NOTE: .inputrc adds "ciw", "diw" and <C-l> to clear-screen
 set -o vi
-
-# When using ctrl-r for reverse-i-search, ctrl-s for i-search
-stty -ixon
+# In cmd mode, press "v" to open editor
+EDITOR=/usr/bin/nvim
 
 # Tab completion for bash/git
-[ -r /usr/share/bash-completion/bash_completion ] && . /usr/share/bash-completion/bash_completion
-#source /usr/share/bash-completion/completions/git
-[[ $- != *i* ]] && return
+[ -f /usr/share/bash-completion/completions/git ] && source /usr/share/bash-completion/completions/git
 
 colors() {
 	local fgc bgc vals seq0
@@ -45,7 +42,3 @@ colors() {
 		echo; echo
 	done
 }
-
-[[ -f ~/.extend.bashrc ]] && . ~/.extend.bashrc
-
-
