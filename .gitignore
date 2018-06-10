@@ -1,4 +1,10 @@
+# ctags file
 tags
+
+# ???
 .DS_Store
-linux/.config/nvim/undo
-linux/.config/nvim/backup/*~
+
+# Neovim stuff
+nvim/undo/*
+nvim/backup/*
+nvim/plugged
