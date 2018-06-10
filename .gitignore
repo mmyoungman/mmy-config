@@ -1,2 +1,4 @@
 tags
 .DS_Store
+linux/.config/nvim/undo
+linux/.config/nvim/backup/*~
