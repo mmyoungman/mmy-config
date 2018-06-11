@@ -3,7 +3,7 @@
 #
 
 unameOut="$(uname -s)"
-case "${unameOut}" in
+case $unameOut in
    Linux*) machine="linux";;
    Darwin*) machine="mac";;
    *)
@@ -14,9 +14,10 @@ esac
 PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] '
 
 # Set bash to vi mode
-set -o vi
+#set -o vi
 
 # In cmd mode, press "v" to open editor
+alias vim=nvim
 [ -f /usr/bin/nvim ] && EDITOR=/usr/bin/nvim
 
 # Tab completion for bash/git

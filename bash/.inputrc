@@ -1,3 +1,6 @@
+set completion-ignore-case
+set editing-mode vi
+
 $if mode=vi
    set show-mode-in-prompt
    set vi-ins-mode-string \1\e[6 q\2
