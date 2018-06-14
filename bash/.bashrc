@@ -25,10 +25,10 @@ alias vim=nvim
 
 if [ $machine = "linux" ] 
 then
-   alias ls='ls --color=auto'
-
    # Swap caps lock and escape
    setxkbmap -option "caps:escape"
+
+   alias ls='ls --color=auto'
 
 elif [ $machine = "mac" ] 
 then
@@ -38,3 +38,11 @@ then
    export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)"
    [ -f ~/projects/account-cosmos/run ] && source ~/projects/account-cosmos/run
 fi
+
+# Git stuff
+alias gs="git status"
+alias gd="git diff"
+alias gl="git pull"
+alias ga="git add"
+alias gc="git commit -m"
+alias go="git checkout"
