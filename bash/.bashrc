@@ -2,6 +2,15 @@
 # ~/.bashrc
 #
 
+# Update config files
+cd ~/projects/mmy-config/
+#git pull > /dev/null
+gitOutput=$(git pull)
+if [[ $gitOutput != "Already up to date." ]]
+then
+   printf "mmy-config updated\n"
+fi
+
 unameOut="$(uname -s)"
 case $unameOut in
    Linux*) machine="linux";;
