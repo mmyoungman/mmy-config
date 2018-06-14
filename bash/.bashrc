@@ -9,6 +9,8 @@ gitOutput=$(git pull)
 if [[ $gitOutput != "Already up to date." ]]
 then
    printf "mmy-config updated\n"
+else
+   printf "mmy-config not updated\n"
 fi
 
 unameOut="$(uname -s)"
