@@ -7,7 +7,7 @@ if [ -d ~/projects/mmy-config/ ]
 then
    cd ~/projects/mmy-config/
    gitOutput=$(git pull)
-   if [[ "$gitOutput" != "Already up to date." ]]
+   if [[ "$gitOutput" != "Already up to date." && "$gitOutput" != "Already up-to-date."]]
    then
       printf "mmy-config updated\n"
    else
