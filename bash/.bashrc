@@ -6,7 +6,6 @@
 if [ -d ~/projects/mmy-config/ ]
 then
    cd ~/projects/mmy-config/
-   #git pull > /dev/null
    gitOutput=$(git pull)
    if [[ "$gitOutput" != "Already up to date." ]]
    then
