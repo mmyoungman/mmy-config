@@ -1,5 +1,4 @@
 " Mark Youngman's Neovim Settings
-" Last change:	08 Feb 2018
 
 " vim-plug for plugins
 " :PlugInstall on a new install
@@ -54,6 +53,8 @@ let g:netrw_dirhistmax = 0
 " Convenient cursor movement
 nnoremap <C-k> {
 nnoremap <C-j> }
+vnoremap <C-k> {
+vnoremap <C-j> }
 nnoremap <C-h> ^
 nnoremap <C-l> $
 
@@ -72,10 +73,6 @@ nnoremap <leader>{ a<space>{<esc>o}<esc>O
 " Use backslash as leader key
 let mapleader = "\\"
 "let g:mapleader = "\\"
-
-nnoremap <leader>w :update<cr>
-nnoremap <leader>q :qall<cr>
-nnoremap <leader>c :close<cr>
 
 " Surround word with " or < or (
 nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
