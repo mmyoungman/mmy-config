@@ -3,14 +3,18 @@
 #
 
 # Update config files
-cd ~/projects/mmy-config/
-#git pull > /dev/null
-gitOutput=$(git pull)
-if [[ $gitOutput != "Already up to date." ]]
+if [ -d ~/projects/mmy-config/ ]
 then
-   printf "mmy-config updated\n"
-else
-   printf "mmy-config not updated\n"
+   cd ~/projects/mmy-config/
+   #git pull > /dev/null
+   gitOutput=$(git pull)
+   if [[ "$gitOutput" != "Already up to date." ]]
+   then
+      printf "mmy-config updated\n"
+   else
+      printf ""
+   fi
+   cd ~
 fi
 
 unameOut="$(uname -s)"
@@ -24,11 +28,8 @@ esac
 
 PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] '
 
-# Set bash to vi mode
-#set -o vi
-
-# In cmd mode, press "v" to open editor
-alias vim=nvim
+# Use nvim, if available
+[ -f /usr/bin/nvim ] && alias vim=nvim
 [ -f /usr/bin/nvim ] && EDITOR=/usr/bin/nvim
 
 # Tab completion for bash/git
