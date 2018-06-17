@@ -1,4 +1,5 @@
 set completion-ignore-case
+#set show-all-if-ambiguous
 set editing-mode vi
 
 $if mode=vi
