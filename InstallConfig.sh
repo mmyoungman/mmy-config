@@ -10,3 +10,6 @@ ln -s $(pwd)/bash/.inputrc ~/.inputrc
 ln -s $(pwd)/nvim ~/.config/nvim
 
 nvim -c ":PlugInstall|:qa"
+
+[ -f ~/.ideavimrc ] && mv ~/.ideavimrc ~/.ideavimrc$(date +%Y%m%d)
+ln -s $(pwd)/intellij/.ideavimrc ~/.ideavimrc
