@@ -6,9 +6,9 @@ noremap <C-W>k :action VimWindowUp<cr>
 noremap <C-W>h :action VimWindowLeft<cr>
 noremap <C-W>l :action VimWindowRight<cr>
  
-noremap <C-j> :action VimMotionParagraphNext<cr>
-noremap <C-k> :action VimMotionParagraphPrevious<cr>
-noremap <C-h> :action EditorLineStart<cr>
-noremap <C-l> :action EditorLineEnd<cr>
+noremap <C-j> }
+noremap <C-k> {
+noremap <C-h> ^
+noremap <C-l> $
  
 noremap <leader><leader>s :action AceAction<cr><esc>
