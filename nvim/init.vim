@@ -7,8 +7,14 @@ call plug#begin('~/.config/nvim/plugged')
 Plug 'easymotion/vim-easymotion'
 Plug 'ludovicchabant/vim-gutentags'
 
-Plug 'scrooloose/nerdtree'
-noremap <leader>n :NERDTreeToggle<CR>
+" Need "pip install jedi" for this
+Plug 'davidhalter/jedi-vim'
+
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'zchee/deoplete-jedi'
+
+"Plug 'scrooloose/nerdtree'
+"noremap <leader>n :NERDTreeToggle<CR>
 
 "Plug 'sirver/ultisnips'
 "Plug 'justmao945/vim-clang'
@@ -21,6 +27,20 @@ noremap <leader>n :NERDTreeToggle<CR>
 "Plug 'bling/vim-airline'
 
 call plug#end()
+
+" Let deoplete-jedi handle completion for python
+let g:jedi#completions_enabled = 0
+
+" Deoplete stuff
+let g:deoplete#enable_at_startup = 1
+
+"let s:uname = system("uname -s")
+"if s:uname == "Linux"
+"   let g:deoplete#sources#clang#libclang_path = '/usr/lib/libclang.so'
+"   let g:deoplete#sources#clang#clang_header = '/usr/lib/clang'
+"endif
+"if s:uname == "Darwin" " macOS
+"endif
 
 " set color scheme
 colorscheme desert
