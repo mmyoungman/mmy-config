@@ -185,6 +185,7 @@ set smarttab
 set scrolloff=8
 
 " Keep backups of files
+silent !mkdir -p ~/.config/nvim/backup
 set backup
 set backupdir=~/.config/nvim/backup/
 
