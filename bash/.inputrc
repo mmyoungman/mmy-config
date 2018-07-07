@@ -14,8 +14,9 @@ $if mode=vi
    "diw": "lbdw"
    "ciW": "lBcW"
    "diW": "lBdW"
+   Control-h: "^"
+   Control-l: "$"
 
    set keymap vi-insert
    Control-l: clear-screen
-   Control-h: "\e^i"
 $endif

@@ -73,6 +73,10 @@ autocmd FileType * set formatoptions-=cro
 " Switch off network history
 let g:netrw_dirhistmax = 0
 
+" Quick way to open and load init.vim
+nnoremap <leader>ev :vsplit $MYVIMRC<cr>
+nnoremap <leader>sv :source $MYVIMRC<cr>
+
 " Convenient cursor movement
 nnoremap <C-k> {
 nnoremap <C-j> }
@@ -83,6 +87,9 @@ nnoremap <C-l> $
 
 " Copy to end of line, to match behaviour of D and C
 nnoremap Y y$
+
+" Since C-h is backspace, C-l should delete char infront
+inoremap <C-l> <esc>la<backspace>
 
 " Easier completion
 inoremap <C-Space> <C-x><C-]>
@@ -102,10 +109,6 @@ nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
 nnoremap <leader>< viw<esc>a><esc>hbi<<esc>lel
 nnoremap <leader>( viw<esc>a)<esc>hbi(<esc>lel
 "Test: flkjal alfkjalf lajslkf
-
-" Quick way to open and load init.vim
-nnoremap <leader>ev :vsplit $MYVIMRC<cr>
-nnoremap <leader>sv :source $MYVIMRC<cr>
 
 " Cut and paste to system clipboard
 vnoremap <leader>y "+y
