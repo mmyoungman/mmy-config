@@ -133,7 +133,7 @@ nnoremap <leader>k :cprevious<cr>
 nnoremap <leader>l :cclose<cr>
 
 " Better line wrap
-set showbreak=↵
+set showbreak=…
 
 " Highlight match while typing search term
 set incsearch
