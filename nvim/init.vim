@@ -6,6 +6,7 @@ call plug#begin('~/.config/nvim/plugged')
 
 Plug 'easymotion/vim-easymotion'
 Plug 'ludovicchabant/vim-gutentags'
+Plug 'tpope/vim-fugitive'
 
 " Need "pip install jedi" for this
 Plug 'davidhalter/jedi-vim'
@@ -107,10 +108,9 @@ nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 nnoremap <leader>sv :source $MYVIMRC<cr>
 
 " Cut and paste to system clipboard
-nnoremap <leader>y "+y
-nnoremap <leader>p "+P
-" Because 'd' also copies:
-nnoremap <leader>P "0P
+vnoremap <leader>y "+y
+nnoremap <leader>p "+p
+nnoremap <leader>P "+P
 
 " Session make and restore
 nnoremap <leader>m :mksession!<cr>
