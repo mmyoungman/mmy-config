@@ -13,6 +13,8 @@ Plug 'davidhalter/jedi-vim'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'zchee/deoplete-jedi'
 
+Plug 'zchee/deoplete-clang'
+
 "Plug 'scrooloose/nerdtree'
 "noremap <leader>n :NERDTreeToggle<CR>
 
@@ -34,11 +36,11 @@ let g:jedi#completions_enabled = 0
 " Deoplete stuff
 let g:deoplete#enable_at_startup = 1
 
-"let s:uname = system("uname -s")
-"if s:uname == "Linux"
-"   let g:deoplete#sources#clang#libclang_path = '/usr/lib/libclang.so'
-"   let g:deoplete#sources#clang#clang_header = '/usr/lib/clang'
-"endif
+let s:uname = system("uname -s")
+if s:uname == "Linux"
+   let g:deoplete#sources#clang#libclang_path = '/usr/lib/libclang.so'
+   let g:deoplete#sources#clang#clang_header = '/usr/lib/clang'
+endif
 "if s:uname == "Darwin" " macOS
 "endif
 
@@ -52,6 +54,7 @@ syntax on
 "set encoding=utf-8 
 
 " persistent undo
+silent !mkdir -p ~/.config/nvim/undo
 set undodir=~/.config/nvim/undo/
 set undofile
 set undolevels=1000
@@ -64,8 +67,7 @@ set backspace=indent,eol,start
 autocmd FileType * set formatoptions-=cro
 
 " Jump to definition in vertical split, but not a new split
-" <C-w>= to make splits equal width
-nnoremap <C-]> :execute "vertical ptag " . expand("<cword>")<cr><C-w>=
+"nnoremap <C-]> :execute "vertical ptag " . expand("<cword>")<cr><C-w>=
 
 " Switch off network history
 let g:netrw_dirhistmax = 0
@@ -104,11 +106,11 @@ nnoremap <leader>( viw<esc>a)<esc>hbi(<esc>lel
 nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 nnoremap <leader>sv :source $MYVIMRC<cr>
 
-" C&P to clipboard
+" Cut and paste to system clipboard
 nnoremap <leader>y "+y
-nnoremap <leader>p "+p
+nnoremap <leader>p "+P
 " Because 'd' also copies:
-nnoremap <leader>P "0p
+nnoremap <leader>P "0P
 
 " Session make and restore
 nnoremap <leader>m :mksession!<cr>

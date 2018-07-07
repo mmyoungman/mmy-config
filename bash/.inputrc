@@ -12,6 +12,8 @@ $if mode=vi
    set keymap vi-command
    "ciw": "lbcw"
    "diw": "lbdw"
+   "ciW": "lbcW"
+   "diW": "lbdW"
 
    set keymap vi-insert
    Control-l: clear-screen
