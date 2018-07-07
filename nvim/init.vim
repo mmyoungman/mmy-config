@@ -77,6 +77,10 @@ let g:netrw_dirhistmax = 0
 nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 nnoremap <leader>sv :source $MYVIMRC<cr>
 
+" Use backslash as leader key
+let mapleader = "\\"
+"let g:mapleader = "\\"
+
 " Convenient cursor movement
 nnoremap <C-k> {
 nnoremap <C-j> }
@@ -95,14 +99,8 @@ inoremap <C-l> <esc>la<backspace>
 inoremap <C-Space> <C-x><C-]>
 
 " Add {}
-" macro?
-"let @a = 'o{o}O i'
-inoremap <leader>{ <space>{<esc>o}<esc>O
-nnoremap <leader>{ a<space>{<esc>o}<esc>O
-
-" Use backslash as leader key
-let mapleader = "\\"
-"let g:mapleader = "\\"
+inoremap <leader>{ <space>{<esc>o}<esc>O<tab>
+nnoremap <leader>{ a<space>{<esc>o}<esc>O<tab>
 
 " Surround word with " or < or (
 nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
