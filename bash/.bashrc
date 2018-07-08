@@ -38,6 +38,7 @@ if [ $machine = "linux" ]
 then
    # Make caps lock = escape
    setxkbmap -option "caps:escape"
+   setxkbmap -option "terminate:ctrl_alt_bksp"
 
    alias ls='ls --color=auto'
 

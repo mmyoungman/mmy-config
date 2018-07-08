@@ -154,7 +154,7 @@ set statusline+=%= "move to right side
 set statusline+=%-4c "column
 set statusline+=%l/%L "display line/total lines
 
-set autoindent
+"set autoindent " screws with python indentation?
 "set smartindent
 "filetype plugin indent on
 
@@ -162,9 +162,9 @@ set autoindent
 set autoread
 
 "C indentation options
-set cindent
+"set cindent
 "set cinoptions=g1,h1,N-s
-set cinoptions+=(0
+"set cinoptions+=(0
 
 " Show syntax highlighting groups for word under cursor
 "nnoremap <C-S-P> :call <SID>SynStack()<CR>
@@ -176,11 +176,11 @@ set cinoptions+=(0
 "endfunc
 
 " Tab stuff
-set shiftwidth=3
-set tabstop=3
-set softtabstop=3
+set shiftwidth=4
+set tabstop=4
+set softtabstop=4
 set expandtab
-set smarttab
+"set smarttab
 
 " Scroll 8 lines before the bottom
 set scrolloff=8
