@@ -1,7 +1,5 @@
 " Mark Youngman's Neovim Settings
 
-" vim-plug for plugins
-" :PlugInstall on a new install
 call plug#begin('~/.config/nvim/plugged')
 
 Plug 'easymotion/vim-easymotion'
@@ -14,13 +12,14 @@ Plug 'davidhalter/jedi-vim'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'zchee/deoplete-jedi'
 
+"Plug 'alfredodeza/pytest.vim'
+
 Plug 'zchee/deoplete-clang'
 
 "Plug 'scrooloose/nerdtree'
 "noremap <leader>n :NERDTreeToggle<CR>
 
 "Plug 'sirver/ultisnips'
-"Plug 'justmao945/vim-clang'
 
 " For robot framework syntax highlighting and tags
 "Plug 'mfukar/robotframework-vim'
@@ -31,7 +30,7 @@ Plug 'zchee/deoplete-clang'
 
 call plug#end()
 
-" Let deoplete-jedi handle completion for python
+" Turn off jedi-vim completion -- use deoplete-jedi
 let g:jedi#completions_enabled = 0
 
 " Deoplete stuff
@@ -98,10 +97,6 @@ inoremap <C-l> <esc>la<backspace>
 " Easier completion
 inoremap <C-Space> <C-x><C-]>
 
-" Add {}
-inoremap <leader>{ <space>{<esc>o}<esc>O<tab>
-nnoremap <leader>{ a<space>{<esc>o}<esc>O<tab>
-
 " Surround word with " or < or (
 nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
 nnoremap <leader>< viw<esc>a><esc>hbi<<esc>lel
@@ -123,6 +118,7 @@ set splitright
 
 " Compile and Quickfix Stuff
 set makeprg=./build.sh
+"set compiler=somethingorother
 nnoremap <F12> :silent w<cr>:silent make<cr>:silent cwindow<cr>:silent cc<cr>
 
 " Mappings for quickfix window
