@@ -9,6 +9,7 @@ then
    gitOutput=$(git pull)
    if [ "$gitOutput" != "Already up to date." ] && [ "$gitOutput" != "Already up-to-date." ]
    then
+      nvim -c ":PlugClean|:PlugInstall|:qa"
       printf "mmy-config updated\n"
    else
       printf ""
