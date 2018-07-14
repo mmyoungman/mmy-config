@@ -13,7 +13,6 @@ $if mode=vi
    "ciW": "lBcW"
    "diW": "lBdW"
    Control-h: "^"
-   Control-l: "$"
 
    set keymap vi-insert
    Control-l: clear-screen
