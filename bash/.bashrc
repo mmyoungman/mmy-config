@@ -3,19 +3,19 @@
 #
 
 # Update config files
-if [ -d ~/projects/mmy-config/ ]
-then
-   cd ~/projects/mmy-config/
-   gitOutput=$(git pull)
-   if [ "$gitOutput" != "Already up to date." ] && [ "$gitOutput" != "Already up-to-date." ]
-   then
-      nvim -c ":PlugClean|:PlugInstall|:qa"
-      printf "mmy-config updated\n"
-   else
-      printf ""
-   fi
-   cd ~
-fi
+#if [ -d ~/projects/mmy-config/ ]
+#then
+#   cd ~/projects/mmy-config/
+#   gitOutput=$(git pull)
+#   if [ "$gitOutput" != "Already up to date." ] && [ "$gitOutput" != "Already up-to-date." ]
+#   then
+#      nvim -c ":PlugClean|:PlugInstall|:qa"
+#      printf "mmy-config updated\n"
+#   else
+#      printf ""
+#   fi
+#   cd ~
+#fi
 
 unameOut="$(uname -s)"
 case $unameOut in
@@ -49,7 +49,7 @@ GIT_COMPLETION=~/.config/git/git-completion.bash
 if [ ! -f $GIT_COMPLETION ];
 then
     #curl -o $GIT_COMPLETION 'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash'
-    curl -o $GIT_COMPLETION 'https://raw.githubusercontent.com/git/git/v2.17.1/contrib/completion/git-completion.bash'
+    curl -o $GIT_COMPLETION 'https://raw.githubusercontent.com/git/git/v2.17.1/contrib/completion/git-completion.bash' # because need git v2.18 for git --list-cmds=
 fi
 source $GIT_COMPLETION
 
@@ -75,7 +75,6 @@ then
    setxkbmap -option "terminate:ctrl_alt_bksp"
 
    alias ls='ls --color=auto'
-
 elif [ $machine = "mac" ] 
 then
    alias ls='ls -G'
@@ -85,6 +84,6 @@ then
    [ -f ~/projects/account-cosmos/run ] && source ~/projects/account-cosmos/run
 fi
 
-#PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] '
-PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W \[\e[01;33m\]$(__git_ps1 "[%s]")\[\033[01;32m\]]\$\[\033[00m\] '
+#PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] ' # without git branch
+PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W \[\033[01;33m\]$(__git_ps1 "[%s]")\[\033[01;32m\]]\$\[\033[00m\] '
 
