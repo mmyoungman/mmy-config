@@ -26,15 +26,48 @@ case $unameOut in
       ;;
 esac
 
-PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] '
-
 # Use nvim, if available
 [ -f /usr/bin/nvim ] && alias vim=nvim
 [ -f /usr/bin/nvim ] && EDITOR=/usr/bin/nvim
 
-# Tab completion for bash/git
-[ -f /usr/share/bash-completion/completions/git ] && source /usr/share/bash-completion/completions/git
+# Git stuff
+GIT_DIR=~/.config/git/
+if [ ! -d $GIT_DIR ];
+then
+    mkdir -p ~/.config/git/
+fi
 
+GIT_PROMPT=~/.config/git/git-prompt.sh
+if [ ! -f $GIT_PROMPT ];
+then
+    mkdir -p ~/.config/git/
+    curl -o $GIT_PROMPT 'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh'
+fi
+source $GIT_PROMPT
+
+GIT_COMPLETION=~/.config/git/git-completion.bash
+if [ ! -f $GIT_COMPLETION ];
+then
+    #curl -o $GIT_COMPLETION 'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash'
+    curl -o $GIT_COMPLETION 'https://raw.githubusercontent.com/git/git/v2.17.1/contrib/completion/git-completion.bash'
+fi
+source $GIT_COMPLETION
+
+# Git aliases
+alias gs="git status"
+__git_complete gs _git_status
+alias gd="git diff"
+__git_complete gd _git_diff
+alias gl="git pull"
+__git_complete gl _git_pull
+alias ga="git add"
+__git_complete ga _git_add
+alias gc="git commit"
+__git_complete gc _git_commit
+alias go="git checkout"
+__git_complete go _git_checkout
+
+# OS specific
 if [ $machine = "linux" ] 
 then
    # Make caps lock = escape
@@ -52,10 +85,6 @@ then
    [ -f ~/projects/account-cosmos/run ] && source ~/projects/account-cosmos/run
 fi
 
-# Git stuff
-alias gs="git status"
-alias gd="git diff"
-alias gl="git pull"
-alias ga="git add"
-alias gc="git commit -m"
-alias go="git checkout"
+#PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] '
+PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W \[\e[01;33m\]$(__git_ps1 "[%s]")\[\033[01;32m\]]\$\[\033[00m\] '
+
