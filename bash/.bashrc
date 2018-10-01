@@ -32,24 +32,21 @@ esac
 
 # Git stuff
 GIT_DIR=~/.config/git/
-if [ ! -d $GIT_DIR ];
-then
+if [ ! -d $GIT_DIR ]; then
     mkdir -p ~/.config/git/
 fi
 
 GIT_PROMPT=~/.config/git/git-prompt.sh
-if [ ! -f $GIT_PROMPT ];
-then
+if [ ! -f $GIT_PROMPT ]; then
     mkdir -p ~/.config/git/
     curl -o $GIT_PROMPT 'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh'
 fi
 source $GIT_PROMPT
 
 GIT_COMPLETION=~/.config/git/git-completion.bash
-if [ ! -f $GIT_COMPLETION ];
-then
-    #curl -o $GIT_COMPLETION 'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash'
-    curl -o $GIT_COMPLETION 'https://raw.githubusercontent.com/git/git/v2.17.1/contrib/completion/git-completion.bash' # because need git v2.18 for git --list-cmds=
+if [ ! -f $GIT_COMPLETION ]; then
+    curl -o $GIT_COMPLETION 'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash'
+    #curl -o $GIT_COMPLETION 'https://raw.githubusercontent.com/git/git/v2.17.1/contrib/completion/git-completion.bash' # because need git v2.18 for git --list-cmds=
 fi
 source $GIT_COMPLETION
 
@@ -67,22 +64,13 @@ __git_complete gc _git_commit
 alias go="git checkout"
 __git_complete go _git_checkout
 
-# OS specific
-if [ $machine = "linux" ] 
-then
-   # Make caps lock = escape
+alias ls='ls --color=auto'
+alias ll='ls -l --color=auto'
+alias sdn='sudo shutdown now'
+
+if [ $machine = "linux" ]; then
    setxkbmap -option "caps:escape"
    setxkbmap -option "terminate:ctrl_alt_bksp"
-
-   alias ls='ls --color=auto'
-   alias ll='ls -l --color=auto'
-elif [ $machine = "mac" ] 
-then
-   alias ls='ls -G'
-   alias python=python3
-   alias pip=pip3
-   export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)"
-   [ -f ~/projects/account-cosmos/run ] && source ~/projects/account-cosmos/run
 fi
 
 #PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] ' # without git branch
