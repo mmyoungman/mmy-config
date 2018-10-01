@@ -75,6 +75,7 @@ then
    setxkbmap -option "terminate:ctrl_alt_bksp"
 
    alias ls='ls --color=auto'
+   alias ll='ls -l --color=auto'
 elif [ $machine = "mac" ] 
 then
    alias ls='ls -G'
