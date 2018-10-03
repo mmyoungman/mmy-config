@@ -31,19 +31,18 @@ esac
 [ -f /usr/bin/nvim ] && EDITOR=/usr/bin/nvim
 
 # Git stuff
-GIT_DIR=~/.config/git/
+GIT_DIR=~/.config/git
 if [ ! -d $GIT_DIR ]; then
-    mkdir -p ~/.config/git/
+    mkdir -p $GIT_DIR
 fi
 
-GIT_PROMPT=~/.config/git/git-prompt.sh
+GIT_PROMPT=$GIT_DIR/git-prompt.sh
 if [ ! -f $GIT_PROMPT ]; then
-    mkdir -p ~/.config/git/
     curl -o $GIT_PROMPT 'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh'
 fi
 source $GIT_PROMPT
 
-GIT_COMPLETION=~/.config/git/git-completion.bash
+GIT_COMPLETION=$GIT_DIR/git-completion.bash
 if [ ! -f $GIT_COMPLETION ]; then
     curl -o $GIT_COMPLETION 'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash'
     #curl -o $GIT_COMPLETION 'https://raw.githubusercontent.com/git/git/v2.17.1/contrib/completion/git-completion.bash' # because need git v2.18 for git --list-cmds=
@@ -66,7 +65,7 @@ __git_complete go _git_checkout
 
 alias ls='ls --color=auto'
 alias ll='ls -l --color=auto'
-alias sdn='sudo shutdown now'
+alias sdn='shutdown now'
 
 if [ $machine = "linux" ]; then
    setxkbmap -option "caps:escape"
@@ -75,4 +74,3 @@ fi
 
 #PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] ' # without git branch
 PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;33m\]$(__git_ps1 " [%s]")\[\033[01;32m\]]\$\[\033[00m\] '
-
