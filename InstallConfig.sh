@@ -8,6 +8,10 @@ ln -s $(pwd)/bash/.bashrc ~/.bashrc
 [ -f ~/.inputrc ] && mv ~/.inputrc ~/.inputrc$(date +%Y%m%d)
 ln -s $(pwd)/bash/.inputrc ~/.inputrc
 
+[ -L ~/.xprofile ] && rm ~/.xprofile
+[ -f ~/.xprofile ] && mv ~/.xprofile ~/.xprofile$(date +%Y%m%d)
+ln -s $(pwd)/bash/.xprofile ~/.xprofile
+
 [ -L ~/.config/nvim ] && rm ~/.config/nvim
 [ -d ~/.config/nvim/ ] && mv ~/.config/nvim ~/.config/nvim$(date +%Y%m%d)
 ln -s $(pwd)/nvim ~/.config/nvim

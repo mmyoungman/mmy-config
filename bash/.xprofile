@@ -1,0 +1,2 @@
+setxkbmap -option "caps:escape"
+setxkbmap -option "terminate:ctrl_alt_bksp"
