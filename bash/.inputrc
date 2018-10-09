@@ -13,6 +13,11 @@ $if mode=vi
    "ciW": "lBcW"
    "diW": "lBdW"
    Control-h: "^"
+   # [num]yn or [num]yl -- yank num-th argument of last command
+   # yank first argument of last command
+   "yn": yank-nth-arg  
+   # yank last argument of last command
+   "yl": yank-last-arg
 
    set keymap vi-insert
    Control-l: clear-screen

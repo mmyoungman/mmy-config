@@ -17,6 +17,8 @@
 #   cd ~
 #fi
 
+stty -ixon # Disable ctrl-s and ctrl-q
+
 unameOut="$(uname -s)"
 case $unameOut in
    Linux*) machine="linux";;
