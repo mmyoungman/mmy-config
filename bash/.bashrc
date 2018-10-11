@@ -18,6 +18,8 @@
 #fi
 
 stty -ixon # Disable ctrl-s and ctrl-q
+shopt -s autocd # cd into dir by typing dir name
+HISTSIZE= HISTFILESIZE= # Infinite history
 
 unameOut="$(uname -s)"
 case $unameOut in
