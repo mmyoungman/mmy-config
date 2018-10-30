@@ -1,6 +1,8 @@
 set completion-ignore-case
 #set show-all-if-ambiguous
 set editing-mode vi
+
+# No delay when pressing escape
 set keyseq-timeout 0
 
 $if mode=vi
