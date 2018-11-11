@@ -5,18 +5,14 @@ call plug#begin('~/.config/nvim/plugged')
 Plug 'easymotion/vim-easymotion'
 Plug 'ludovicchabant/vim-gutentags'
 Plug 'tpope/vim-fugitive'
+Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim'
 
+Plug 'autozimu/LanguageClient-neovim', {
+  \ 'branch': 'next',
+  \ 'do':'bash install.sh'
+  \ }
 Plug 'Shougo/deoplete.nvim', {'do':':UpdateRemotePlugins'}
-
-" Python ("pip3 install neovim")
-Plug 'davidhalter/jedi-vim', {'for':'python','do':'pip install jedi'}
-Plug 'zchee/deoplete-jedi', {'for':'python'}
-
-" C/C++
-Plug 'zchee/deoplete-clang', {'for':['c','cpp']}
-
-" Javascript ("npm install -g neovim")
-Plug 'carlitux/deoplete-ternjs', {'for':'javascript','do':'npm install -g tern'}
 
 "Plug 'scrooloose/nerdtree'
 "noremap <leader>n :NERDTreeToggle<CR>
@@ -27,28 +23,36 @@ Plug 'carlitux/deoplete-ternjs', {'for':'javascript','do':'npm install -g tern'}
 "Plug 'mfukar/robotframework-vim'
 "Plug 'mMontu/vim-RobotUtils'
 
-" Plugins to experiement with
-"Plug 'bling/vim-airline'
-
 call plug#end()
 
-" Turn off jedi-vim completion -- use deoplete-jedi
-let g:jedi#completions_enabled = 0
-
-" Deoplete stuff
+" For Language Server stuff:
+" pip install neovim
+" pip install 'python-language-server[all]'
+" npm install -g neovim
+" npm install -g javascript-typescript-langserver
+set hidden
+let g:LanguageClient_autoStart = 1
+let g:LanguageClient_serverCommands = {
+  \ 'python': ['pyls'],
+  \ 'javascript': ['javascript-typescript-stdio'],
+  \ }
 let g:deoplete#enable_at_startup = 1
 
-let s:uname = system("uname -s")
-if s:uname == "Linux"
-   let g:deoplete#sources#clang#libclang_path = '/usr/lib/libclang.so'
-   let g:deoplete#sources#clang#clang_header = '/usr/lib/clang'
-endif
+" LanguageClient commands
+nnoremap <leader>r :call LanguageClient#textDocument_rename()<CR>
+nnoremap <leader>d :call LanguageClient#textDocument_definition()<CR>
+nnoremap <leader>f :call LanguageClient#textDocument_references()<CR>
+
+"let s:uname = system("uname -s")
+"if s:uname == "Linux"
+"   let g:deoplete#sources#clang#libclang_path = '/usr/lib/libclang.so'
+"   let g:deoplete#sources#clang#clang_header = '/usr/lib/clang'
+"endif
 "if s:uname == "Darwin" " macOS
 "endif
 
 " set color scheme
 colorscheme desert
-"colorscheme altdesert
 
 " Switch syntax highlighting on
 syntax on
@@ -93,11 +97,8 @@ nnoremap <C-l> $
 " Copy to end of line, to match behaviour of D and C
 nnoremap Y y$
 
-" Since C-h is backspace, C-l should delete char infront
+" Since insert mode C-h is backspace, C-l should delete char infront
 inoremap <C-l> <esc>la<backspace>
-
-" Easier completion
-inoremap <C-Space> <C-x><C-]>
 
 " Surround word with " or < or (
 nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
@@ -174,9 +175,9 @@ set autoread
 "endfunc
 
 " Tab stuff
-set shiftwidth=3
-set tabstop=3
-set softtabstop=3
+set shiftwidth=2
+set tabstop=2
+set softtabstop=2
 set expandtab
 "set smarttab
 

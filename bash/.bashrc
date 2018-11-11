@@ -85,4 +85,6 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # For emscripten/webassembly
-source ~/projects/emsdk/emsdk_env.sh ?> /dev/null
+#[ -f ~/projects/emsdk/emsdk_env.sh ] && source ~/projects/emsdk/emsdk_env.sh ?> /dev/null
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
