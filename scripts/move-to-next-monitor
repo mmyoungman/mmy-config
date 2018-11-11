@@ -4,8 +4,8 @@
 # - xdotool, xdpyinfo, xwininfo, xprop, wmctrl
 # 
 # To move window left or right
-# ./move-to-next-monitor-v2 -l
-# ./move-to-next-monitor-v2 -r
+# ./move-to-next-monitor -l
+# ./move-to-next-monitor -r
 #
 # https://unix.stackexchange.com/a/322904
 # https://makandracards.com/makandra/12447-how-to-move-a-window-to-the-next-monitor-on-xfce-xubuntu

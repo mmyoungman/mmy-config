@@ -6,15 +6,17 @@ Plug 'easymotion/vim-easymotion'
 Plug 'ludovicchabant/vim-gutentags'
 Plug 'tpope/vim-fugitive'
 
-" Need "pip install jedi" for this
-Plug 'davidhalter/jedi-vim'
+Plug 'Shougo/deoplete.nvim', {'do':':UpdateRemotePlugins'}
 
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'zchee/deoplete-jedi'
+" Python ("pip3 install neovim")
+Plug 'davidhalter/jedi-vim', {'for':'python','do':'pip install jedi'}
+Plug 'zchee/deoplete-jedi', {'for':'python'}
 
-"Plug 'alfredodeza/pytest.vim'
+" C/C++
+Plug 'zchee/deoplete-clang', {'for':['c','cpp']}
 
-Plug 'zchee/deoplete-clang'
+" Javascript ("npm install -g neovim")
+Plug 'carlitux/deoplete-ternjs', {'for':'javascript','do':'npm install -g tern'}
 
 "Plug 'scrooloose/nerdtree'
 "noremap <leader>n :NERDTreeToggle<CR>
@@ -172,9 +174,9 @@ set autoread
 "endfunc
 
 " Tab stuff
-set shiftwidth=4
-set tabstop=4
-set softtabstop=4
+set shiftwidth=3
+set tabstop=3
+set softtabstop=3
 set expandtab
 "set smarttab
 
