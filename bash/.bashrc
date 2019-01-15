@@ -84,7 +84,14 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
+# For dotnet
+export DOTNET_ROOT=$HOME/.config/dotnet 
+export PATH=$PATH:$HOME/.config/dotnet
+
 # For emscripten/webassembly
 #[ -f ~/projects/emsdk/emsdk_env.sh ] && source ~/projects/emsdk/emsdk_env.sh ?> /dev/null
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+# For pipenv
+export PATH="$PATH:~/.local/bin"

@@ -12,10 +12,9 @@ Plug 'autozimu/LanguageClient-neovim', {
   \ 'branch': 'next',
   \ 'do':'bash install.sh'
   \ }
-Plug 'Shougo/deoplete.nvim', {'do':':UpdateRemotePlugins'}
 
-"Plug 'scrooloose/nerdtree'
-"noremap <leader>n :NERDTreeToggle<CR>
+Plug 'scrooloose/nerdtree'
+noremap <leader>n :NERDTreeToggle<CR>
 
 "Plug 'sirver/ultisnips'
 
@@ -36,7 +35,7 @@ let g:LanguageClient_serverCommands = {
   \ 'python': ['pyls'],
   \ 'javascript': ['javascript-typescript-stdio'],
   \ }
-let g:deoplete#enable_at_startup = 1
+let g:LanguageClient_diagnosticsEnable = 0
 
 " LanguageClient commands
 nnoremap <leader>r :call LanguageClient#textDocument_rename()<CR>
