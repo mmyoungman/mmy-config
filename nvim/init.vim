@@ -24,6 +24,9 @@ noremap <leader>n :NERDTreeToggle<CR>
 
 call plug#end()
 
+" Because of https://github.com/numirias/security/blob/master/doc/2019-06-04_ace-vim-neovim.md
+set nomodeline
+
 " For Language Server stuff:
 " pip install neovim
 " pip install 'python-language-server[all]'
@@ -101,6 +104,7 @@ inoremap <C-l> <esc>la<backspace>
 
 " Surround word with " or < or (
 nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
+nnoremap <leader>' viw<esc>a'<esc>hbi'<esc>lel
 nnoremap <leader>< viw<esc>a><esc>hbi<<esc>lel
 nnoremap <leader>( viw<esc>a)<esc>hbi(<esc>lel
 "Test: flkjal alfkjalf lajslkf
