@@ -54,17 +54,17 @@ fi
 source $GIT_COMPLETION
 
 # Git aliases
-alias gs="git status"
+alias gst="git status"
 __git_complete gs _git_status
-alias gd="git diff"
+alias gdi="git diff"
 __git_complete gd _git_diff
-alias gl="git pull"
+alias gpl="git pull"
 __git_complete gl _git_pull
-alias ga="git add"
+alias gad="git add"
 __git_complete ga _git_add
-alias gc="git commit"
+alias gcm="git commit"
 __git_complete gc _git_commit
-alias go="git checkout"
+alias gco="git checkout"
 __git_complete go _git_checkout
 
 alias ls='ls --color=auto'

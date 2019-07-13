@@ -1,11 +1,20 @@
 " Mark Youngman's Neovim Settings
 
+" For Language Server stuff:
+" pip install neovim
+" pip install 'python-language-server[all]'
+" npm install -g neovim
+" npm install -g javascript-typescript-langserver
+" install cquery (it's in the AUR)
+
 call plug#begin('~/.config/nvim/plugged')
 
 Plug 'easymotion/vim-easymotion'
 Plug 'ludovicchabant/vim-gutentags'
 Plug 'tpope/vim-fugitive'
-Plug 'junegunn/fzf'
+Plug 'junegunn/fzf', {
+  \ 'do':'./install --all'
+  \ }
 Plug 'junegunn/fzf.vim'
 
 Plug 'autozimu/LanguageClient-neovim', {
@@ -27,17 +36,18 @@ call plug#end()
 " Because of https://github.com/numirias/security/blob/master/doc/2019-06-04_ace-vim-neovim.md
 set nomodeline
 
-" For Language Server stuff:
-" pip install neovim
-" pip install 'python-language-server[all]'
-" npm install -g neovim
-" npm install -g javascript-typescript-langserver
 set hidden
 let g:LanguageClient_autoStart = 1
 let g:LanguageClient_serverCommands = {
   \ 'python': ['pyls'],
   \ 'javascript': ['javascript-typescript-stdio'],
+  \ 'cpp': ['cquery', '--log-file=/tmp/cq.log'],
+  \ 'c': ['cquery', '--log-file=/tmp/cq.log']
   \ }
+let g:LanguageClient_loadSettings = 1
+let g:LanguageClient_settingsPath = '/home/mark/.config/nvim/settings.json'
+set completefunc=LanguageClient#complete
+set formatexpr=LanguageClient_textDocument_rangeFormatting()
 let g:LanguageClient_diagnosticsEnable = 0
 
 " LanguageClient commands
