@@ -55,17 +55,17 @@ source $GIT_COMPLETION
 
 # Git aliases
 alias gst="git status"
-__git_complete gs _git_status
+__git_complete gst _git_status
 alias gdi="git diff"
-__git_complete gd _git_diff
+__git_complete gdi _git_diff
 alias gpl="git pull"
-__git_complete gl _git_pull
+__git_complete gpl _git_pull
 alias gad="git add"
-__git_complete ga _git_add
+__git_complete gad _git_add
 alias gcm="git commit"
-__git_complete gc _git_commit
+__git_complete gcm _git_commit
 alias gco="git checkout"
-__git_complete go _git_checkout
+__git_complete gco _git_checkout
 
 alias ls='ls --color=auto'
 alias ll='ls -l --color=auto'
@@ -95,3 +95,9 @@ export PATH=$PATH:$HOME/.config/dotnet
 
 # For pipenv
 export PATH="$PATH:~/.local/bin"
+
+# For pycharm
+export PATH="$PATH:~/Downloads/pycharm-community-2019.1.3/bin"
+
+# Add .NET Core SDK tools
+export PATH="$PATH:/home/mark/.dotnet/tools"
