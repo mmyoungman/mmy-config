@@ -49,7 +49,6 @@ source $GIT_PROMPT
 GIT_COMPLETION=$GIT_DIR/git-completion.bash
 if [ ! -f $GIT_COMPLETION ]; then
     curl -o $GIT_COMPLETION 'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash'
-    #curl -o $GIT_COMPLETION 'https://raw.githubusercontent.com/git/git/v2.17.1/contrib/completion/git-completion.bash' # because need git v2.18 for git --list-cmds=
 fi
 source $GIT_COMPLETION
 
@@ -87,6 +86,8 @@ export NVM_DIR="$HOME/.nvm"
 # For dotnet
 export DOTNET_ROOT=$HOME/.config/dotnet 
 export PATH=$PATH:$HOME/.config/dotnet
+# Add .NET Core SDK tools
+export PATH="$PATH:/home/mark/.dotnet/tools"
 
 # For emscripten/webassembly
 #[ -f ~/projects/emsdk/emsdk_env.sh ] && source ~/projects/emsdk/emsdk_env.sh ?> /dev/null
@@ -98,6 +99,3 @@ export PATH="$PATH:~/.local/bin"
 
 # For pycharm
 export PATH="$PATH:~/Downloads/pycharm-community-2019.1.3/bin"
-
-# Add .NET Core SDK tools
-export PATH="$PATH:/home/mark/.dotnet/tools"
