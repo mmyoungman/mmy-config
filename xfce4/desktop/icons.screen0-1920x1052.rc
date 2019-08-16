@@ -1,0 +1,23 @@
+[xfdesktop-version-4.10.3+-rcfile_format]
+4.10.3+=true
+
+[/home/mark/Desktop/text.txt]
+row=3
+col=0
+
+[/home/mark/Desktop/150 Cromwell Street]
+row=4
+col=0
+
+[Wastebasket]
+row=0
+col=0
+
+[/]
+row=1
+col=0
+
+[/home/mark]
+row=2
+col=0
+
