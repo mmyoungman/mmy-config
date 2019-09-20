@@ -21,6 +21,11 @@ return
 Run "C:\Program Files\Slack\Slack.exe"
 return
 
+; ctrl+alt+f opens explorer
+<^<!f::
+Run explorer.exe
+return
+
 ; ctrl+alt+c opens calculator
 <^<!c::
 Run calc.exe
