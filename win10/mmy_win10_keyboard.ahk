@@ -1,4 +1,5 @@
 ; Mark Youngman's Windows 10 AutoHotKey script
+; Run `shell:startup` and put this script in there
 
 ; ctrl+alt+a opens start menu
 <^<!a::
@@ -25,12 +26,20 @@ return
 Run calc.exe
 return
 
-; ctrl+alt+left moves window to left monitor
+; ctrl+alt+Left moves window to left monitor
 <^<!Left::
 Send {Shift down}#{Left}{Shift up}
 
-; ctrl+alt+right moves window to right monitor
+; ctrl+alt+h moves window to left monitor
+<^<!h::
+Send {Shift down}#{Left}{Shift up}
+
+; ctrl+alt+Right moves window to right monitor
 <^<!Right::
+Send {Shift down}#{Right}{Shift up}
+
+; ctrl+alt+l moves window to right monitor
+<^<!l::
 Send {Shift down}#{Right}{Shift up}
 
 ; stuff to turn capslock into escape
