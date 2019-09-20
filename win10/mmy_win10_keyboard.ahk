@@ -2,7 +2,7 @@
 
 ; ctrl+alt+a opens start menu
 <^<!a::
-Send {LWin}
+Send ^{Esc}
 return
 
 ; ctrl+alt+t opens terminal
