@@ -23,7 +23,7 @@ return
 
 ; ctrl+alt+f opens explorer
 <^<!f::
-Run explorer.exe
+Run "C:\Program Files (x86)\FreeCommander XE\FreeCommander.exe"
 return
 
 ; ctrl+alt+c opens calculator
@@ -38,7 +38,7 @@ return
 
 ; ctrl+alt+h moves window to left monitor
 <^<!h::
-Send {Shift down}#{Left}{Shift up}
+Send {Shift down}#h{Shift up}
 return
 
 ; ctrl+alt+Right moves window to right monitor
@@ -48,7 +48,7 @@ return
 
 ; ctrl+alt+l moves window to right monitor
 <^<!l::
-Send {Shift down}#{Right}{Shift up}
+Send {Shift down}#l{Shift up}
 return
 
 ; stuff to turn capslock into escape
