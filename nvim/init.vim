@@ -110,7 +110,7 @@ nnoremap <C-l> $
 nnoremap Y y$
 
 " Since insert mode C-h is backspace, C-l should delete char infront
-inoremap <C-l> <esc>la<backspace>
+inoremap <C-l> <del>
 
 " Surround word with " or < or (
 nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
