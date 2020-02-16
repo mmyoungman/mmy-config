@@ -38,7 +38,7 @@ return
 
 ; ctrl+alt+h moves window to left monitor
 <^<!h::
-Send {Shift down}#h{Shift up}
+Send {Shift down}#{Left}{Shift up}
 return
 
 ; ctrl+alt+Right moves window to right monitor
@@ -48,7 +48,7 @@ return
 
 ; ctrl+alt+l moves window to right monitor
 <^<!l::
-Send {Shift down}#l{Shift up}
+Send {Shift down}#{Right}{Shift up}
 return
 
 ; stuff to turn capslock into escape
