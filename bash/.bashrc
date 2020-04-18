@@ -65,6 +65,8 @@ alias gcm="git commit"
 __git_complete gcm _git_commit
 alias gco="git checkout"
 __git_complete gco _git_checkout
+alias glg="git log --oneline"
+__git_complete glg _git_log
 
 alias ls='ls --color=auto'
 alias ll='ls -l --color=auto'
