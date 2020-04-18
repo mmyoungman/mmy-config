@@ -31,6 +31,10 @@ noremap <leader>n :NERDTreeToggle<CR>
 "Plug 'mfukar/robotframework-vim'
 "Plug 'mMontu/vim-RobotUtils'
 
+" Javascript stuff
+Plug 'leafgarland/typescript-vim'
+Plug 'ianks/vim-tsx'
+
 call plug#end()
 
 " Because of https://github.com/numirias/security/blob/master/doc/2019-06-04_ace-vim-neovim.md
@@ -54,6 +58,8 @@ let g:LanguageClient_diagnosticsEnable = 0
 nnoremap <leader>r :call LanguageClient#textDocument_rename()<CR>
 nnoremap <leader>d :call LanguageClient#textDocument_definition()<CR>
 nnoremap <leader>f :call LanguageClient#textDocument_references()<CR>
+nnoremap <leader>c :call LanguageClient#textDocument_completion()<CR>
+nnoremap <leader>i :call LanguageClient#implementation()<CR>
 
 "let s:uname = system("uname -s")
 "if s:uname == "Linux"
