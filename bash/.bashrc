@@ -59,12 +59,16 @@ alias gdi="git diff"
 __git_complete gdi _git_diff
 alias gpl="git pull"
 __git_complete gpl _git_pull
+alias gph="git push"
+__git_complete gph _git_push
 alias gad="git add"
 __git_complete gad _git_add
 alias gcm="git commit"
 __git_complete gcm _git_commit
 alias gco="git checkout"
 __git_complete gco _git_checkout
+alias grb="git rebase"
+__git_complete grb _git_rebase
 alias glg="git log --oneline"
 __git_complete glg _git_log
 
