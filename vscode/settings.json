@@ -1,0 +1,43 @@
+{
+    // Extensions
+    // - Vim
+    // - C#
+    // - Python
+    // - Debugger for Chrome
+    // - ESLint
+    // - Prettier - Code formatter
+
+    "telemetry.enableCrashReporter": false,
+    "telemetry.enableTelemetry": false,
+
+    "editor.autoClosingBrackets": "never",
+    "editor.autoClosingQuotes": "never",
+    "editor.acceptSuggestionOnEnter": "off",
+
+    "editor.parameterHints.enabled": false,
+    "editor.quickSuggestions": false,
+    "editor.wordBasedSuggestions": false,
+    "editor.suggestOnTriggerCharacters": false,
+    "editor.snippetSuggestions": "none",
+
+    "keyboard.dispatch": "keyCode",
+    "vim.easymotion": true,
+    "vim.vimrc.enable": true,
+    "vim.vimrc.path": "$HOME/.config/nvim/init.vim",
+
+    "html.autoClosingTags": false,
+
+    "[csharp]": {
+        "editor.tabSize": 4
+    },
+    "[javascript]": {
+        "editor.tabSize": 2,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascriptreact]": {
+        "editor.tabSize": 2
+    },
+    "[python]": {
+        "editor.tabSize": 4
+    },
+}

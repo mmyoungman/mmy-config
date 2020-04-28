@@ -18,6 +18,10 @@ ln -s $(pwd)/nvim ~/.config/nvim
 
 nvim -c ":PlugClean|:PlugInstall|:qa"
 
+[ -L ~/.config/Code/User/settings.json ] && rm ~/.config/Code/User/settings.json
+[ -f ~/.config/Code/User/settings.json ] && rm ~/.config/Code/User/settings$(date +%Y%m%d).json
+ln -s $(pwd)/vscode/settings.json ~/.config/Code/User/settings.json
+
 [ -L ~/.ideavimrc ] && rm ~/.ideavimrc
 [ -f ~/.ideavimrc ] && mv ~/.ideavimrc ~/.ideavimrc$(date +%Y%m%d)
 ln -s $(pwd)/intellij/.ideavimrc ~/.ideavimrc
