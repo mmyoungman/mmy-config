@@ -10,10 +10,15 @@
     "telemetry.enableCrashReporter": false,
     "telemetry.enableTelemetry": false,
 
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 300,
+    "window.zoomLevel": -1,
+    "editor.minimap.enabled": false,
+    "extensions.ignoreRecommendations": true,
+
     "editor.autoClosingBrackets": "never",
     "editor.autoClosingQuotes": "never",
     "editor.acceptSuggestionOnEnter": "off",
-
     "editor.parameterHints.enabled": false,
     "editor.quickSuggestions": false,
     "editor.wordBasedSuggestions": false,
@@ -28,16 +33,15 @@
     "html.autoClosingTags": false,
 
     "[csharp]": {
-        "editor.tabSize": 4
+        "editor.tabSize": 4,
     },
     "[javascript]": {
         "editor.tabSize": 2,
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "[javascriptreact]": {
-        "editor.tabSize": 2
+        "editor.tabSize": 2,
     },
     "[python]": {
-        "editor.tabSize": 4
+        "editor.tabSize": 4,
     },
 }
