@@ -1,65 +1,69 @@
 " Mark Youngman's Neovim Settings
 
-" For Language Server stuff:
 " pip install neovim
-" pip install 'python-language-server[all]'
 " npm install -g neovim
-" npm install -g javascript-typescript-langserver
-" install cquery (it's in the AUR)
 
 call plug#begin('~/.config/nvim/plugged')
 
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'scrooloose/nerdtree'
+
 Plug 'easymotion/vim-easymotion'
-Plug 'ludovicchabant/vim-gutentags'
-Plug 'tpope/vim-fugitive'
 Plug 'junegunn/fzf', {
   \ 'do':'./install --all'
   \ }
 Plug 'junegunn/fzf.vim'
-
-Plug 'autozimu/LanguageClient-neovim', {
-  \ 'branch': 'next',
-  \ 'do':'bash install.sh'
-  \ }
-
-Plug 'scrooloose/nerdtree'
-noremap <leader>n :NERDTreeToggle<CR>
-
-"Plug 'sirver/ultisnips'
-
-" For robot framework syntax highlighting and tags
-"Plug 'mfukar/robotframework-vim'
-"Plug 'mMontu/vim-RobotUtils'
-
-" Javascript stuff
-Plug 'leafgarland/typescript-vim'
-Plug 'ianks/vim-tsx'
+Plug 'HerringtonDarkholme/yats.vim'  "TS syntax highlighting
 
 call plug#end()
 
-" Because of https://github.com/numirias/security/blob/master/doc/2019-06-04_ace-vim-neovim.md
-set nomodeline
-
 set hidden
-let g:LanguageClient_autoStart = 1
-let g:LanguageClient_serverCommands = {
-  \ 'python': ['pyls'],
-  \ 'javascript': ['javascript-typescript-stdio'],
-  \ 'cpp': ['cquery', '--log-file=/tmp/cq.log'],
-  \ 'c': ['cquery', '--log-file=/tmp/cq.log']
-  \ }
-let g:LanguageClient_loadSettings = 1
-let g:LanguageClient_settingsPath = '/home/mark/.config/nvim/settings.json'
-set completefunc=LanguageClient#complete
-set formatexpr=LanguageClient_textDocument_rangeFormatting()
-let g:LanguageClient_diagnosticsEnable = 0
 
-" LanguageClient commands
-nnoremap <leader>r :call LanguageClient#textDocument_rename()<CR>
-nnoremap <leader>d :call LanguageClient#textDocument_definition()<CR>
-nnoremap <leader>f :call LanguageClient#textDocument_references()<CR>
-nnoremap <leader>c :call LanguageClient#textDocument_completion()<CR>
-nnoremap <leader>i :call LanguageClient#implementation()<CR>
+" Nerdtree
+noremap <leader>n :NERDTreeToggle<CR>
+let G:NERDTreeIgnore = ['^node_modules$']
+" sync open file with NERDTree
+function! IsNERDTreeOpen()        
+  return exists("t:NERDTreeBufName") && (bufwinnr(t:NERDTreeBufName) != -1)
+endfunction
+function! SyncTree()
+  if &modifiable && IsNERDTreeOpen() && strlen(expand('%')) > 0 && !&diff
+    NERDTreeFind
+    wincmd p
+  endif
+endfunction
+autocmd BufEnter * call SyncTree()
+
+" FZF
+silent! noremap <C-p> :GFiles<CR>
+
+" Coc
+let g:coc_global_extensions = [
+  \ 'coc-tsserver',
+  \ 'coc-eslint',
+  \ 'coc-prettier',
+  \ 'coc-json',
+  \ 'coc-omnisharp',
+  \ 'coc-python',
+  \ ]
+silent! noremap <leader>i :silent CocCommand prettier.formatFile<CR>
+inoremap <silent><expr> <C-Space> coc#refresh()
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+nnoremap <silent> [g <Plug>(coc-diagnostic-prev)
+nnoremap <silent> ]g <Plug>(coc-diagnostic-next)
+nnoremap <silent> gd <Plug>(coc-definition)
+nnoremap <silent> gy <Plug>(coc-type-definition)
+nnoremap <silent> gi <Plug>(coc-implementation)
+nnoremap <silent> gr <Plug>(coc-references)
 
 "let s:uname = system("uname -s")
 "if s:uname == "Linux"
@@ -130,10 +134,6 @@ vnoremap <leader>y "+y
 nnoremap <leader>p "+p
 nnoremap <leader>P "+P
 
-" Session make and restore
-nnoremap <leader>m :mksession!<cr>
-nnoremap <leader>. :source Session.vim<cr>:!rm Session.vim<cr>
-
 " New sp windows open right or bottom
 set splitbelow
 set splitright
@@ -184,15 +184,6 @@ set autoread
 "set cinoptions=g1,h1,N-s
 "set cinoptions+=(0
 
-" Show syntax highlighting groups for word under cursor
-"nnoremap <C-S-P> :call <SID>SynStack()<CR>
-"function! <SID>SynStack()
-"if !exists("*synstack")
-"return
-"endif
-"echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
-"endfunc
-
 " Tab stuff
 set shiftwidth=2
 set tabstop=2
@@ -212,7 +203,7 @@ set backupdir=~/.config/nvim/backup/
 set showcmd
 
 " better tab when using commands
-set wildmenu
+"set wildmenu
 
 " Show matching brackets
 set showmatch
