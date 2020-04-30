@@ -21,7 +21,7 @@ set hidden
 
 " Nerdtree
 noremap <leader>n :NERDTreeToggle<CR>
-let G:NERDTreeIgnore = ['^node_modules$']
+let g:NERDTreeIgnore = ['^node_modules$']
 " sync open file with NERDTree
 function! IsNERDTreeOpen()        
   return exists("t:NERDTreeBufName") && (bufwinnr(t:NERDTreeBufName) != -1)
