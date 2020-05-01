@@ -1,73 +1,90 @@
 " Mark Youngman's Neovim Settings
 
-" For Language Server stuff:
 " pip install neovim
-" pip install 'python-language-server[all]'
 " npm install -g neovim
-" npm install -g javascript-typescript-langserver
-" install cquery (it's in the AUR)
 
 call plug#begin('~/.config/nvim/plugged')
 
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'scrooloose/nerdtree'
+
 Plug 'easymotion/vim-easymotion'
-Plug 'ludovicchabant/vim-gutentags'
-Plug 'tpope/vim-fugitive'
 Plug 'junegunn/fzf', {
   \ 'do':'./install --all'
   \ }
 Plug 'junegunn/fzf.vim'
-
-Plug 'autozimu/LanguageClient-neovim', {
-  \ 'branch': 'next',
-  \ 'do':'bash install.sh'
-  \ }
-
-Plug 'scrooloose/nerdtree'
-noremap <leader>n :NERDTreeToggle<CR>
-
-"Plug 'sirver/ultisnips'
-
-" For robot framework syntax highlighting and tags
-"Plug 'mfukar/robotframework-vim'
-"Plug 'mMontu/vim-RobotUtils'
-
-" Javascript stuff
-Plug 'leafgarland/typescript-vim'
-Plug 'ianks/vim-tsx'
+Plug 'HerringtonDarkholme/yats.vim'  "TS syntax highlighting
 
 call plug#end()
 
-" Because of https://github.com/numirias/security/blob/master/doc/2019-06-04_ace-vim-neovim.md
-set nomodeline
-
 set hidden
-let g:LanguageClient_autoStart = 1
-let g:LanguageClient_serverCommands = {
-  \ 'python': ['pyls'],
-  \ 'javascript': ['javascript-typescript-stdio'],
-  \ 'cpp': ['cquery', '--log-file=/tmp/cq.log'],
-  \ 'c': ['cquery', '--log-file=/tmp/cq.log']
-  \ }
-let g:LanguageClient_loadSettings = 1
-let g:LanguageClient_settingsPath = '/home/mark/.config/nvim/settings.json'
-set completefunc=LanguageClient#complete
-set formatexpr=LanguageClient_textDocument_rangeFormatting()
-let g:LanguageClient_diagnosticsEnable = 0
 
-" LanguageClient commands
-nnoremap <leader>r :call LanguageClient#textDocument_rename()<CR>
-nnoremap <leader>d :call LanguageClient#textDocument_definition()<CR>
-nnoremap <leader>f :call LanguageClient#textDocument_references()<CR>
-nnoremap <leader>c :call LanguageClient#textDocument_completion()<CR>
-nnoremap <leader>i :call LanguageClient#implementation()<CR>
+" Nerdtree
+noremap <leader>n :NERDTreeToggle<CR>
+let g:NERDTreeIgnore = ['^node_modules$']
+" sync open file with NERDTree
+"function! IsNERDTreeOpen()
+"  return exists("t:NERDTreeBufName") && (bufwinnr(t:NERDTreeBufName) != -1)
+"endfunction
+"function! SyncTree()
+"  if &modifiable && IsNERDTreeOpen() && strlen(expand('%')) > 0 && !&diff
+"    NERDTreeFind
+"    wincmd p
+"  endif
+"endfunction
+"autocmd BufEnter * call SyncTree()
 
-"let s:uname = system("uname -s")
-"if s:uname == "Linux"
-"   let g:deoplete#sources#clang#libclang_path = '/usr/lib/libclang.so'
-"   let g:deoplete#sources#clang#clang_header = '/usr/lib/clang'
-"endif
-"if s:uname == "Darwin" " macOS
-"endif
+" FZF
+silent! noremap <C-p> :GFiles<CR>
+
+" Coc
+let g:coc_global_extensions = [
+  \ 'coc-tsserver',
+  \ 'coc-eslint',
+  \ 'coc-prettier',
+  \ 'coc-omnisharp',
+  \ 'coc-python',
+  \ ]
+set shortmess+=c
+set signcolumn=yes
+silent! noremap <leader>i :silent CocCommand prettier.formatFile<CR>
+inoremap <silent><expr> <C-Space> coc#refresh()
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+nmap <silent> <leader>rn <Plug>(coc-rename)
+
+" Highlight line after cursor jump
+function s:Cursor_Moved()
+  let cur_pos = winline()
+  if g:last_pos == 0
+    set cul
+    let g:last_pos = cur_pos
+    return
+  endif
+  let diff = g:last_pos - cur_pos
+  if diff > 1 || diff < -1
+    set cul
+  else
+    set nocul
+  endif
+  let g:last_pos = cur_pos
+endfunction
+autocmd CursorMoved,CursorMovedI * call s:Cursor_Moved()
+let g:last_pos = 0
 
 " set color scheme
 colorscheme desert
@@ -130,10 +147,6 @@ vnoremap <leader>y "+y
 nnoremap <leader>p "+p
 nnoremap <leader>P "+P
 
-" Session make and restore
-nnoremap <leader>m :mksession!<cr>
-nnoremap <leader>. :source Session.vim<cr>:!rm Session.vim<cr>
-
 " New sp windows open right or bottom
 set splitbelow
 set splitright
@@ -172,10 +185,6 @@ set statusline+=%= "move to right side
 set statusline+=%-4c "column
 set statusline+=%l/%L "display line/total lines
 
-"set autoindent " screws with python indentation?
-"set smartindent
-"filetype plugin indent on
-
 " Reload file changed outside nvim
 set autoread
 
@@ -184,35 +193,25 @@ set autoread
 "set cinoptions=g1,h1,N-s
 "set cinoptions+=(0
 
-" Show syntax highlighting groups for word under cursor
-"nnoremap <C-S-P> :call <SID>SynStack()<CR>
-"function! <SID>SynStack()
-"if !exists("*synstack")
-"return
-"endif
-"echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
-"endfunc
-
 " Tab stuff
 set shiftwidth=2
 set tabstop=2
 set softtabstop=2
 set expandtab
-"set smarttab
 
 " Scroll 8 lines before the bottom
 set scrolloff=8
 
 " Keep backups of files
-silent !mkdir -p ~/.config/nvim/backup
-set backup
-set backupdir=~/.config/nvim/backup/
+" Or not because of Coc/Language servers
+set nobackup
+set nowritebackup
+"silent !mkdir -p ~/.config/nvim/backup
+"set backup
+"set backupdir=~/.config/nvim/backup/
 
 " show cmds in bottom right
 set showcmd
-
-" better tab when using commands
-set wildmenu
 
 " Show matching brackets
 set showmatch
@@ -222,31 +221,8 @@ set matchpairs+=<:>
 set number
 set numberwidth=4
 
-" if gui running, remove gui menu and toolbar and scroll bars
-"if has('gui_running')
-"set guioptions-=m
-"set guioptions-=T
-"set guioptions-=r
-"set guioptions-=L
-"endif
-
-" ****
-" Windows GUI tweaks
-" ****
-"if has("gui_win32")
-"set guifont =DejaVu_Sans_Mono:h9:cANSI
-"autocmd GUIEnter * :simalt ~x
-" set shellslash
-"endif
-
-" THIS CAUSES A BUG IN NEOVIM? " maximise gvim window at startup
-"set lines=99 columns=999
-
-" make visualbell so it does nothing (accompanied by line in gvimrc to stop
-" screen flashing on error)
+" nvim-qt
+if exists('g:GuiLoaded')
+GuiPopupmenu 0
+endif
 set noerrorbells visualbell t_vb=
-
-"set dir of ctags utility (not plugin folder)
-"if has("win32")
-"  let Tlist_Ctags_Cmd = "C:\Users\Mark\vimfiles\ctags.exe"
-"endif
