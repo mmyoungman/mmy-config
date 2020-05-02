@@ -5,7 +5,7 @@
 
 call plug#begin('~/.config/nvim/plugged')
 
-Plug 'ycm-core/YouCompleteMe'
+"Plug 'ycm-core/YouCompleteMe'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'scrooloose/nerdtree'
 
@@ -67,12 +67,12 @@ fun! GoCoc()
   nmap <buffer> <silent> <leader>rn <Plug>(coc-rename)
 endfun
 
-fun! GoYCM()
-  :CocDisable
-  nnoremap <buffer> <silent> gd :YcmCompleter GoTo<CR>
-  nnoremap <buffer> <silent> g3 :YcmCompleter GoToReferences<CR>
-  nnoremap <buffer> <silent> <leader>rn :YcmCompleter RefactorRename<space>
-endfun
+"fun! GoYCM()
+"  :CocDisable
+"  nnoremap <buffer> <silent> gd :YcmCompleter GoTo<CR>
+"  nnoremap <buffer> <silent> g3 :YcmCompleter GoToReferences<CR>
+"  nnoremap <buffer> <silent> <leader>rn :YcmCompleter RefactorRename<space>
+"endfun
 
 "autocmd FileType typescript,cs :call GoYCM()
 autocmd FileType typescript,cs :call GoCoc()
