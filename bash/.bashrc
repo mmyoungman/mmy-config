@@ -2,21 +2,6 @@
 # ~/.bashrc
 #
 
-# Update config files
-#if [ -d ~/projects/mmy-config/ ]
-#then
-#   cd ~/projects/mmy-config/
-#   gitOutput=$(git pull)
-#   if [ "$gitOutput" != "Already up to date." ] && [ "$gitOutput" != "Already up-to-date." ]
-#   then
-#      nvim -c ":PlugClean|:PlugInstall|:qa"
-#      printf "mmy-config updated\n"
-#   else
-#      printf ""
-#   fi
-#   cd ~
-#fi
-
 stty -ixon # Disable ctrl-s and ctrl-q
 shopt -s autocd # cd into dir by typing dir name
 HISTSIZE= HISTFILESIZE= # Infinite history
