@@ -223,6 +223,6 @@ set numberwidth=4
 
 " nvim-qt
 if exists('g:GuiLoaded')
-GuiPopupmenu 0
+  GuiPopupmenu 0
 endif
 set noerrorbells visualbell t_vb=
