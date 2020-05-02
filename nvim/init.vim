@@ -18,8 +18,6 @@ Plug 'HerringtonDarkholme/yats.vim'  "TS syntax highlighting
 
 call plug#end()
 
-set hidden
-
 " Nerdtree
 nnoremap <leader>f :NERDTreeToggle<CR>
 let g:NERDTreeIgnore = ['^node_modules$']
@@ -79,9 +77,13 @@ endfun
 "autocmd FileType typescript,cs :call GoYCM()
 autocmd FileType typescript,cs :call GoCoc()
 
+" Save file when cursor doesn't move or focus lost
+autocmd CursorHold,FocusLost <buffer> write
+
 let mapleader = "\\"
 colorscheme desert
 syntax on
+set hidden
 
 " persistent undo
 silent !mkdir -p ~/.config/nvim/undo
@@ -96,14 +98,11 @@ set backspace=indent,eol,start
 " No auto insert comments on new line
 autocmd FileType * set formatoptions-=cro
 
-" Jump to definition in vertical split, but not a new split
-"nnoremap <C-]> :execute "vertical ptag " . expand("<cword>")<cr><C-w>=
-
 " Switch off network history
 let g:netrw_dirhistmax = 0
 
 " Quick way to open and load init.vim
-nnoremap <leader>ev :vsplit $MYVIMRC<cr>
+nnoremap <leader>ev :edit $MYVIMRC<cr>
 nnoremap <leader>sv :source $MYVIMRC<cr>
 
 " Convenient cursor movement
