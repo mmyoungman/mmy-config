@@ -19,7 +19,7 @@ Plug 'HerringtonDarkholme/yats.vim'  "TS syntax highlighting
 call plug#end()
 
 " Nerdtree
-nnoremap <leader>f :NERDTreeToggle<CR>
+nnoremap <leader>n :NERDTreeToggle<CR>
 let g:NERDTreeIgnore = ['^node_modules$']
 fun! NERDTreeSync()
   if filereadable(expand('%:p')) && exists('g:NERDTree') && g:NERDTree.IsOpen()
@@ -84,6 +84,12 @@ let mapleader = "\\"
 colorscheme desert
 syntax on
 set hidden
+
+" Switch to a different buffer
+nnoremap <leader>b :Buffers<CR>
+
+" Search inside files
+nnoremap <leader>f :Rg!<space>
 
 " persistent undo
 silent !mkdir -p ~/.config/nvim/undo
