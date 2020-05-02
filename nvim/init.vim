@@ -2,13 +2,10 @@
 
 " pip install neovim
 " npm install -g neovim
-
 call plug#begin('~/.config/nvim/plugged')
 
-"Plug 'ycm-core/YouCompleteMe'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'scrooloose/nerdtree'
-
 Plug 'easymotion/vim-easymotion'
 Plug 'junegunn/fzf', {
   \ 'do':'./install --all'
@@ -19,15 +16,15 @@ Plug 'HerringtonDarkholme/yats.vim'  "TS syntax highlighting
 call plug#end()
 
 " Nerdtree
-nnoremap <leader>n :NERDTreeToggle<CR>
-let g:NERDTreeIgnore = ['^node_modules$']
 fun! NERDTreeSync()
   if filereadable(expand('%:p')) && exists('g:NERDTree') && g:NERDTree.IsOpen()
     NERDTreeFind
     wincmd p
   endif
 endfun
+nnoremap <leader>n :NERDTreeToggle<CR><C-w>p:call NERDTreeSync()<CR>
 autocmd BufEnter * call NERDTreeSync()
+let g:NERDTreeIgnore = ['^node_modules$']
 
 " FZF
 silent! noremap <C-p> :GFiles<CR>
@@ -48,6 +45,7 @@ function! s:check_back_space() abort
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
 
+" In func incase I want to run YCM simultaneously
 fun! GoCoc()
   :CocEnable
   noremap <buffer> <silent> <leader>i :CocCommand prettier.formatFile<CR>
@@ -67,14 +65,6 @@ fun! GoCoc()
   nmap <buffer> <silent> <leader>rn <Plug>(coc-rename)
 endfun
 
-"fun! GoYCM()
-"  :CocDisable
-"  nnoremap <buffer> <silent> gd :YcmCompleter GoTo<CR>
-"  nnoremap <buffer> <silent> g3 :YcmCompleter GoToReferences<CR>
-"  nnoremap <buffer> <silent> <leader>rn :YcmCompleter RefactorRename<space>
-"endfun
-
-"autocmd FileType typescript,cs :call GoYCM()
 autocmd FileType typescript,cs :call GoCoc()
 
 " Save file when cursor doesn't move or focus lost
@@ -91,6 +81,40 @@ nnoremap <leader>b :Buffers<CR>
 " Search inside files
 nnoremap <leader>f :Rg!<space>
 
+" Quick way to open and load init.vim
+nnoremap <leader>ev :edit $MYVIMRC<cr>
+nnoremap <leader>sv :source $MYVIMRC<cr>
+
+" Convenient cursor movement
+nnoremap <C-k> {
+nnoremap <C-j> }
+vnoremap <C-k> {
+vnoremap <C-j> }
+nnoremap <C-h> ^
+nnoremap <C-l> $
+
+" Since insert mode C-h is backspace, C-l should delete char infront
+inoremap <C-l> <del>
+
+" Surround word with " or < or (
+nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
+nnoremap <leader>' viw<esc>a'<esc>hbi'<esc>lel
+nnoremap <leader>< viw<esc>a><esc>hbi<<esc>lel
+nnoremap <leader>( viw<esc>a)<esc>hbi(<esc>lel
+"Test: flkjal alfkjalf lajslkf
+
+" Copy to end of line, to match behaviour of D and C
+nnoremap Y y$
+
+" Cut and paste to system clipboard
+vnoremap <leader>y "+y
+nnoremap <leader>p "+p
+nnoremap <leader>P "+P
+
+" New sp windows open right or bottom
+set splitbelow
+set splitright
+
 " persistent undo
 silent !mkdir -p ~/.config/nvim/undo
 set undodir=~/.config/nvim/undo/
@@ -106,40 +130,6 @@ autocmd FileType * set formatoptions-=cro
 
 " Switch off network history
 let g:netrw_dirhistmax = 0
-
-" Quick way to open and load init.vim
-nnoremap <leader>ev :edit $MYVIMRC<cr>
-nnoremap <leader>sv :source $MYVIMRC<cr>
-
-" Convenient cursor movement
-nnoremap <C-k> {
-nnoremap <C-j> }
-vnoremap <C-k> {
-vnoremap <C-j> }
-nnoremap <C-h> ^
-nnoremap <C-l> $
-
-" Copy to end of line, to match behaviour of D and C
-nnoremap Y y$
-
-" Since insert mode C-h is backspace, C-l should delete char infront
-inoremap <C-l> <del>
-
-" Surround word with " or < or (
-nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
-nnoremap <leader>' viw<esc>a'<esc>hbi'<esc>lel
-nnoremap <leader>< viw<esc>a><esc>hbi<<esc>lel
-nnoremap <leader>( viw<esc>a)<esc>hbi(<esc>lel
-"Test: flkjal alfkjalf lajslkf
-
-" Cut and paste to system clipboard
-vnoremap <leader>y "+y
-nnoremap <leader>p "+p
-nnoremap <leader>P "+P
-
-" New sp windows open right or bottom
-set splitbelow
-set splitright
 
 " Compile and Quickfix Stuff
 set makeprg=./build.sh
