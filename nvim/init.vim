@@ -22,7 +22,7 @@ fun! NERDTreeSync()
     wincmd p
   endif
 endfun
-nnoremap <leader>n :NERDTreeToggle<CR><C-w>p:call NERDTreeSync()<CR>
+nnoremap <leader>n :NERDTreeToggle<CR>
 autocmd BufEnter * call NERDTreeSync()
 let g:NERDTreeIgnore = ['^node_modules$']
 
@@ -65,10 +65,15 @@ fun! GoCoc()
   nmap <buffer> <silent> <leader>rn <Plug>(coc-rename)
 endfun
 
-autocmd FileType typescript,cs :call GoCoc()
+autocmd FileType javascript,typescript,javascriptreact,typescriptreact,typescript.tsx,cs :call GoCoc()
 
 " Save file when cursor doesn't move or focus lost
-autocmd CursorHold,FocusLost <buffer> write
+fun! SaveIfFileExists()
+  if filereadable(expand('%:p'))
+    write
+  endif
+endfun
+autocmd CursorHold,FocusLost * call SaveIfFileExists()
 
 let mapleader = "\\"
 colorscheme desert
@@ -137,7 +142,8 @@ set makeprg=./build.sh
 nnoremap <silent> <F12> :silent w<cr>:silent make<cr>:silent cwindow<cr>:silent cc<cr>
 
 " Mappings for quickfix window
-nnoremap <leader>j :cnext<cr>
+nnoremap <leader>h :copen<cr>
+nnoremap <leader>j :write<cr>:cnext<cr>
 nnoremap <leader>k :cprevious<cr>
 nnoremap <leader>l :cclose<cr>
 
