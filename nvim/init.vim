@@ -27,7 +27,7 @@ fun! NERDTreeSync()
     wincmd p
   endif
 endfun
-nnoremap <leader>n :NERDTreeToggle<CR>
+nnoremap <leader>n :NERDTreeToggle<CR>:wincmd p<CR>:call NERDTreeSync()<CR>
 autocmd BufEnter * call NERDTreeSync()
 let g:NERDTreeIgnore = ['^node_modules$']
 
@@ -119,8 +119,8 @@ nnoremap <leader>b :Buffers<CR>
 nnoremap <leader>f :Rg!<space>
 
 " Quick way to open and load init.vim
-nnoremap <leader>ev :edit $MYVIMRC<cr>
-nnoremap <leader>sv :source $MYVIMRC<cr>
+nnoremap <leader>ev :edit $MYVIMRC<CR>
+nnoremap <leader>sv :source $MYVIMRC<CR>
 
 " Convenient cursor movement
 nnoremap <C-k> {
@@ -168,16 +168,11 @@ autocmd FileType * set formatoptions-=cro
 " Switch off network history
 let g:netrw_dirhistmax = 0
 
-" Compile and Quickfix Stuff
-set makeprg=./build.sh
-"set compiler=somethingorother
-nnoremap <silent> <F12> :silent w<cr>:silent make<cr>:silent cwindow<cr>:silent cc<cr>
-
 " Mappings for quickfix window
-nnoremap <leader>h :copen<cr>
-nnoremap <leader>j :write<cr>:cnext<cr>
-nnoremap <leader>k :cprevious<cr>
-nnoremap <leader>l :cclose<cr>
+nnoremap <leader>h :copen<CR>
+nnoremap <leader>j :write<CR>:cnext<CR>
+nnoremap <leader>k :cprevious<CR>
+nnoremap <leader>l :cclose<CR>
 
 " Better line wrap
 set showbreak=…
@@ -188,8 +183,7 @@ set incsearch
 " Highlight search words, ESC to switch off hl
 set hlsearch
 nnoremap <silent> <ESC> :nohl<CR><ESC>
-" No highlight after reloading $MYVIMRC
-nohl
+nohl " No highlight after reloading $MYVIMRC
 
 " Case insensitive search, except when using capital letters
 set ignorecase
@@ -229,31 +223,8 @@ set showcmd
 set showmatch
 set matchpairs+=<:>
 
-" show line numbers
-set number
-set numberwidth=4
-
 " nvim-qt
 if exists('g:GuiLoaded')
   GuiPopupmenu 0
 endif
 set noerrorbells visualbell t_vb=
-
-" Highlight line after cursor jump
-function s:Cursor_Moved()
-  let cur_pos = winline()
-  if g:last_pos == 0
-    set cul
-    let g:last_pos = cur_pos
-    return
-  endif
-  let diff = g:last_pos - cur_pos
-  if diff > 1 || diff < -1
-    set cul
-  else
-    set nocul
-  endif
-  let g:last_pos = cur_pos
-endfunction
-autocmd CursorMoved,CursorMovedI * call s:Cursor_Moved()
-let g:last_pos = 0
