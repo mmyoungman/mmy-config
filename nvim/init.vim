@@ -15,6 +15,11 @@ Plug 'HerringtonDarkholme/yats.vim'  "TS syntax highlighting
 
 call plug#end()
 
+let mapleader = "\\"
+colorscheme desert
+syntax on
+set hidden
+
 " Nerdtree
 fun! NERDTreeSync()
   if filereadable(expand('%:p')) && exists('g:NERDTree') && g:NERDTree.IsOpen()
@@ -65,7 +70,39 @@ fun! GoCoc()
   nmap <buffer> <silent> <leader>rn <Plug>(coc-rename)
 endfun
 
-autocmd FileType javascript,typescript,javascriptreact,typescriptreact,typescript.tsx,cs :call GoCoc()
+" Different language behaviours
+fun! OpenedFileIsCs()
+  call GoCoc()
+  compiler dotnet
+  setlocal shiftwidth=4
+  setlocal tabstop=4
+  setlocal softtabstop=4
+endfun
+autocmd FileType cs :call OpenedFileIsCs()
+
+fun! OpenedFileIsJs()
+  call GoCoc()
+  setlocal shiftwidth=2
+  setlocal tabstop=2
+  setlocal softtabstop=2
+endfun
+autocmd FileType javascript,javascriptreact :call OpenedFileIsJs()
+
+fun! OpenedFileIsTS()
+  call GoCoc()
+  setlocal shiftwidth=2
+  setlocal tabstop=2
+  setlocal softtabstop=2
+endfun
+autocmd FileType typescript,typescriptreact,typescript.tsx :call OpenedFileIsTS()
+
+fun! OpenedFileIsPy()
+  call GoCoc()
+  setlocal shiftwidth=4
+  setlocal tabstop=4
+  setlocal softtabstop=4
+endfun
+autocmd FileType python :call OpenedFileIsPy()
 
 " Save file when cursor doesn't move or focus lost
 fun! SaveIfFileExists()
@@ -74,11 +111,6 @@ fun! SaveIfFileExists()
   endif
 endfun
 autocmd CursorHold,FocusLost * call SaveIfFileExists()
-
-let mapleader = "\\"
-colorscheme desert
-syntax on
-set hidden
 
 " Switch to a different buffer
 nnoremap <leader>b :Buffers<CR>
@@ -178,12 +210,6 @@ set autoread
 "set cindent
 "set cinoptions=g1,h1,N-s
 "set cinoptions+=(0
-
-" Tab stuff
-set shiftwidth=2
-set tabstop=2
-set softtabstop=2
-set expandtab
 
 " Scroll 8 lines before the bottom
 set scrolloff=5
