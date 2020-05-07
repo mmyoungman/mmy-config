@@ -41,6 +41,7 @@ let g:coc_global_extensions = [
   \ 'coc-prettier',
   \ 'coc-omnisharp',
   \ 'coc-python',
+  \ 'coc-clangd',
   \ ]
 set shortmess+=c
 set signcolumn=yes
@@ -71,6 +72,16 @@ fun! GoCoc()
 endfun
 
 " Different language behaviours
+fun! OpenedFileIsCpp()
+  call GoCoc()
+  compiler gcc
+  setlocal shiftwidth=4
+  setlocal tabstop=4
+  setlocal softtabstop=4
+endfun
+autocmd FileType c,cpp :call OpenedFileIsCpp()
+
+autocmd FileType cs :call OpenedFileIsCs()
 fun! OpenedFileIsCs()
   call GoCoc()
   compiler dotnet
@@ -106,7 +117,7 @@ autocmd FileType python :call OpenedFileIsPy()
 
 " Save file when cursor doesn't move or focus lost
 fun! SaveIfFileExists()
-  if filereadable(expand('%:p'))
+  if filereadable(expand('%:p')) && filewritable(expand('%:p'))
     write
   endif
 endfun
@@ -226,5 +237,7 @@ set matchpairs+=<:>
 " nvim-qt
 if exists('g:GuiLoaded')
   GuiPopupmenu 0
+  GuiFont Monospace:h11
+  call GuiWindowMaximized(1)
 endif
 set noerrorbells visualbell t_vb=
