@@ -1,7 +1,5 @@
 " Mark Youngman's Neovim Settings
 
-" pip install neovim
-" npm install -g neovim
 call plug#begin('~/.config/nvim/plugged')
 
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -32,7 +30,23 @@ autocmd BufEnter * call NERDTreeSync()
 let g:NERDTreeIgnore = ['^node_modules$']
 
 " FZF
+" search git files
 silent! noremap <C-p> :GFiles<CR>
+" search inside files
+nnoremap <leader>f :Rg!<CR>
+" re-search when updating Rg query in preview
+function! RipgrepFzf(query, fullscreen)
+  let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case -- %s || true'
+  let initial_command = printf(command_fmt, shellescape(a:query))
+  let reload_command = printf(command_fmt, '{q}')
+  let spec = {'options': ['--phony', '--query', a:query, '--bind', 'change:reload:'.reload_command]}
+  call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
+endfunction
+command! -nargs=* -bang Rg call RipgrepFzf(<q-args>, <bang>0)
+" use ag_raw so can add arguments for specific file type, like
+" ':Ag --vim ag_raw' // 'ag --list-file-types'
+" ':Ag -G /*.file_suffix$ text'
+command! -nargs=* -bang Ag call fzf#vim#ag_raw(<q-args>, <bang>0)
 
 " Completion
 let g:coc_global_extensions = [
@@ -117,7 +131,7 @@ autocmd FileType python :call OpenedFileIsPy()
 
 " Save file when cursor doesn't move or focus lost
 fun! SaveIfFileExists()
-  if filereadable(expand('%:p')) && filewritable(expand('%:p'))
+  if filereadable(expand('%:p')) && filewritable(expand('%:p')) == 1
     write
   endif
 endfun
@@ -125,9 +139,6 @@ autocmd CursorHold,FocusLost * call SaveIfFileExists()
 
 " Switch to a different buffer
 nnoremap <leader>b :Buffers<CR>
-
-" Search inside files
-nnoremap <leader>f :Rg!<space>
 
 " Quick way to open and load init.vim
 nnoremap <leader>ev :edit $MYVIMRC<CR>
