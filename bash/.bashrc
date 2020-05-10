@@ -59,6 +59,7 @@ __git_complete glg _git_log
 
 alias ls='ls --color=auto'
 alias ll='ls -l --color=auto'
+alias la='ls -al --color=auto'
 alias sdn='shutdown now'
 
 if [ $machine = "linux" ]; then
