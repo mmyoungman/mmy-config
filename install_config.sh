@@ -12,6 +12,10 @@ ln -s $(pwd)/bash/.inputrc ~/.inputrc
 [ -f ~/.xprofile ] && mv ~/.xprofile ~/.xprofile$(date +%Y%m%d)
 ln -s $(pwd)/bash/.xprofile ~/.xprofile
 
+[ -L ~/.gitconfig ] && rm ~/.gitconfig
+[ -f ~/.gitconfig ] && mv ~/.gitconfig ~/.gitconfig$(date +%Y%m%d)
+cp $(pwd)/git/.gitconfig ~/.gitconfig
+
 [ -L ~/.config/nvim ] && rm ~/.config/nvim
 [ -d ~/.config/nvim/ ] && mv ~/.config/nvim ~/.config/nvim$(date +%Y%m%d)
 ln -s $(pwd)/nvim ~/.config/nvim
