@@ -42,7 +42,7 @@ alias gst="git status"
 __git_complete gst _git_status
 alias gdi="git diff"
 __git_complete gdi _git_diff
-alias gpl="git pull"
+alias gpl="git pull --rebase"
 __git_complete gpl _git_pull
 alias gph="git push"
 __git_complete gph _git_push
