@@ -68,7 +68,6 @@ endfunction
 " In func incase I want to run YCM simultaneously
 fun! GoCoc()
   :CocEnable
-  noremap <buffer> <silent> <leader>i :CocCommand prettier.formatFile<CR>
   inoremap <buffer> <silent><expr> <C-Space> coc#refresh()
   inoremap <buffer> <silent><expr> <TAB>
         \ pumvisible() ? "\<C-n>" :
@@ -107,6 +106,7 @@ autocmd FileType cs :call OpenedFileIsCs()
 
 fun! OpenedFileIsJs()
   call GoCoc()
+  noremap <buffer> <silent> <leader>i :CocCommand prettier.formatFile<CR>
   setlocal shiftwidth=2
   setlocal tabstop=2
   setlocal softtabstop=2
@@ -115,6 +115,7 @@ autocmd FileType javascript,javascriptreact :call OpenedFileIsJs()
 
 fun! OpenedFileIsTS()
   call GoCoc()
+  noremap <buffer> <silent> <leader>i :CocCommand prettier.formatFile<CR>
   setlocal shiftwidth=2
   setlocal tabstop=2
   setlocal softtabstop=2
@@ -143,6 +144,11 @@ nnoremap <leader>b :Buffers<CR>
 " Quick way to open and load init.vim
 nnoremap <leader>ev :edit $MYVIMRC<CR>
 nnoremap <leader>sv :source $MYVIMRC<CR>
+
+" nvimdiff / git mergetool
+nnoremap <leader>s1 :diffget BA<CR>
+nnoremap <leader>s2 :diffget LO<CR>
+nnoremap <leader>s3 :diffget RE<CR>
 
 " Convenient cursor movement
 nnoremap <C-k> {

@@ -1,9 +1,13 @@
 [user]
 	name = Mark Youngman
 [diff]
-	tool = vimdiff
+	tool = nvimdiff
+[difftool "nvimdiff"]
+	cmd = nvim -d $LOCAL $REMOTE
+[difftool]
+	prompt = true
 [merge]
-	tool = vimdiff
+	tool = nvimdiff
 	conflictstyle = diff3
-[mergetool "vimdiff"]
+[mergetool "nvimdiff"]
 	cmd = nvim -d $BASE $LOCAL $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
