@@ -54,7 +54,7 @@ alias gco="git checkout"
 __git_complete gco _git_checkout
 alias grb="git rebase"
 __git_complete grb _git_rebase
-alias glg="git log --oneline"
+alias glg="git log --oneline -n 20"
 __git_complete glg _git_log
 
 alias ls='ls --color=auto'
