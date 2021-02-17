@@ -11,6 +11,8 @@ Plug 'junegunn/fzf', {
 Plug 'junegunn/fzf.vim'
 Plug 'HerringtonDarkholme/yats.vim'  "TS syntax highlighting
 
+Plug 'andreyorst/SimpleClangFormat.vim'
+
 call plug#end()
 
 let mapleader = "\\"
@@ -88,9 +90,9 @@ endfun
 fun! OpenedFileIsCpp()
   call GoCoc()
   compiler gcc
-  setlocal shiftwidth=4
-  setlocal tabstop=4
-  setlocal softtabstop=4
+  setlocal shiftwidth=2
+  setlocal tabstop=2
+  setlocal softtabstop=2
 endfun
 autocmd FileType c,cpp :call OpenedFileIsCpp()
 
@@ -138,12 +140,34 @@ fun! SaveIfFileExists()
 endfun
 autocmd CursorHold,FocusLost * call SaveIfFileExists()
 
+fun! COpen()
+	let view = winsaveview() "save cursor position
+	let currentWindow = winnr() "save window cursor is in
+	copen
+	execute currentWindow . "wincmd w"
+	call winrestview(view)
+endfun
+
+" Compile
+fun! Compile()
+	write %
+	silent make %
+	if ! empty(getqflist())
+		call COpen()
+	else
+		cclose
+		echon "Successfully compiled!"
+	endif
+endfun
+
+nnoremap <F9> :call Compile()<CR>
+
 " Switch to a different buffer
 nnoremap <leader>b :Buffers<CR>
 
 " Quick way to open and load init.vim
 nnoremap <leader>ev :edit $MYVIMRC<CR>
-nnoremap <leader>sv :source $MYVIMRC<CR>
+nnoremap <leader>sv :write<CR>:source $MYVIMRC<CR>
 
 " nvimdiff / git mergetool
 nnoremap <leader>s1 :diffget BA<CR>
@@ -197,7 +221,7 @@ autocmd FileType * set formatoptions-=cro
 let g:netrw_dirhistmax = 0
 
 " Mappings for quickfix window
-nnoremap <leader>h :copen<CR>
+nnoremap <leader>h :call COpen()<CR>
 nnoremap <leader>j :write<CR>:cnext<CR>
 nnoremap <leader>k :cprevious<CR>
 nnoremap <leader>l :cclose<CR>
