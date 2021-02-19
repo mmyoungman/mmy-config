@@ -89,7 +89,7 @@ endfun
 " Different language behaviours
 fun! OpenedFileIsCpp()
   call GoCoc()
-  compiler gcc
+  compiler customclang
   setlocal shiftwidth=2
   setlocal tabstop=2
   setlocal softtabstop=2
@@ -150,7 +150,7 @@ endfun
 
 " Compile
 fun! Compile()
-	write %
+	silent write %
 	silent make %
 	if ! empty(getqflist())
 		call COpen()
