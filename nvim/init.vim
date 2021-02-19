@@ -141,11 +141,11 @@ endfun
 autocmd CursorHold,FocusLost * call SaveIfFileExists()
 
 fun! COpen()
-	let view = winsaveview() "save cursor position
+	let quickfix_is_open = winsaveview() "save cursor position
 	let currentWindow = winnr() "save window cursor is in
 	copen
 	execute currentWindow . "wincmd w"
-	call winrestview(view)
+	call winrestview(quickfix_is_open)
 endfun
 
 " Compile
@@ -160,7 +160,23 @@ fun! Compile()
 	endif
 endfun
 
+fun! Analyse()
+	silent write %
+	silent !./scripts/analyse.sh 2> .analysis-results
+	silent cfile .analysis-results
+	silent !rm .analysis-results
+	if ! empty(getqflist())
+		call COpen()
+	else
+		cclose
+		echon "Analyser didn't find any issues!"
+	endif
+endfun
+
 nnoremap <F9> :call Compile()<CR>
+nnoremap <F10> :ClangFormat file<CR>
+nnoremap <F11> :call Analyse()<CR>
+nnoremap <F12> :!./scripts/run.sh<CR>
 
 " Switch to a different buffer
 nnoremap <leader>b :Buffers<CR>
