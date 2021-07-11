@@ -62,6 +62,10 @@ alias ll='ls -l --color=auto'
 alias la='ls -al --color=auto'
 alias sdn='shutdown now'
 
+alias dotnetall='dotnet clean; dotnet build; dotnet run'
+alias dfe-data-procesor='func host start --port 7071 --pause-on-error'
+alias dfe-publisher='func host start --port 7072 --pause-on-error'
+
 if [ $machine = "linux" ]; then
    setxkbmap -option "caps:escape"
    setxkbmap -option "terminate:ctrl_alt_bksp"
@@ -79,7 +83,7 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 export DOTNET_ROOT=$HOME/.config/dotnet 
 export PATH=$PATH:$HOME/.config/dotnet
 # Add .NET Core SDK tools
-export PATH="$PATH:/home/mark/.dotnet/tools"
+export PATH="$PATH:$HOME/.dotnet/tools"
 
 # For emscripten/webassembly
 #[ -f ~/projects/emsdk/emsdk_env.sh ] && source ~/projects/emsdk/emsdk_env.sh ?> /dev/null
