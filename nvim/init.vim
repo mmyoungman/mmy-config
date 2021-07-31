@@ -19,6 +19,7 @@ let mapleader = "\\"
 colorscheme desert
 syntax on
 set hidden
+set expandtab
 
 " Nerdtree
 fun! NERDTreeSync()
