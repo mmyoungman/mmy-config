@@ -97,7 +97,6 @@ fun! OpenedFileIsCpp()
 endfun
 autocmd FileType c,cpp :call OpenedFileIsCpp()
 
-autocmd FileType cs :call OpenedFileIsCs()
 fun! OpenedFileIsCs()
   call GoCoc()
   compiler dotnet
@@ -174,8 +173,18 @@ fun! Analyse()
 	endif
 endfun
 
+fun! Format()
+        let preformat_winview = winsaveview()
+        let preformat_cursor_pos = getpos('.')
+        :ClangFormat file
+        call winrestview(preformat_winview)
+        call setpos('.', preformat_cursor_pos)
+        "call cursor(a:preformat_cursor_pos[1], a:preformat_cursor_pos[2])
+endfun
+
 nnoremap <F9> :call Compile()<CR>
-nnoremap <F10> :ClangFormat file<CR>
+"nnoremap <F10> :ClangFormat file<CR>
+nnoremap <F10> :call Format()<CR>
 nnoremap <F11> :call Analyse()<CR>
 nnoremap <F12> :!./scripts/run.sh<CR>
 
