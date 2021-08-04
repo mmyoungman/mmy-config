@@ -20,6 +20,7 @@ colorscheme desert
 syntax on
 set hidden
 set expandtab
+set mouse=a "to allow mouse scrolling/clicking
 
 " Nerdtree
 fun! NERDTreeSync()
@@ -179,11 +180,9 @@ fun! Format()
         :ClangFormat file
         call winrestview(preformat_winview)
         call setpos('.', preformat_cursor_pos)
-        "call cursor(a:preformat_cursor_pos[1], a:preformat_cursor_pos[2])
 endfun
 
 nnoremap <F9> :call Compile()<CR>
-"nnoremap <F10> :ClangFormat file<CR>
 nnoremap <F10> :call Format()<CR>
 nnoremap <F11> :call Analyse()<CR>
 nnoremap <F12> :!./scripts/run.sh<CR>
