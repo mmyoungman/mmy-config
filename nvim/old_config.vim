@@ -185,11 +185,11 @@ nnoremap <F11> :call Analyse()<CR>
 nnoremap <F12> :!./scripts/run.sh<CR>
 
 " Switch to a different buffer
-nnoremap <leader>b :Buffers<CR>
+"nnoremap <leader>b :Buffers<CR>
 
 " Quick way to open and load init.vim
-nnoremap <leader>ev :edit $MYVIMRC<CR>
-nnoremap <leader>sv :write<CR>:source $MYVIMRC<CR>
+"nnoremap <leader>ev :edit $MYVIMRC<CR>
+"nnoremap <leader>sv :write<CR>:source $MYVIMRC<CR>
 
 " nvimdiff / git mergetool
 nnoremap <leader>s1 :diffget BA<CR>
@@ -197,30 +197,30 @@ nnoremap <leader>s2 :diffget LO<CR>
 nnoremap <leader>s3 :diffget RE<CR>
 
 " Convenient cursor movement
-nnoremap <C-k> {
-nnoremap <C-j> }
-vnoremap <C-k> {
-vnoremap <C-j> }
-nnoremap <C-h> ^
-nnoremap <C-l> $
+"nnoremap <C-k> {
+"nnoremap <C-j> }
+"vnoremap <C-k> {
+"vnoremap <C-j> }
+"nnoremap <C-h> ^
+"nnoremap <C-l> $
 
 " Since insert mode C-h is backspace, C-l should delete char infront
-inoremap <C-l> <del>
+"inoremap <C-l> <del>
 
 " Surround word with " or < or (
-nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
-nnoremap <leader>' viw<esc>a'<esc>hbi'<esc>lel
-nnoremap <leader>< viw<esc>a><esc>hbi<<esc>lel
-nnoremap <leader>( viw<esc>a)<esc>hbi(<esc>lel
+"nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
+"nnoremap <leader>' viw<esc>a'<esc>hbi'<esc>lel
+"nnoremap <leader>< viw<esc>a><esc>hbi<<esc>lel
+"nnoremap <leader>( viw<esc>a)<esc>hbi(<esc>lel
 "Test: flkjal alfkjalf lajslkf
 
 " Copy to end of line, to match behaviour of D and C
-nnoremap Y y$
+"nnoremap Y y$
 
 " Cut and paste to system clipboard
-vnoremap <leader>y "+y
-nnoremap <leader>p "+p
-nnoremap <leader>P "+P
+"vnoremap <leader>y "+y
+"nnoremap <leader>p "+p
+"nnoremap <leader>P "+P
 
 " New sp windows open right or bottom
 "set splitbelow
@@ -249,30 +249,30 @@ nnoremap <leader>k :cprevious<CR>
 nnoremap <leader>l :cclose<CR>
 
 " Better line wrap
-set showbreak=…
+"set showbreak=…
 
 " Highlight match while typing search term
-set incsearch
+"set incsearch
 
 " Highlight search words, ESC to switch off hl
-set hlsearch
-nnoremap <silent> <ESC> :nohl<CR><ESC>
-nohl " No highlight after reloading $MYVIMRC
+"set hlsearch
+"nnoremap <silent> <ESC> :nohl<CR><ESC>
+"nohl " No highlight after reloading $MYVIMRC
 
 " Case insensitive search, except when using capital letters
-set ignorecase
-set smartcase
+"set ignorecase
+"set smartcase
 
 " Custom statusline
-set statusline=%t "file name
-"set statusline+=%10y "type of file, padded 10 spaces
-set statusline+=%5m "modified marker
-set statusline+=%= "move to right side
-set statusline+=%-4c "column
-set statusline+=%l/%L "display line/total lines
+"set statusline=%t "file name
+""set statusline+=%10y "type of file, padded 10 spaces
+"set statusline+=%5m "modified marker
+"set statusline+=%= "move to right side
+"set statusline+=%-4c "column
+"set statusline+=%l/%L "display line/total lines
 
 " Reload file changed outside nvim
-set autoread
+"set autoread
 
 " C indentation options
 "set cindent
@@ -280,22 +280,22 @@ set autoread
 "set cinoptions+=(0
 
 " Scroll 8 lines before the bottom
-set scrolloff=5
+"set scrolloff=5
 
 " Keep backups of files
 " Or not because of Coc/Language servers
-set nobackup
-set nowritebackup
-"silent !mkdir -p ~/.config/nvim/backup
-"set backup
-"set backupdir=~/.config/nvim/backup/
+"set nobackup
+"set nowritebackup
+""silent !mkdir -p ~/.config/nvim/backup
+""set backup
+""set backupdir=~/.config/nvim/backup/
 
 " show cmds in bottom right
-set showcmd
+"set showcmd
 
 " Show matching brackets
-set showmatch
-set matchpairs+=<:>
+"set showmatch
+"set matchpairs+=<:>
 
 " nvim-qt
 if exists('g:GuiLoaded')
