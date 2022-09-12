@@ -1,26 +1,23 @@
 " Mark Youngman's Neovim Settings
 
-call plug#begin('~/.config/nvim/plugged')
+"call plug#begin('~/.config/nvim/plugged')
+"Plug 'neoclide/coc.nvim', {'branch': 'release'}
+"Plug 'scrooloose/nerdtree'
+"Plug 'easymotion/vim-easymotion'
+"Plug 'junegunn/fzf', {
+"  \ 'do':'./install --all'
+"  \ }
+"Plug 'junegunn/fzf.vim'
+"Plug 'HerringtonDarkholme/yats.vim'  "TS syntax highlighting
+"Plug 'andreyorst/SimpleClangFormat.vim'
+"call plug#end()
 
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'scrooloose/nerdtree'
-Plug 'easymotion/vim-easymotion'
-Plug 'junegunn/fzf', {
-  \ 'do':'./install --all'
-  \ }
-Plug 'junegunn/fzf.vim'
-Plug 'HerringtonDarkholme/yats.vim'  "TS syntax highlighting
-
-Plug 'andreyorst/SimpleClangFormat.vim'
-
-call plug#end()
-
-let mapleader = "\\"
-colorscheme desert
-syntax on
-set hidden
-set expandtab
-set mouse=a "to allow mouse scrolling/clicking
+"let mapleader = "\\"
+"colorscheme desert
+"syntax on
+"set hidden
+"set expandtab
+"set mouse=a "to allow mouse scrolling/clicking
 
 " Nerdtree
 fun! NERDTreeSync()
@@ -226,18 +223,18 @@ nnoremap <leader>p "+p
 nnoremap <leader>P "+P
 
 " New sp windows open right or bottom
-set splitbelow
-set splitright
+"set splitbelow
+"set splitright
 
 " persistent undo
-silent !mkdir -p ~/.config/nvim/undo
-set undodir=~/.config/nvim/undo/
-set undofile
-set undolevels=1000
-set undoreload=10000
+"silent !mkdir -p ~/.config/nvim/undo
+"set undodir=~/.config/nvim/undo/
+"set undofile
+"set undolevels=1000
+"set undoreload=10000
 
 " Make backspace work in insert mode
-set backspace=indent,eol,start
+"set backspace=indent,eol,start
 
 " No auto insert comments on new line
 autocmd FileType * set formatoptions-=cro
