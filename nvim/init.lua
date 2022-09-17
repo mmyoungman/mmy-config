@@ -1,4 +1,5 @@
 -- init.lua
+require "mark.options"
 
 -- load old config
 vim.cmd('source old_config.vim')
@@ -18,10 +19,6 @@ vim.g.maplocalleader = '\\'
 
 vim.cmd('colorscheme desert')
 vim.cmd('syntax on')
-
-vim.opt.hidden = true
-vim.opt.expandtab = true
-vim.opt.mouse = 'a'
 
 -- switch to a different buffer
 vim.api.nvim_set_keymap('n', '<leader>b', ':Buffers<CR>', { noremap = true })
@@ -56,52 +53,10 @@ vim.api.nvim_set_keymap('v', '<leader>y', '"+y', { noremap = true })
 vim.api.nvim_set_keymap('n', '<leader>p', '"+p', { noremap = true })
 vim.api.nvim_set_keymap('n', '<leader>P', '"+P', { noremap = true })
 
--- New sp windows open right or bottom
-vim.opt.splitbelow = true
-vim.opt.splitright = true
-
--- persistent undo
-vim.opt.undodir = '~/.config/nvim/undo'
-vim.opt.undofile = true
-vim.opt.undolevels = 1000
-vim.opt.undoreload = 10000
-
--- make backspace work in insert mode
-vim.opt.backspace = { 'indent', 'eol', 'start' }
-
--- better line wrap
-vim.opt.showbreak = '…'
-
--- highlight stuff
-vim.opt.incsearch = true
-vim.opt.hlsearch = true
 vim.api.nvim_set_keymap('n', '<ESC>', ':nohl<CR><ESC>', { silent = true, noremap = true })
-vim.cmd(':nohl')
-
--- case insensitive search, except when using capital letters
-vim.opt.ignorecase = true
-vim.opt.smartcase = true
-
--- custom statusline
-vim.opt.statusline = '%t' -- file name
---vim.opt.statusline += '%10y' -- type of file, padded 10 spaces
-vim.opt.statusline = vim.opt.statusline + '%5m' -- modified marker
-vim.opt.statusline = vim.opt.statusline + '%=' -- align right
-vim.opt.statusline = vim.opt.statusline + '%-4c' -- column
-vim.opt.statusline = vim.opt.statusline + '%l/%L' -- display line / total lines
-
--- reload files changed outside of nvim
-vim.opt.autoread = true
-
-vim.opt.scrolloff = 5
 
 vim.cmd([[ set nobackup ]])
 vim.cmd([[ set nowritebackup ]])
 --vim.cmd('!mkdir -p ~/.config/nvim/backup', { silent = true })
 --vim.opt.backup = true
 --vim.opt.backupdir = '~/.config/nvim/backup/'
-
-vim.opt.showcmd = true
-
-vim.opt.showmatch = true
-vim.opt.matchpairs = "(:),{:},[:],<:>"
