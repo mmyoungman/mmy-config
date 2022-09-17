@@ -1,24 +1,5 @@
 " Mark Youngman's Neovim Settings
 
-"call plug#begin('~/.config/nvim/plugged')
-"Plug 'neoclide/coc.nvim', {'branch': 'release'}
-"Plug 'scrooloose/nerdtree'
-"Plug 'easymotion/vim-easymotion'
-"Plug 'junegunn/fzf', {
-"  \ 'do':'./install --all'
-"  \ }
-"Plug 'junegunn/fzf.vim'
-"Plug 'HerringtonDarkholme/yats.vim'  "TS syntax highlighting
-"Plug 'andreyorst/SimpleClangFormat.vim'
-"call plug#end()
-
-"let mapleader = "\\"
-"colorscheme desert
-"syntax on
-"set hidden
-"set expandtab
-"set mouse=a "to allow mouse scrolling/clicking
-
 " Nerdtree
 fun! NERDTreeSync()
   if filereadable(expand('%:p')) && exists('g:NERDTree') && g:NERDTree.IsOpen()
@@ -184,57 +165,10 @@ nnoremap <F10> :call Format()<CR>
 nnoremap <F11> :call Analyse()<CR>
 nnoremap <F12> :!./scripts/run.sh<CR>
 
-" Switch to a different buffer
-"nnoremap <leader>b :Buffers<CR>
-
-" Quick way to open and load init.vim
-"nnoremap <leader>ev :edit $MYVIMRC<CR>
-"nnoremap <leader>sv :write<CR>:source $MYVIMRC<CR>
-
 " nvimdiff / git mergetool
 nnoremap <leader>s1 :diffget BA<CR>
 nnoremap <leader>s2 :diffget LO<CR>
 nnoremap <leader>s3 :diffget RE<CR>
-
-" Convenient cursor movement
-"nnoremap <C-k> {
-"nnoremap <C-j> }
-"vnoremap <C-k> {
-"vnoremap <C-j> }
-"nnoremap <C-h> ^
-"nnoremap <C-l> $
-
-" Since insert mode C-h is backspace, C-l should delete char infront
-"inoremap <C-l> <del>
-
-" Surround word with " or < or (
-"nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
-"nnoremap <leader>' viw<esc>a'<esc>hbi'<esc>lel
-"nnoremap <leader>< viw<esc>a><esc>hbi<<esc>lel
-"nnoremap <leader>( viw<esc>a)<esc>hbi(<esc>lel
-"Test: flkjal alfkjalf lajslkf
-
-" Copy to end of line, to match behaviour of D and C
-"nnoremap Y y$
-
-" Cut and paste to system clipboard
-"vnoremap <leader>y "+y
-"nnoremap <leader>p "+p
-"nnoremap <leader>P "+P
-
-" New sp windows open right or bottom
-"set splitbelow
-"set splitright
-
-" persistent undo
-"silent !mkdir -p ~/.config/nvim/undo
-"set undodir=~/.config/nvim/undo/
-"set undofile
-"set undolevels=1000
-"set undoreload=10000
-
-" Make backspace work in insert mode
-"set backspace=indent,eol,start
 
 " No auto insert comments on new line
 autocmd FileType * set formatoptions-=cro
@@ -247,55 +181,6 @@ nnoremap <leader>h :call COpen()<CR>
 nnoremap <leader>j :write<CR>:cnext<CR>
 nnoremap <leader>k :cprevious<CR>
 nnoremap <leader>l :cclose<CR>
-
-" Better line wrap
-"set showbreak=…
-
-" Highlight match while typing search term
-"set incsearch
-
-" Highlight search words, ESC to switch off hl
-"set hlsearch
-"nnoremap <silent> <ESC> :nohl<CR><ESC>
-"nohl " No highlight after reloading $MYVIMRC
-
-" Case insensitive search, except when using capital letters
-"set ignorecase
-"set smartcase
-
-" Custom statusline
-"set statusline=%t "file name
-""set statusline+=%10y "type of file, padded 10 spaces
-"set statusline+=%5m "modified marker
-"set statusline+=%= "move to right side
-"set statusline+=%-4c "column
-"set statusline+=%l/%L "display line/total lines
-
-" Reload file changed outside nvim
-"set autoread
-
-" C indentation options
-"set cindent
-"set cinoptions=g1,h1,N-s
-"set cinoptions+=(0
-
-" Scroll 8 lines before the bottom
-"set scrolloff=5
-
-" Keep backups of files
-" Or not because of Coc/Language servers
-"set nobackup
-"set nowritebackup
-""silent !mkdir -p ~/.config/nvim/backup
-""set backup
-""set backupdir=~/.config/nvim/backup/
-
-" show cmds in bottom right
-"set showcmd
-
-" Show matching brackets
-"set showmatch
-"set matchpairs+=<:>
 
 " nvim-qt
 if exists('g:GuiLoaded')

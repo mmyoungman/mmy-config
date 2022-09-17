@@ -1,46 +1,54 @@
-vim.opt.hidden = true
-vim.opt.expandtab = true
-vim.opt.mouse = 'a'
+-- :help options
+local defaultOptions = {
+  hidden = true,
+  expandtab = true,
+  shiftwidth = 2,
+  tabstop = 2,
+  expandtab = true,
+  showtabline = 2,
+  mouse = 'a',
 
--- New sp windows open right or bottom
-vim.opt.splitbelow = true
-vim.opt.splitright = true
+  splitbelow = true,
+  splitright = true,
 
--- persistent undo
-vim.opt.undodir = '~/.config/nvim/undo'
-vim.opt.undofile = true
-vim.opt.undolevels = 1000
-vim.opt.undoreload = 10000
+  -- bug when you use ~ which ends in creation of '~' dir? because of my symlinked nvim dir?
+  undodir = '/home/mark/.config/nvim/undo',
 
--- make backspace work in insert mode
-vim.opt.backspace = { 'indent', 'eol', 'start' }
+  undofile = true,
+  undolevels = 1000,
+  undoreload = 10000,
 
--- better line wrap
-vim.opt.showbreak = '…'
+  backspace = { 'indent', 'eol', 'start' },
 
--- highlight stuff
-vim.opt.incsearch = true
-vim.opt.hlsearch = true
+  showbreak = '…',
 
--- case insensitive search, except when using capital letters
-vim.opt.ignorecase = true
-vim.opt.smartcase = true
+  incsearch = true,
+  hlsearch = true,
 
--- custom statusline
+  backup = false,
+  writebackup = false,
+  --vim.cmd('!mkdir -p ~/.config/nvim/backup', { silent = true })
+  --vim.opt.backup = true
+  --vim.opt.backupdir = '~/.config/nvim/backup/'
+  --
+  ignorecase = true,
+  smartcase = true,
+
+  autoread = true,
+  scrolloff = 5,
+
+  showcmd = true,
+  showmatch = true,
+
+  matchpairs = "(:),{:},[:],<:>",
+}
+
 vim.opt.statusline = '%t' -- file name
---vim.opt.statusline += '%10y' -- type of file, padded 10 spaces
-vim.opt.statusline = vim.opt.statusline + '%5m' -- modified marker
-vim.opt.statusline = vim.opt.statusline + '%=' -- align right
-vim.opt.statusline = vim.opt.statusline + '%-4c' -- column
-vim.opt.statusline = vim.opt.statusline + '%l/%L' -- display line / total lines
+vim.opt.statusline:append '%5m' -- modified marker
+vim.opt.statusline:append '%=' -- align right
+vim.opt.statusline:append '%-4c' -- column
+vim.opt.statusline:append '%l/%L' -- display line / total lines
 
--- reload files changed outside of nvim
-vim.opt.autoread = true
-
-vim.opt.scrolloff = 5
-
-vim.opt.showcmd = true
-
-vim.opt.showmatch = true
-vim.opt.matchpairs = "(:),{:},[:],<:>"
-
+for key, value in pairs(defaultOptions) do
+  vim.opt[key] = value
+end
