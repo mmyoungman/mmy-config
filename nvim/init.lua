@@ -1,8 +1,10 @@
 -- init.lua
-require "mark.plugins"
-require "mark.options"
-require "mark.keymaps"
-require "mark.colorscheme"
+require("mark.plugins")
+require("mark.options")
+require("mark.keymaps")
+require("mark.colorscheme")
+require("mark.completion")
+require("mark.lsp")
 
 -- load old config
 --vim.cmd('source old_config.vim')

@@ -63,7 +63,7 @@ alias la='ls -al --color=auto'
 alias sdn='shutdown now'
 
 alias dotnetall='dotnet clean; dotnet build; dotnet run'
-alias dfe-data-procesor='func host start --port 7071 --pause-on-error'
+alias dfe-data-processor='func host start --port 7071 --pause-on-error'
 alias dfe-publisher='func host start --port 7072 --pause-on-error'
 
 if [ $machine = "linux" ]; then
@@ -80,7 +80,7 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 #[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # For dotnet
-export DOTNET_ROOT=$HOME/.config/dotnet 
+export DOTNET_ROOT=$HOME/.config/dotnet
 export PATH=$PATH:$HOME/.config/dotnet
 # Add .NET Core SDK tools
 export PATH="$PATH:$HOME/.dotnet/tools"
@@ -88,7 +88,8 @@ export PATH="$PATH:$HOME/.dotnet/tools"
 # For emscripten/webassembly
 #[ -f ~/projects/emsdk/emsdk_env.sh ] && source ~/projects/emsdk/emsdk_env.sh ?> /dev/null
 
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+# FZF
+#[ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 # For pipenv
 export PATH="$PATH:~/.local/bin"
