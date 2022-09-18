@@ -170,9 +170,6 @@ nnoremap <leader>s1 :diffget BA<CR>
 nnoremap <leader>s2 :diffget LO<CR>
 nnoremap <leader>s3 :diffget RE<CR>
 
-" No auto insert comments on new line
-autocmd FileType * set formatoptions-=cro
-
 " Switch off network history
 let g:netrw_dirhistmax = 0
 

@@ -41,6 +41,8 @@ local defaultOptions = {
   showmatch = true,
 
   matchpairs = "(:),{:},[:],<:>",
+
+  termguicolors = true,
 }
 
 vim.opt.statusline = '%t' -- file name
