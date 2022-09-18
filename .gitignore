@@ -7,4 +7,5 @@ tags
 # Neovim stuff
 nvim/undo/*
 nvim/backup/*
+nvim/plugin/*
 nvim/plugged
