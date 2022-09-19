@@ -1,10 +1,14 @@
+local rg_status_ok, is_exe = pcall(vim.fn.executable, 'rg')
+if not rg_status_ok and 1~= is_exe then
+  vim.notify('Ripgrep is not installed')
+  return
+end
+
 local status_ok, telescope = pcall(require, "telescope")
 if not status_ok then
   vim.notify('Failed to load telescope')
   return
 end
-
-telescope.load_extension('media_files')
 
 local actions = require "telescope.actions"
 
@@ -90,12 +94,13 @@ telescope.setup {
     -- builtin picker
   },
   extensions = {
-    media_files = {
-        -- filetypes whitelist
-        -- defaults to {"png", "jpg", "mp4", "webm", "pdf"}
-        filetypes = {"png", "webp", "jpg", "jpeg"},
-        find_cmd = "rg" -- find command (defaults to `fd`)
-      }
+    fzf = {
+      fuzzy = true,                    -- false will only do exact matching
+      override_generic_sorter = true,  -- override the generic sorter
+      override_file_sorter = true,     -- override the file sorter
+      case_mode = "smart_case",        -- or "ignore_case" or "respect_case"
+                                       -- the default case_mode is "smart_case"
+    },
     -- Your extension configuration goes here:
     -- extension_name = {
     --   extension_config_key = value,
@@ -103,3 +108,6 @@ telescope.setup {
     -- please take a look at the readme of the extension you want to configure
   },
 }
+
+telescope.load_extension('fzf')
+

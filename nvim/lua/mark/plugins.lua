@@ -63,15 +63,12 @@ return packer.startup(function(use)
 
   -- telescope
   use "nvim-telescope/telescope.nvim"
-  use 'nvim-telescope/telescope-media-files.nvim'
+  use { "nvim-telescope/telescope-fzf-native.nvim", run ="make" }
 
   -- snippets
   use "L3MON4D3/LuaSnip" --snippet engine
   use "rafamadriz/friendly-snippets" -- a bunch of snippets to use
 
-
-  --vim.cmd [[Plug 'junegunn/fzf', { 'do':'./install --all' }]]
-  --vim.cmd [[Plug 'junegunn/fzf.vim']]
   ----vim.cmd [[Plug 'HerringtonDarkholme/yats.vim']] -- TS highlighting
   ----vim.cmd [[Plug 'andreyorst/SimpleClangFormat.vim']]
 
