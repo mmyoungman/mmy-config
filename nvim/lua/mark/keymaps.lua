@@ -2,13 +2,18 @@ local keymap = vim.api.nvim_set_keymap
 local noremap = { noremap = true }
 
 vim.g.mapleader = '\\'
-vim.g.maplocalleader = '\\' 
+vim.g.maplocalleader = '\\'
 
 -- remove highlight when pressing esc
 keymap('n', '<ESC>', ':nohl<CR><ESC>', { silent = true, noremap = true })
 
 -- file navigation
 keymap('n', '<leader>e', ':Lex 30<CR>', noremap)
+
+-- telescope
+keymap('n', '<C-p>', ':Telescope git_files<CR>', noremap)
+keymap('n', '<leader>f', ':Telescope live_grep<CR>', noremap)
+
 
 -- switch to a different buffer
 --keymap('n', '<leader>b', ':buffers<CR>', noremap)
@@ -57,4 +62,4 @@ keymap("v", "<", "<gv", noremap)
 keymap("v", ">", ">gv", noremap)
 
 -- keep clipboard when pasting over visual selection
-keymap("v", "p", '"_dP', noremap) 
+keymap("v", "p", '"_dP', noremap)

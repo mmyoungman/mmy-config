@@ -42,8 +42,8 @@ packer.init {
 -- Install your plugins here
 return packer.startup(function(use)
   use "wbthomason/packer.nvim" -- Have packer manage itself
-  --use "nvim-lua/popup.nvim" -- An implementation of the Popup API from vim in Neovim
-  --use "nvim-lua/plenary.nvim" -- Useful lua functions used ny lots of plugins
+  use "nvim-lua/popup.nvim" -- An implementation of the Popup API from vim in Neovim
+  use "nvim-lua/plenary.nvim" -- Useful lua functions used ny lots of plugins
 
   use 'easymotion/vim-easymotion'
   use 'lunarvim/darkplus.nvim'
@@ -60,6 +60,10 @@ return packer.startup(function(use)
   --lsp
   use "neovim/nvim-lspconfig" -- enable lsp
   use "williamboman/nvim-lsp-installer"
+
+  -- telescope
+  use "nvim-telescope/telescope.nvim"
+  use 'nvim-telescope/telescope-media-files.nvim'
 
   -- snippets
   use "L3MON4D3/LuaSnip" --snippet engine
