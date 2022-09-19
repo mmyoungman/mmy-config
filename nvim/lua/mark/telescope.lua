@@ -1,5 +1,7 @@
 local rg_status_ok, is_exe = pcall(vim.fn.executable, 'rg')
-if not rg_status_ok and 1~= is_exe then
+--print('rg_status_ok ' .. tostring(rg_status_ok)
+--print('is_exe ' .. is_exe)
+if 0 == is_exe then
   vim.notify('Ripgrep is not installed')
   return
 end
