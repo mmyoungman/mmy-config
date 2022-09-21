@@ -63,11 +63,14 @@ return packer.startup(function(use)
 
   -- telescope
   use "nvim-telescope/telescope.nvim"
-  use { "nvim-telescope/telescope-fzf-native.nvim", run ="make" }
+  use { "nvim-telescope/telescope-fzf-native.nvim", run = "make" }
 
   -- snippets
   use "L3MON4D3/LuaSnip" --snippet engine
   use "rafamadriz/friendly-snippets" -- a bunch of snippets to use
+
+  -- treesitter
+  use { 'nvim-treesitter/nvim-treesitter', run = ":TSUpdate", }
 
   ----vim.cmd [[Plug 'HerringtonDarkholme/yats.vim']] -- TS highlighting
   ----vim.cmd [[Plug 'andreyorst/SimpleClangFormat.vim']]
