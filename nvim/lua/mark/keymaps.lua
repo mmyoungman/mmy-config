@@ -24,14 +24,36 @@ keymap('n', '<S-h>', ':bprev<CR>', noremap)
 keymap('n', '<leader>sv', ':write<CR>:luafile %<CR>', noremap)
 
 -- convenient cursor movement
-keymap('n', '<C-k>', '{', noremap)
-keymap('n', '<C-j>', '}', noremap)
-keymap('v', '<C-k>', '{', noremap)
-keymap('v', '<C-j>', '}', noremap)
+--keymap('n', '<C-k>', '{', noremap)
+--keymap('n', '<C-j>', '}', noremap)
+--keymap('v', '<C-k>', '{', noremap)
+--keymap('v', '<C-j>', '}', noremap)
 keymap('n', '<C-h>', '^', noremap)
 keymap('n', '<C-l>', '$', noremap)
 keymap('v', '<C-h>', '^', noremap)
 keymap('v', '<C-l>', '$', noremap)
+
+-- quickfix
+--function QuickFixOpen()
+--  -- quickfix_is_open = vim.fn.winsaveview()
+--  -- currentWindow = vim.api.nvim_get_current_win()
+--  -- vim.fn.copen
+--  -- TODO: execute currentWindow . "wincmd w" thingy here
+--  -- vim.fn.winrestview(quickfix_is_open)
+--  vim.cmd [[
+--  	let quickfix_is_open = winsaveview() "save cursor position
+--  	let currentWindow = winnr() "save window cursor is in
+--  	copen
+--  	execute currentWindow . "wincmd w"
+--  	call winrestview(quickfix_is_open)
+--  ]]
+--end
+--
+--keymap('n', '<leader>h', ':call QuickFixOpen()<CR>', noremap)
+keymap('n', '<leader>h', ':copen<CR>', noremap)
+keymap('n', '<leader>j', ':write<CR>:cnext<CR>', noremap)
+keymap('n', '<leader>k', ':cprevious<CR>', noremap)
+keymap('n', '<leader>l', ':cclose<CR>', noremap)
 
 -- Since insert mode C-h is backspace, C-l should delete char infront
 keymap('i', '<C-l>', '<del>', noremap)
