@@ -28,6 +28,26 @@ vim.cmd("autocmd BufWritePre * :%s/\\s\\+$//e")
 -- No auto insert comments on new line
 vim.cmd("autocmd FileType * set formatoptions-=cro")
 
+vim.api.nvim_create_user_command('DotnetBuild', function()
+  --vim.cmd("write %")
+  --local winnr = vim.fn.win_getid()
+  --local bufnr = vim.api.nvim_win_get_buf(winnr)
+
+  --vim.opt.errorformat = "%f(%l\\,%c): %tarning %m,%f(%l\\,%c): %trror %m,%-G%.%#"
+  vim.opt.errorformat = "%f(%l\\,%c): %trror %m,%-G%.%#"
+  vim.cmd("!dotnet build /nologo /v:q /property:GenerateFullPaths=true src/GovUk.Education.ExploreEducationStatistics.sln | sort -u > quickfixfile")
+
+  vim.cmd("cfile quickfixfile")
+  vim.cmd("!rm quickfixfile")
+
+  if vim.tbl_isempty(vim.fn.getqflist()) then
+    vim.notify("Build successful")
+  else
+    vim.cmd("copen")
+    vim.cmd("wincmd J")
+  end
+end, {})
+
 -- EES project settings
 --function SetCSFileSettingsForEES()
 --  vim.opt_local.tabstop = 4
