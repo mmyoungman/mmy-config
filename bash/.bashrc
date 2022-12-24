@@ -20,7 +20,7 @@ esac
 [ -f /usr/bin/nvim ] && EDITOR=/usr/bin/nvim
 
 # Git stuff
-GIT_DIR=~/.config/git
+GIT_DIR=$HOME/.config/git
 if [ ! -d $GIT_DIR ]; then
     mkdir -p $GIT_DIR
 fi
@@ -80,19 +80,19 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 #[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # For dotnet
-export DOTNET_ROOT=$HOME/.config/dotnet
+export DOTNET_ROOT=/usr/lib/dotnet
 export PATH=$PATH:$HOME/.config/dotnet
 # Add .NET Core SDK tools
 export PATH="$PATH:$HOME/.dotnet/tools"
 
 # For emscripten/webassembly
-#[ -f ~/projects/emsdk/emsdk_env.sh ] && source ~/projects/emsdk/emsdk_env.sh ?> /dev/null
+#[ -f $HOME/projects/emsdk/emsdk_env.sh ] && source $HOME/projects/emsdk/emsdk_env.sh ?> /dev/null
 
 # FZF
-#[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+#[ -f $HOME/.fzf.bash ] && source $HOME/.fzf.bash
 
 # For pipenv
-export PATH="$PATH:~/.local/bin"
+export PATH="$PATH:$HOME/.local/bin"
 
 # For pyenv
 export PYENV_ROOT="$HOME/.pyenv"
@@ -100,4 +100,4 @@ export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 
 # For pycharm
-export PATH="$PATH:~/Downloads/pycharm-community-2019.1.3/bin"
+export PATH="$PATH:$HOME/Downloads/pycharm-community-2019.1.3/bin"
