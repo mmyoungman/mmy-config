@@ -94,5 +94,10 @@ export PATH="$PATH:$HOME/.dotnet/tools"
 # For pipenv
 export PATH="$PATH:~/.local/bin"
 
+# For pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+
 # For pycharm
 export PATH="$PATH:~/Downloads/pycharm-community-2019.1.3/bin"
