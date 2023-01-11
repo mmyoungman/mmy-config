@@ -80,7 +80,7 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 #[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # For dotnet
-export DOTNET_ROOT=/usr/lib/dotnet
+#export DOTNET_ROOT=/usr/lib/dotnet
 export PATH=$PATH:$HOME/.config/dotnet
 # Add .NET Core SDK tools
 export PATH="$PATH:$HOME/.dotnet/tools"
