@@ -4,7 +4,6 @@ local defaultOptions = {
   expandtab = true,
   shiftwidth = 2,
   tabstop = 2,
-  expandtab = true,
   showtabline = 2,
   mouse = 'a',
 
@@ -41,11 +40,9 @@ local defaultOptions = {
   showmatch = true,
 
   matchpairs = "(:),{:},[:],<:>",
-
-  termguicolors = true,
 }
 
-vim.opt.statusline = '%t' -- file name
+vim.opt.statusline = '%f' -- file name
 vim.opt.statusline:append '%5m' -- modified marker
 vim.opt.statusline:append '%=' -- align right
 vim.opt.statusline:append '%-4c' -- column

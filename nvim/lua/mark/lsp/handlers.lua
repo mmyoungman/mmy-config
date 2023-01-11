@@ -44,6 +44,31 @@ M.setup = function()
   })
 end
 
+-- From $VIMRUNTIME/lua/vim/lsp/handlers.lua -- with an additional 'wincmd p'
+--local util = require 'vim.lsp.util'
+--vim.lsp.handlers['textDocument/references'] = function(_, result, ctx, config)
+--  if not result or vim.tbl_isempty(result) then
+--    vim.notify('No references found')
+--  else
+--    local client = vim.lsp.get_client_by_id(ctx.client_id)
+--    config = config or {}
+--    local title = 'References'
+--    local items = util.locations_to_items(result, client.offset_encoding)
+--
+--    if config.loclist then
+--      vim.fn.setloclist(0, {}, ' ', { title = title, items = items, context = ctx })
+--      vim.api.nvim_command('lopen')
+--    elseif config.on_list then
+--      assert(type(config.on_list) == 'function', 'on_list is not a function')
+--      config.on_list({ title = title, items = items, context = ctx })
+--    else
+--      vim.fn.setqflist({}, ' ', { title = title, items = items, context = ctx })
+--      vim.api.nvim_command('botright copen')
+--      vim.api.nvim_command('wincmd p') -- NOTE: this is an addition
+--    end
+--  end
+--end
+
 --local function lsp_highlight_document(client)
 --  -- Set autocommands conditional on server_capabilities
 --  if client.resolved_capabilities.document_highlight then
