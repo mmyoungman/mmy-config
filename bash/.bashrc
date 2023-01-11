@@ -2,7 +2,7 @@
 # ~/.bashrc
 #
 
-stty -ixon # Disable ctrl-s and ctrl-q
+#stty -ixon # Disable ctrl-s and ctrl-q
 shopt -s autocd # cd into dir by typing dir name
 HISTSIZE= HISTFILESIZE= # Infinite history
 
