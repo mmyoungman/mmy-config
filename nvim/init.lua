@@ -28,24 +28,38 @@ vim.cmd("autocmd BufWritePre * :%s/\\s\\+$//e")
 -- No auto insert comments on new line
 vim.cmd("autocmd FileType * set formatoptions-=cro")
 
-vim.api.nvim_create_user_command('DotnetBuild', function()
-  --vim.cmd("write %")
-  --local winnr = vim.fn.win_getid()
-  --local bufnr = vim.api.nvim_win_get_buf(winnr)
+function Build(buildCmd, errorformat)
+  vim.opt.errorformat = errorformat
 
-  --vim.opt.errorformat = "%f(%l\\,%c): %tarning %m,%f(%l\\,%c): %trror %m,%-G%.%#"
-  vim.opt.errorformat = "%f(%l\\,%c): %trror %m,%-G%.%#"
-  vim.cmd("!dotnet build /nologo /v:q /property:GenerateFullPaths=true src/GovUk.Education.ExploreEducationStatistics.sln | sort -u > quickfixfile")
+  local quickfixCmd = string.format("silent !%s &> /dev/stdout | sort -u > quickfixfile", buildCmd)
 
-  vim.cmd("cfile quickfixfile")
-  vim.cmd("!rm quickfixfile")
+  -- for debugging
+  --print(quickfixCmd)
+  --vim.cmd("!cat quickfixfile")
+
+  vim.cmd(quickfixCmd)
+
+  vim.cmd("silent cfile quickfixfile")
+  vim.cmd("silent !rm quickfixfile")
 
   if vim.tbl_isempty(vim.fn.getqflist()) then
+    vim.cmd("cclose")
     vim.notify("Build successful")
   else
     vim.cmd("copen")
-    vim.cmd("wincmd J")
   end
+end
+
+vim.api.nvim_create_user_command('EyestrBuild', function()
+  local buildCmd = "./scripts/build.sh"
+  local errorformat = "%f:%l:%c: %trror: %m,%f:%l:%c: %tarning: %m,%-G%.%#"
+  Build(buildCmd, errorformat)
+end, {})
+
+vim.api.nvim_create_user_command('EESBuild', function()
+  local buildCmd = "dotnet build /nologo /v:q /property:GenerateFullPaths=true src/GovUk.Education.ExploreEducationStatistics.sln"
+  local errorformat = "%f(%l\\,%c): %trror %m,%-G%.%#"
+  Build(buildCmd, errorformat)
 end, {})
 
 -- EES project settings
