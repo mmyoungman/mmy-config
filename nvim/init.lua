@@ -29,16 +29,15 @@ vim.cmd("autocmd BufWritePre * :%s/\\s\\+$//e")
 vim.cmd("autocmd FileType * set formatoptions-=cro")
 
 function Build(buildCmd, errorformat)
-  vim.opt.errorformat = errorformat
-
-  local quickfixCmd = string.format("silent !%s &> /dev/stdout | sort -u > quickfixfile", buildCmd)
+  local quickfixfileCmd = string.format("silent !%s &> quickfixfile", buildCmd)
 
   -- for debugging
   --print(quickfixCmd)
   --vim.cmd("!cat quickfixfile")
 
-  vim.cmd(quickfixCmd)
+  vim.cmd(quickfixfileCmd)
 
+  vim.opt.errorformat = errorformat
   vim.cmd("silent cfile quickfixfile")
   vim.cmd("silent !rm quickfixfile")
 
@@ -50,11 +49,41 @@ function Build(buildCmd, errorformat)
   end
 end
 
+function Run(runCmd, errorformat)
+  local runOutputFileCmd = string.format("silent !%s &> runOutputFile", runCmd)
+
+  -- for debugging
+  --print(runOutputFileCmd)
+  --vim.cmd("!cat runOutputFile")
+
+  vim.cmd(runOutputFileCmd)
+
+  if(errorformat ~= nil)
+  then
+    vim.opt.errorformat = errorformat
+    vim.cmd("silent cfile runOutputFile")
+    vim.cmd("silent !rm runOutputFile")
+
+    if vim.tbl_isempty(vim.fn.getqflist()) then
+      vim.cmd("cclose")
+    else
+      vim.cmd("copen")
+    end
+  end
+end
+
 vim.api.nvim_create_user_command('EyestrBuild', function()
   local buildCmd = "./scripts/build.sh"
   local errorformat = "%f:%l:%c: %trror: %m,%f:%l:%c: %tarning: %m,%-G%.%#"
   Build(buildCmd, errorformat)
 end, {})
+
+vim.api.nvim_create_user_command('EyestrRun', function()
+  Run("./scripts/run.sh", "[%tRROR] (%f:%l) %m,[D%tBUG] (%f:%l) %m,%-G%.%#")
+end, {})
+
+vim.api.nvim_set_keymap("n", "<F9>", ":EyestrBuild<CR>", { noremap = true })
+vim.api.nvim_set_keymap("n", "<F12>", ":EyestrRun<CR>", { noremap = true })
 
 vim.api.nvim_create_user_command('EESBuild', function()
   local buildCmd = "dotnet build /nologo /v:q /property:GenerateFullPaths=true src/GovUk.Education.ExploreEducationStatistics.sln"
