@@ -9,3 +9,6 @@ nvim/undo/*
 nvim/backup/*
 nvim/plugin/*
 nvim/plugged
+
+# NixOs
+nixos/hardware-configuration.nix
