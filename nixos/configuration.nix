@@ -7,6 +7,10 @@
 let
   unstableTarball = fetchTarball
     https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz;
+  dotnet-combined = pkgs.dotnetCorePackages.combinePackages [
+    pkgs.dotnetCorePackages.sdk_6_0
+    pkgs.dotnetCorePackages.sdk_7_0
+  ];
 in
 {
   imports =
@@ -114,22 +118,24 @@ in
       gimp
       tor-browser-bundle-bin
       signal-desktop
+      deluge
       # utils
       yt-dlp
       wget
+      ripgrep
       # programming
+      neovim
+      vscodium
       git
       docker
       docker-compose
-      neovim
-      vscodium
       gnumake
       gcc
       clang
       go
       python3
       nodejs
-      dotnet-sdk
+      dotnet-combined
     ];
   };
 
@@ -176,4 +182,5 @@ in
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.05"; # Did you read the comment?
+
 }
