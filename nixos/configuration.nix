@@ -4,11 +4,23 @@
 
 { config, pkgs, ... }:
 
+let
+  unstableTarball = fetchTarball
+    https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz;
+in
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
     ];
+
+  nixpkgs.config = {
+    packageOverrides = pkgs: {
+      unstable = import unstableTarball {
+        config = config.nixpkgs.config;
+      };
+    };
+  };
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -18,6 +30,8 @@
   boot.initrd.secrets = {
     "/crypto_keyfile.bin" = null;
   };
+
+  boot.supportedFilesystems = [ "ntfs" ];
 
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -87,7 +101,7 @@
   # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.villefort = {
+  users.users.mark = {
     isNormalUser = true;
     description = "Mark";
     extraGroups = [ "networkmanager" "wheel" ];
@@ -96,20 +110,34 @@
       firefox
       vlc
       libreoffice
-      freetube
+      unstable.freetube
       gimp
-      #utils
+      tor-browser-bundle-bin
+      signal-desktop
+      # utils
       yt-dlp
       wget
       # programming
       git
+      docker
+      docker-compose
       neovim
+      vscodium
+      gnumake
       gcc
       clang
       go
       python3
       nodejs
+      dotnet-sdk
     ];
+  };
+
+  nix = {
+  	package = pkgs.nixFlakes;
+	extraOptions = ''
+		experimental-features = nix-command flakes
+	'';
   };
 
   # Allow unfree packages
@@ -118,9 +146,8 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
-	pkgs.xfce.xfce4-whiskermenu-plugin
+  	# desktop
+        pkgs.xfce.xfce4-whiskermenu-plugin
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -149,5 +176,4 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.05"; # Did you read the comment?
-
 }
