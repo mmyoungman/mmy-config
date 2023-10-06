@@ -31,7 +31,7 @@ in
 
   boot.supportedFilesystems = [ "ntfs" ];
 
-  networking.hostName = "nixos";
+  networking.hostName = "villefort";
 
   networking.networkmanager.enable = true;
 
@@ -97,11 +97,13 @@ in
       signal-desktop
       deluge
       calibre
+      galculator
       # utils
       yt-dlp
       zip
       unzip
       wget
+      file
       ripgrep # for neovim
       xclip # for neovim
       # programming
@@ -113,7 +115,8 @@ in
       gnumake
       gcc
       clang
-      go
+      gdb
+      unstable.go_1_21
       python3
       nodejs
       dotnet-combined
@@ -134,6 +137,7 @@ in
   environment.systemPackages = with pkgs; [
   	# desktop
         pkgs.xfce.xfce4-whiskermenu-plugin
+	pkgs.xfce.catfish
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
