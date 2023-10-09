@@ -4,7 +4,6 @@ end
 
 vim.g.mapleader = '\\'
 vim.g.maplocalleader = '\\'
-
 -- clear whitespace on save
 vim.cmd("autocmd BufWritePre * :%s/\\s\\+$//e")
 

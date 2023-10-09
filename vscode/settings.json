@@ -20,7 +20,11 @@
     "editor.autoClosingQuotes": "never",
     "editor.acceptSuggestionOnEnter": "off",
     "editor.parameterHints.enabled": false,
-    "editor.quickSuggestions": false,
+    "editor.quickSuggestions": {
+        "comments": "off",
+        "strings": "off",
+        "other": "off"
+    },
     "editor.wordBasedSuggestions": false,
     "editor.suggestOnTriggerCharacters": false,
     "editor.snippetSuggestions": "none",

@@ -3,7 +3,7 @@
 #
 
 #stty -ixon # Disable ctrl-s and ctrl-q
-shopt -s autocd # cd into dir by typing dir name
+#shopt -s autocd # cd into dir by typing dir name
 HISTSIZE= HISTFILESIZE= # Infinite history
 
 unameOut="$(uname -s)"
@@ -64,6 +64,7 @@ alias la='ls -al --color=auto'
 alias sdn='shutdown now'
 
 alias dotnetall='dotnet clean; dotnet build; dotnet run'
+alias dfe-admin='export IdpConfig=Keycloak; dotnet clean; dotnet build; trap : INT; dotnet run'
 alias dfe-data-processor='func host start --port 7071 --pause-on-error'
 alias dfe-publisher='func host start --port 7072 --pause-on-error'
 
@@ -102,3 +103,11 @@ eval "$(pyenv init -)"
 
 # For pycharm
 export PATH="$PATH:$HOME/Downloads/pycharm-community-2019.1.3/bin"
+
+# pnpm
+export PNPM_HOME="/home/mark/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
