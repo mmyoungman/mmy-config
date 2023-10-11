@@ -4,11 +4,27 @@ end
 
 vim.g.mapleader = '\\'
 vim.g.maplocalleader = '\\'
--- clear whitespace on save
-vim.cmd("autocmd BufWritePre * :%s/\\s\\+$//e")
 
--- No auto insert comments on new line
+vim.api.nvim_create_autocmd('BufWritePre', {
+  desc = 'Clear whitespace before save',
+  pattern = '*',
+  command = ':%s/\\s\\+$//e'
+})
+
+vim.api.nvim_create_autocmd('CursorHold,FocusLost', {
+  desc = 'Autosave changes',
+  pattern = '*',
+  callback = function()
+    vim.cmd('silent! wall')
+  end
+})
+
 vim.cmd("autocmd FileType * set formatoptions-=cro")
+vim.api.nvim_create_autocmd('FileType', {
+  desc = 'No auto insert comments on new line',
+  pattern = '*',
+  command = 'set formatoptions-=cro'
+})
 
 vim.keymap.set('n', '<C-h>', '^', { noremap = true })
 vim.keymap.set('n', '<C-l>', '$', { noremap = true })
