@@ -11,7 +11,7 @@ vim.api.nvim_create_autocmd('BufWritePre', {
   command = ':%s/\\s\\+$//e'
 })
 
-vim.api.nvim_create_autocmd('CursorHold,FocusLost', {
+vim.api.nvim_create_autocmd({'CursorHold','FocusLost'}, {
   desc = 'Autosave changes',
   pattern = '*',
   callback = function()
