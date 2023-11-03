@@ -63,10 +63,11 @@ alias ll='ls -l --color=auto'
 alias la='ls -al --color=auto'
 alias sdn='shutdown now'
 
-alias dotnetall='rsync -av --progress /tmp/explore-education-statistics /tmp/;dotnet clean; dotnet build; dotnet run'
-alias dfe-admin='rsync -av --progress /tmp/explore-education-statistics /tmp/;export IdpConfig=Keycloak; dotnet clean; dotnet build; trap : INT; dotnet run'
-alias dfe-data-processor='rsync -av --progress /tmp/explore-education-statistics /tmp/;func host start --port 7071 --pause-on-error'
-alias dfe-publisher='rsync -av --progress /tmp/explore-education-statistics /tmp/;func host start --port 7072 --pause-on-error'
+alias dotnetall='dotnet clean; dotnet build; dotnet run'
+alias dfe-admin='export IdpConfig=Keycloak; dotnet clean; dotnet build; trap : INT; dotnet run'
+alias dfe-data-processor='func host start --port 7071 --pause-on-error'
+alias dfe-publisher='func host start --port 7072 --pause-on-error'
+alias dfe-frontend='pnpm run build; pnpm run start'
 
 if [ $machine = "linux" ]; then
    setxkbmap -option "caps:escape"
