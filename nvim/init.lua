@@ -19,7 +19,6 @@ vim.api.nvim_create_autocmd({'CursorHold','FocusLost'}, {
   end
 })
 
-vim.cmd("autocmd FileType * set formatoptions-=cro")
 vim.api.nvim_create_autocmd('FileType', {
   desc = 'No auto insert comments on new line',
   pattern = '*',
