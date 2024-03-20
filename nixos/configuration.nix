@@ -105,10 +105,13 @@ in
       unzip
       wget
       file
+      inxi
+      evince
       ripgrep # for neovim
       xclip # for neovim
       # programming
       neovim
+      vscode.fhs
       vscodium
       git
       meld
