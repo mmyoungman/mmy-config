@@ -77,6 +77,15 @@ fi
 #PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] ' # without git branch
 PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;33m\]$(__git_ps1 " [%s]")\[\033[01;32m\]]\$\[\033[00m\] '
 
+# Nix aliases
+alias nixupgrade="sudo nixos-rebuild switch --upgrade"
+alias nixeditconfig="sudo nvim /etc/nixos/configuration.nix"
+#alias nixclean="nix-collect-garbage -d"
+#alias nixclean="nix profile wipe-history --profile /nix/var/nix/profiles/system --older-than 30d"
+#alias nixclean="nix-store --gc"
+#alias nixclean="sudo nix-env -p /nix/var/nix/profiles/system --delete-generations +3"
+#alias nixrebuildboot="sudo nixos-rebuild boot"
+
 # For nvm
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
