@@ -170,15 +170,19 @@ end, {})
 
 -- Install package manager
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
-if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system {
-    'git',
-    'clone',
-    '--filter=blob:none',
-    'https://github.com/folke/lazy.nvim.git',
-    '--branch=stable', -- latest stable release
-    lazypath,
-  }
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+    local lazyrepo = 'https://github.com/folke/lazy.nvim.git'
+    local out = vim.fn.system {
+      'git',
+      'clone',
+      '--filter=blob:none',
+      '--branch=stable', -- latest stable release
+      lazyrepo,
+      lazypath,
+    }
+    if vim.v.shell_error ~= 0 then
+      error('Error cloning lazy.nvim:\n' .. out)
+    end
 end
 vim.opt.rtp:prepend(lazypath)
 
@@ -196,8 +200,8 @@ require('lazy').setup({
     'neovim/nvim-lspconfig',
     dependencies = {
       -- Automatically install LSPs to stdpath for neovim
-      { 'williamboman/mason.nvim', config = true },
-      'williamboman/mason-lspconfig.nvim',
+      { 'mason-org/mason.nvim', config = true },
+      'mason-org/mason-lspconfig.nvim',
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
@@ -574,6 +578,7 @@ end
 local servers = {
   -- clangd = {},
   -- gopls = {},
+  templ = { filetypes = { 'templ' } },
 
   pyright = {
     python = {
@@ -606,18 +611,28 @@ local mason_lspconfig = require 'mason-lspconfig'
 
 mason_lspconfig.setup {
   ensure_installed = vim.tbl_keys(servers),
+  handlers = {
+    function(server_name)
+      require('lspconfig')[server_name].setup {
+        capabilities = capabilities,
+        on_attach = on_attach,
+        settings = servers[server_name],
+        filetypes = (servers[server_name] or {}).filetypes,
+      }
+    end
+  },
 }
 
-mason_lspconfig.setup_handlers {
-  function(server_name)
-    require('lspconfig')[server_name].setup {
-      capabilities = capabilities,
-      on_attach = on_attach,
-      settings = servers[server_name],
-      filetypes = (servers[server_name] or {}).filetypes,
-    }
-  end
-}
+--mason_lspconfig.setup_handlers {
+--  function(server_name)
+--    require('lspconfig')[server_name].setup {
+--      capabilities = capabilities,
+--      on_attach = on_attach,
+--      settings = servers[server_name],
+--      filetypes = (servers[server_name] or {}).filetypes,
+--    }
+--  end
+--}
 
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
