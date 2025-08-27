@@ -93,9 +93,11 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 
 # For dotnet
 #export DOTNET_ROOT=/usr/lib/dotnet
-export PATH=$PATH:$HOME/.config/dotnet
+export PATH="$PATH:$HOME/.config/dotnet"
 # Add .NET Core SDK tools
 export PATH="$PATH:$HOME/.dotnet/tools"
+# Go stuff
+export PATH="$PATH:$HOME/go/bin"
 
 # For emscripten/webassembly
 #[ -f $HOME/projects/emsdk/emsdk_env.sh ] && source $HOME/projects/emsdk/emsdk_env.sh ?> /dev/null
