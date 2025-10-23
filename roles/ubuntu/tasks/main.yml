@@ -1,0 +1,65 @@
+---
+- name: Update all packages
+  apt:
+    update_cache: yes
+
+- name: Install general apps
+  apt:
+    name:
+      - ansible
+      - git
+
+      # general apps
+      - firefox
+      - torbrowser-launcher  # This may need to be installed via another method
+      - gimp
+      - vlc
+      - audacious
+      - deluge
+      - galculator
+      - signal-desktop  # Check if this is available from a suitable repository
+      - libreoffice
+
+- name: Install utils
+  apt:
+    name:
+      - catfish       # file search
+      - p7zip-full    # 7zip
+      - ffmpeg
+      - ripgrep
+      - fd-find        # fd
+      - entr
+      - zbar
+      - xclip
+      - jq
+      - htop
+      - curl
+
+- name: Install programming tools
+  apt:
+    name:
+      - cmake
+      - gcc
+      - clang
+      - gdb
+      - golang         # go
+      - dotnet-sdk     # Ensure the repository is added for .NET SDK
+      - python3        # Adjust as necessary for the desired Python version
+      - python3-pip    # Installing pip for Python
+      - nodejs
+      - npm
+      - sqlite3
+      - sqlitebrowser   # May not be available; check for PPA or alternate source
+      - wireshark
+      - docker.io
+      - docker-compose
+
+- name: Install IDEs
+  apt:
+    name:
+      - neovim
+      - code           # Visual Studio Code; may need to add repository
+      - qtcreator      # May need to check for availability
+
+# Note: AUR packages won't be available directly in Ubuntu
+# If you need Google Chrome or Etcher, consider downloading .deb files manually or using a repository
