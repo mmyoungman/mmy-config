@@ -62,12 +62,12 @@
     - name: Install AUR packages
       block:
         - name: Install yay
-            shell: |
-              git clone https://aur.archlinux.org/yay.git
-              cd yay
-              makepkg -si --noconfirm
-            args:
-              chdir: /tmp
+          shell: |
+            git clone https://aur.archlinux.org/yay.git
+            cd yay
+            makepkg -si --noconfirm
+          args:
+            chdir: /tmp
 
         - name: Clean up yay installation
           file:
