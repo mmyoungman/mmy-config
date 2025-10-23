@@ -28,7 +28,6 @@
           - 7zip
           - ffmpeg
           - entr
-          - etcher
 
     - name: Install programming stuff
       pacman:
@@ -76,5 +75,5 @@
 
         - name: Use yay to install AUR packages
           become: yes
-          shell: yay -S --noconfirm google-chrome
+          shell: yay -S --noconfirm google-chrome etcher-bin
 
