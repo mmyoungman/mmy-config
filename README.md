@@ -16,5 +16,5 @@ ansible-playbook workstation.yml --ask-become-pass
 ### TODO
 
 - Add ubuntu role tasks
-- Get neovim to install all plugins
+- Get neovim to install all plugins (wait for vim.pack in v0.12)
 - Write a server playbook

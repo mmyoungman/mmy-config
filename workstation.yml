@@ -52,6 +52,7 @@
         [ -f ~/.ideavimrc ] && mv ~/.ideavimrc ~/.ideavimrc$(date +%Y%m%d)
         ln -s $(pwd)/intellij/.ideavimrc ~/.ideavimrc
 
+        # @MarkFix v0.12 has a built in plugin manager...
         # nvim --headless -c 'Lazy install' -c 'Lazy update' -c 'quitall'
       args:
         chdir: "{{ playbook_dir }}"
