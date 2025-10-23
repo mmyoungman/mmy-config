@@ -1,0 +1,80 @@
+---
+
+- hosts: localhost
+  become: yes
+  tasks:
+
+    - name: Install general apps
+      pacman:
+        name:
+          - ansible
+          - git
+
+          # general apps
+          - firefox
+          - torbrowser-launcher
+          - gimp
+          - vlc
+          - audacious
+          - deluge-gtk
+          - galculator
+          - signal
+
+    - name: Install utils
+      pacman:
+        name:
+          # utils
+          - catfish # file search
+          - 7zip
+          - ffmpeg
+          - entr
+          - etcher
+
+    - name: Install programming stuff
+      pacman:
+        name:
+          # programming
+          - cmake
+          - gcc
+          - clang
+          - gdb
+
+          - go
+
+          - dotnet-sdk
+
+          - sqlitebrowser
+          - wireshark-qt
+          - curl
+
+          - docker
+          - docker-compose
+
+
+    - name: Install IDEs
+      pacman:
+        name:
+          # ide
+          - neovim
+          - neovim-qt
+          - qtcreator
+
+    - name: Install AUR packages
+      block:
+        - name: Install yay
+            shell: |
+              git clone https://aur.archlinux.org/yay.git
+              cd yay
+              makepkg -si --noconfirm
+            args:
+              chdir: /tmp
+
+        - name: Clean up yay installation
+          file:
+            path: /tmp/yay
+            state: absent
+
+        - name: Use yay to install AUR packages
+          become: yes
+          shell: yay -S --noconfirm google-chrome
+
