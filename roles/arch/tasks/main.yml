@@ -23,6 +23,7 @@
       - 7zip
       - ffmpeg
       - ripgrep
+      - fd
       - entr
       - zbar
       - xclip
