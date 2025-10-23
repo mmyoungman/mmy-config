@@ -3,5 +3,5 @@
 ### Ansible
 
 ```
-ansible-pull -U git@github.com:mmyoungman/mmy-config.git --checkout ansible local.yml
+ansible-pull -U git@github.com:mmyoungman/mmy-config.git --checkout ansible --ask-become-pass local.yml
 ```
