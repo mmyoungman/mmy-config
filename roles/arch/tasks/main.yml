@@ -1,4 +1,7 @@
 ---
+- name: Update all packages
+  pacman:
+    update_cache: yes
 - name: Install general apps
   pacman:
     name:
