@@ -33,6 +33,7 @@
       - jq
       - htop
       - curl
+      - viewnior
 
 - name: Install programming stuff
   pacman:
