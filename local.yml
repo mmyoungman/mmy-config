@@ -9,6 +9,7 @@
         name:
           - ansible
           - git
+          - yay # to install aur packages later
 
           # general apps
           - firefox
@@ -19,20 +20,25 @@
           - deluge-gtk
           - galculator
           - signal-desktop
+          - libreoffice-fresh
 
     - name: Install utils
       pacman:
         name:
-          # utils
           - catfish # file search
           - 7zip
           - ffmpeg
+          - ripgrep
           - entr
+          - zbar
+          - xclip
+          - jq
+          - htop
+          - curl
 
     - name: Install programming stuff
       pacman:
         name:
-          # programming
           - cmake
           - gcc
           - clang
@@ -42,44 +48,66 @@
 
           - dotnet-sdk
 
+          - python
+
+          - nodejs
+          - npm
+
+          - sqlite
           - sqlitebrowser
+
           - wireshark-qt
-          - curl
 
           - docker
           - docker-compose
 
-
     - name: Install IDEs
       pacman:
         name:
-          # ide
           - neovim
           - neovim-qt
+          - code
           - qtcreator
 
-    - name: Install AUR packages
-      block:
-        - name: Remove yay dir if exists
-          file:
-            path: /tmp/yay
-            state: absent
+    # @MarkFix shenanigans required to install AUR packages...
+    #- name: Install AUR packages with yay
+    #  become: no
+    #  shell: yay -S --noconfirm google-chrome etcher-bin
 
-        - name: Install yay
-          shell: |
-            git clone https://aur.archlinux.org/yay.git
-            cd yay
-            makepkg -si --noconfirm
-          args:
-            chdir: /tmp
-          become: no
+    - name: Set bash/nvim/vscode/idea config
+      become: no
+      shell: |
+        [ -L ~/.bashrc ] && rm ~/.bashrc
+        [ -f ~/.bashrc ] && mv ~/.bashrc ~/.bashrc$(date +%Y%m%d)
+        ln -s $(pwd)/bash/.bashrc ~/.bashrc
 
-        - name: Clean up yay installation
-          file:
-            path: /tmp/yay
-            state: absent
+        [ -L ~/.inputrc ] && rm ~/.inputrc
+        [ -f ~/.inputrc ] && mv ~/.inputrc ~/.inputrc$(date +%Y%m%d)
+        ln -s $(pwd)/bash/.inputrc ~/.inputrc
 
-        - name: Use yay to install AUR packages
-          become: yes
-          shell: yay -S --noconfirm google-chrome etcher-bin
+        [ -L ~/.xprofile ] && rm ~/.xprofile
+        [ -f ~/.xprofile ] && mv ~/.xprofile ~/.xprofile$(date +%Y%m%d)
+        ln -s $(pwd)/bash/.xprofile ~/.xprofile
 
+        [ -L ~/.gitconfig ] && rm ~/.gitconfig
+        [ -f ~/.gitconfig ] && mv ~/.gitconfig ~/.gitconfig$(date +%Y%m%d)
+        cp $(pwd)/git/.gitconfig ~/.gitconfig
+
+        [ -L ~/.config/nvim ] && rm ~/.config/nvim
+        [ -d ~/.config/nvim/ ] && mv ~/.config/nvim ~/.config/nvim$(date +%Y%m%d)
+        ln -s $(pwd)/nvim ~/.config/nvim
+
+        [ -L ~/.config/Code/User/settings.json ] && rm ~/.config/Code/User/settings.json
+        [ -f ~/.config/Code/User/settings.json ] && mv ~/.config/Code/User/settings.json ~/.config/Code/User/settings$(date +%Y%m%d).json
+        ln -s $(pwd)/vscode/settings.json ~/.config/Code/User/settings.json
+
+        [ -L ~/.config/Code\ -\ OSS/User/settings.json ] && rm ~/.config/Code\ -\ OSS/User/settings.json
+        [ -f ~/.config/Code\ -\ OSS/User/settings.json ] && mv ~/.config/Code\ -\ OSS/User/settings.json ~/.config/Code\ -\ OSS/User/settings$(date +%Y%m%d).json
+        ln -s $(pwd)/vscode/settings.json ~/.config/Code\ -\ OSS/User/settings.json
+
+        [ -L ~/.ideavimrc ] && rm ~/.ideavimrc
+        [ -f ~/.ideavimrc ] && mv ~/.ideavimrc ~/.ideavimrc$(date +%Y%m%d)
+        ln -s $(pwd)/intellij/.ideavimrc ~/.ideavimrc
+        # nvim --headless -c 'Lazy install' -c 'Lazy update' -c 'quitall'
+      args:
+        chdir: "{{ playbook_dir }}"
