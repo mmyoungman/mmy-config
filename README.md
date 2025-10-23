@@ -15,6 +15,6 @@ ansible-playbook workstation.yml --ask-become-pass
 
 ### TODO
 
-- Handle workstations with arch and ubuntu
+- Add ubuntu role tasks
 - Get neovim to install all plugins
 - Write a server playbook

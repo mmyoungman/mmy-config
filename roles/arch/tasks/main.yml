@@ -1,0 +1,69 @@
+---
+- name: Install general apps
+  pacman:
+    name:
+      - ansible
+      - git
+
+      # general apps
+      - firefox
+      - torbrowser-launcher
+      - gimp
+      - vlc
+      - audacious
+      - deluge-gtk
+      - galculator
+      - signal-desktop
+      - libreoffice-fresh
+
+- name: Install utils
+  pacman:
+    name:
+      - catfish # file search
+      - 7zip
+      - ffmpeg
+      - ripgrep
+      - entr
+      - zbar
+      - xclip
+      - jq
+      - htop
+      - curl
+
+- name: Install programming stuff
+  pacman:
+    name:
+      - cmake
+      - gcc
+      - clang
+      - gdb
+
+      - go
+
+      - dotnet-sdk
+
+      - python
+
+      - nodejs
+      - npm
+
+      - sqlite
+      - sqlitebrowser
+
+      - wireshark-qt
+
+      - docker
+      - docker-compose
+
+- name: Install IDEs
+  pacman:
+    name:
+      - neovim
+      - neovim-qt
+      - code
+      - qtcreator
+
+# @MarkFix shenanigans required to install AUR packages...
+#- name: Install AUR packages with yay
+#  become: no
+#  shell: yay -S --noconfirm google-chrome etcher-bin
