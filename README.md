@@ -1,6 +1,6 @@
 # Mark's config stuff
 
-### How to set up workstation
+### How to set up a workstation
 
 1. Install ansible
 
@@ -15,6 +15,6 @@ ansible-playbook workstation.yml --ask-become-pass
 
 ### TODO
 
-- Add ubuntu role tasks
+- Test ubuntu role tasks
 - Get neovim to install all plugins (wait for vim.pack in v0.12)
 - Write a server playbook
