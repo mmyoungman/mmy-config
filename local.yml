@@ -67,6 +67,7 @@
             makepkg -si --noconfirm
           args:
             chdir: /tmp
+          become: no
 
         - name: Clean up yay installation
           file:
