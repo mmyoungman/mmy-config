@@ -60,6 +60,11 @@
 
     - name: Install AUR packages
       block:
+        - name: Remove yay dir if exists
+          file:
+            path: /tmp/yay
+            state: absent
+
         - name: Install yay
           shell: |
             git clone https://aur.archlinux.org/yay.git
