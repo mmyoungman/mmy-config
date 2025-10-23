@@ -1,9 +1,10 @@
 ---
 
 - hosts: localhost
+  vars:
+    gitemail: "mark@[domain]" # avoid bot scraping via a template
   become: yes
   tasks:
-
     - name: Install general apps
       pacman:
         name:
@@ -90,8 +91,9 @@
         ln -s $(pwd)/bash/.xprofile ~/.xprofile
 
         [ -L ~/.gitconfig ] && rm ~/.gitconfig
-        [ -f ~/.gitconfig ] && mv ~/.gitconfig ~/.gitconfig$(date +%Y%m%d)
-        cp $(pwd)/git/.gitconfig ~/.gitconfig
+        [ -f ~/.gitconfig ] && [ ! -f ~/.gitconfig$(date +%Y%m%d) ] && mv ~/.gitconfig ~/.gitconfig$(date +%Y%m%d)
+        [ -f ~/.gitconfig ] && rm ~/.gitconfig
+        # we copy later using a template to obscure the email address
 
         [ -L ~/.config/nvim ] && rm ~/.config/nvim
         [ -d ~/.config/nvim/ ] && mv ~/.config/nvim ~/.config/nvim$(date +%Y%m%d)
@@ -108,6 +110,13 @@
         [ -L ~/.ideavimrc ] && rm ~/.ideavimrc
         [ -f ~/.ideavimrc ] && mv ~/.ideavimrc ~/.ideavimrc$(date +%Y%m%d)
         ln -s $(pwd)/intellij/.ideavimrc ~/.ideavimrc
+
         # nvim --headless -c 'Lazy install' -c 'Lazy update' -c 'quitall'
       args:
         chdir: "{{ playbook_dir }}"
+
+    - name: Copy gitconfig template
+      become: no
+      template:
+        src: git/gitconfig.j2
+        dest: ~/.gitconfig

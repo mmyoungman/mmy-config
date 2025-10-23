@@ -1,0 +1,14 @@
+[user]
+	name = Mark Youngman
+	email = {{ gitemail | replace('[domain]', 'youngman.info') }}
+[diff]
+	tool = nvimdiff
+[difftool "nvimdiff"]
+	cmd = nvim -d $LOCAL $REMOTE
+[difftool]
+	prompt = true
+[merge]
+	tool = nvimdiff
+	conflictstyle = diff3
+[mergetool "nvimdiff"]
+	cmd = nvim -d $BASE $LOCAL $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
