@@ -1,7 +1,11 @@
 # Mark's config stuff
 
-### Ansible
+### How to set up workstation
+
+1. Clone this repo
+
+2. `cd` into the repo dir
 
 ```
-ansible-pull -U git@github.com:mmyoungman/mmy-config.git --checkout ansible --ask-become-pass local.yml
+ansible-playbook local.yml --ask-become-pass
 ```

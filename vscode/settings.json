@@ -9,12 +9,17 @@
 
     "telemetry.enableCrashReporter": false,
     "telemetry.enableTelemetry": false,
+    "telemetry.telemetryLevel": "off",
+
+    "extensions.ignoreRecommendations": true,
 
     "files.autoSave": "afterDelay",
     "files.autoSaveDelay": 300,
-    "window.zoomLevel": -1,
+
+    "git.openRepositoryInParentFolders": "never",
+
     "editor.minimap.enabled": false,
-    "extensions.ignoreRecommendations": true,
+    "window.zoomLevel": -1,
 
     "editor.autoClosingBrackets": "never",
     "editor.autoClosingQuotes": "never",
@@ -23,19 +28,46 @@
     "editor.quickSuggestions": {
         "comments": "off",
         "strings": "off",
-        "other": "off"
+        "other": "off",
     },
-    "editor.wordBasedSuggestions": false,
+    "editor.wordBasedSuggestions": "off",
     "editor.suggestOnTriggerCharacters": false,
     "editor.snippetSuggestions": "none",
 
+    "html.autoClosingTags": true,
+
     "keyboard.dispatch": "keyCode",
+
     "vim.easymotion": true,
-    "vim.vimrc.enable": true,
-    "vim.vimrc.path": "$HOME/.config/nvim/init.vim",
+    "vim.enableNeovim": true,
+    "vim.neovimUseConfigFile": true,
+    "vim.neovimConfigPath": "$HOME/.config/nvim/",
+    "vim.insertModeKeyBindings": [],
+    "vim.normalModeKeyBindingsNonRecursive": [
+        {
+          "before": ["<C-h>"],
+          "after": ["^"]
+        },
+        {
+          "before": ["<C-l>"],
+          "after": ["$"]
+        },
+        {
+            "before": ["<leader>", "c", "a"],
+            "commands": ["editor.action.quickFix"],
+        },
+    ],
+    "vim.leader": "\\",
+    "vim.handleKeys": {
+        "<C-p>": false,
+    },
 
-    "html.autoClosingTags": false,
-
+    "[go]": {
+        "editor.defaultFormatter": "golang.go",
+        "editor.insertSpaces": false,
+        "editor.useTabStops": true,
+        "editor.tabSize": 4,
+    },
     "[csharp]": {
         "editor.tabSize": 4,
     },
@@ -48,4 +80,16 @@
     "[python]": {
         "editor.tabSize": 4,
     },
+    "[templ]": {
+        "editor.defaultFormatter": "a-h.templ"
+    },
+
+    "go.buildFlags": ["-tags=prod"],
+    //"go.buildFlags": [],
+
+    "tailwindCSS.includeLanguages": {
+        "templ": "html",
+    },
+    "go.toolsManagement.autoUpdate": true,
+    "workbench.editor.empty.hint": "hidden",
 }
