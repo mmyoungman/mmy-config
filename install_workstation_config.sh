@@ -13,9 +13,6 @@ for file in .bashrc .inputrc .xprofile .ideavimrc; do
   ln -s $CONFIG_FILES_DIR/$file "$HOME/$file"
 
   [ ! -L "$HOME/$file" ] && echo "symlink not found $HOME/$file" && exit 1
-  target=$(readlink -f "$HOME/$file")
-  expected=$CONFIG_FILES_DIR/$(basename "$HOME/$file")
-  [ "$target" != "$expected" ] && echo "sym link wrong $HOME/$file" && exit 1
 done
 
 [ -L $HOME/.config/Code/User/settings.json ] && rm $HOME/.config/Code/User/settings.json
@@ -31,9 +28,6 @@ done
 [ -d $HOME/.config/nvim ] && mv $HOME/.config/nvim $HOME/.config/nvim$(date +%Y%m%d)
 ln -s $CONFIG_FILES_DIR/nvim $HOME/.config/nvim
 [ ! -L "$HOME/.config/nvim" ] && echo "symlink not found $HOME/.config/nvm" && exit 1
-target=$(readlink -f "$HOME/.config/nvim")
-expected=$CONFIG_FILES_DIR/$(basename "$HOME/.config/nvim")
-[ "$target" != "$expected" ] && echo "sym link wrong $HOME/.config/nvim" && exit 1
 
 [ -L $HOME/.gitconfig ] && rm $HOME/.gitconfig
 [ -f $HOME/.gitconfig ] && [ ! -f $HOME/.gitconfig$(date +%Y%m%d) ] && mv $HOME/.gitconfig $HOME/.gitconfig$(date +%Y%m%d)
