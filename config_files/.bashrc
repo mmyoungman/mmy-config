@@ -2,6 +2,8 @@
 # ~/.bashrc
 #
 
+source $HOME/.xprofile
+
 #stty -ixon # Disable ctrl-s and ctrl-q
 #shopt -s autocd # cd into dir by typing dir name
 HISTSIZE= HISTFILESIZE= # Infinite history
@@ -65,14 +67,12 @@ alias sdn='shutdown now'
 
 alias dotnetall='dotnet clean; dotnet build; dotnet run'
 alias dfe-admin='export IdpConfig=Keycloak; dotnet clean; dotnet build; trap : INT; dotnet run'
+alias dfe-frontend='pnpm run build; pnpm run start'
 alias dfe-data-processor='func host start --port 7071 --pause-on-error'
 alias dfe-publisher='func host start --port 7072 --pause-on-error'
-alias dfe-frontend='pnpm run build; pnpm run start'
-
-if [ $machine = "linux" ]; then
-   setxkbmap -option "caps:escape"
-   setxkbmap -option "terminate:ctrl_alt_bksp"
-fi
+alias dfe-notify='dotnet clean; func host start --port 7073 --pause-on-error'
+alias dfe-public-data-processor='dotnet clean; func host start --port 7074 --pause-on-error'
+alias dfe-analytics='dotnet clean; func host start --port 7075 --pause-on-error'
 
 #PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] ' # without git branch
 PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;33m\]$(__git_ps1 " [%s]")\[\033[01;32m\]]\$\[\033[00m\] '
@@ -92,12 +92,15 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 #[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # For dotnet
-#export DOTNET_ROOT=/usr/lib/dotnet
-export PATH="$PATH:$HOME/.config/dotnet"
+export DOTNET_ROOT=$HOME/.dotnet
 # Add .NET Core SDK tools
-export PATH="$PATH:$HOME/.dotnet/tools"
+export PATH="$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools"
+
 # Go stuff
 export PATH="$PATH:$HOME/go/bin"
+
+# DuckDb
+export PATH="$PATH:$HOME/.duckdb/cli/latest"
 
 # For emscripten/webassembly
 #[ -f $HOME/projects/emsdk/emsdk_env.sh ] && source $HOME/projects/emsdk/emsdk_env.sh ?> /dev/null
