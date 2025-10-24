@@ -1,5 +1,6 @@
 ---
 - name: Update all packages
+  changed_when: false
   apt:
     update_cache: yes
 
@@ -17,7 +18,7 @@
       - audacious
       - deluge
       - galculator
-      - signal-desktop  # Check if this is available from a suitable repository
+      #- signal-desktop
       - libreoffice
 
 - name: Install utils
@@ -27,9 +28,9 @@
       - p7zip-full    # 7zip
       - ffmpeg
       - ripgrep
-      - fd-find        # fd
+      - fd-find
       - entr
-      - zbar
+      #- zbar
       - xclip
       - jq
       - htop
@@ -42,24 +43,23 @@
       - gcc
       - clang
       - gdb
-      - golang         # go
-      - dotnet-sdk     # Ensure the repository is added for .NET SDK
-      - python3        # Adjust as necessary for the desired Python version
-      - python3-pip    # Installing pip for Python
-      - nodejs
-      - npm
-      - sqlite3
-      - sqlitebrowser   # May not be available; check for PPA or alternate source
+      - golang
+      #- dotnet-sdk
+      #- python3
+      #- python3-pip
+      #- nodejs
+      #- npm
+      #- sqlite3
+      - sqlitebrowser
       - wireshark
-      - docker.io
-      - docker-compose
+      #- docker.io
+      #- docker-compose
 
 - name: Install IDEs
   apt:
     name:
       - neovim
-      - code           # Visual Studio Code; may need to add repository
-      - qtcreator      # May need to check for availability
+      - code           # Visual Studio Code
+      - qtcreator
 
-# Note: AUR packages won't be available directly in Ubuntu
-# If you need Google Chrome or Etcher, consider downloading .deb files manually or using a repository
+# Google Chrome, Etcher
