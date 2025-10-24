@@ -17,48 +17,14 @@
 
     - name: Set bash/nvim/vscode/idea config
       become: no
-      shell: |
-        [ -L ~/.bashrc ] && rm ~/.bashrc
-        [ -f ~/.bashrc ] && mv ~/.bashrc ~/.bashrc$(date +%Y%m%d)
-        ln -s $(pwd)/config_files/.bashrc ~/.bashrc
-
-        [ -L ~/.inputrc ] && rm ~/.inputrc
-        [ -f ~/.inputrc ] && mv ~/.inputrc ~/.inputrc$(date +%Y%m%d)
-        ln -s $(pwd)/config_files/.inputrc ~/.inputrc
-
-        [ -L ~/.xprofile ] && rm ~/.xprofile
-        [ -f ~/.xprofile ] && mv ~/.xprofile ~/.xprofile$(date +%Y%m%d)
-        ln -s $(pwd)/config_files/.xprofile ~/.xprofile
-
-        [ -L ~/.gitconfig ] && rm ~/.gitconfig
-        [ -f ~/.gitconfig ] && [ ! -f ~/.gitconfig$(date +%Y%m%d) ] && mv ~/.gitconfig ~/.gitconfig$(date +%Y%m%d)
-        [ -f ~/.gitconfig ] && rm ~/.gitconfig
-        # we copy later using a template to obscure the email address
-
-        [ -L ~/.config/nvim ] && rm ~/.config/nvim
-        [ -d ~/.config/nvim/ ] && mv ~/.config/nvim ~/.config/nvim$(date +%Y%m%d)
-        ln -s $(pwd)/config_files/nvim ~/.config/nvim
-
-        [ -L ~/.config/Code/User/settings.json ] && rm ~/.config/Code/User/settings.json
-        [ -f ~/.config/Code/User/settings.json ] && mv ~/.config/Code/User/settings.json ~/.config/Code/User/settings$(date +%Y%m%d).json
-        ln -s $(pwd)/config_files/vscode-settings.json ~/.config/Code/User/settings.json
-
-        # @MarkFix arch specific...
-        [ -L ~/.config/Code\ -\ OSS/User/settings.json ] && rm ~/.config/Code\ -\ OSS/User/settings.json
-        [ -f ~/.config/Code\ -\ OSS/User/settings.json ] && mv ~/.config/Code\ -\ OSS/User/settings.json ~/.config/Code\ -\ OSS/User/settings$(date +%Y%m%d).json
-        ln -s $(pwd)/config_files/vscode-settings.json ~/.config/Code\ -\ OSS/User/settings.json
-
-        [ -L ~/.ideavimrc ] && rm ~/.ideavimrc
-        [ -f ~/.ideavimrc ] && mv ~/.ideavimrc ~/.ideavimrc$(date +%Y%m%d)
-        ln -s $(pwd)/config_files/.ideavimrc ~/.ideavimrc
-
-        # @MarkFix v0.12 has a built in plugin manager...
-        # nvim --headless -c 'Lazy install' -c 'Lazy update' -c 'quitall'
+      changed_when: false
+      shell: bash {{ playbook_dir }}/install_workstation_config.sh {{ playbook_dir }}
       args:
         chdir: "{{ playbook_dir }}"
 
     - name: Copy gitconfig template
       become: no
+      changed_when: false
       template:
         src: config_files/gitconfig.j2
         dest: ~/.gitconfig
