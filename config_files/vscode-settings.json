@@ -69,6 +69,8 @@
         "editor.tabSize": 4,
     },
     "[csharp]": {
+	"editor.defaultFormatter": "csharpier.csharpier-vscode",
+	"editor.formatOnSave": true,
         "editor.tabSize": 4,
     },
     "[javascript]": {
@@ -92,4 +94,31 @@
     },
     "go.toolsManagement.autoUpdate": true,
     "workbench.editor.empty.hint": "hidden",
+
+    "azureFunctions.funcCliPath": "/home/mark/.local/share/pnpm/func",
+    "@azure.argTenant": "",
+    "mssql.connectionGroups": [
+        {
+            "name": "ROOT",
+            "id": "95B86144-6459-4BF3-A884-58CF3C97010E"
+        }
+    ],
+    "mssql.connections": [
+        {
+            "authenticationType": "SqlLogin",
+            "connectTimeout": 30,
+            "applicationName": "vscode-mssql",
+            "applicationIntent": "ReadWrite",
+            "profileName": "EES DBs",
+            "server": "localhost",
+            "user": "SA",
+            "password": "",
+            "encrypt": "Optional",
+            "groupId": "95B86144-6459-4BF3-A884-58CF3C97010E",
+            "id": "866CDCE3-025A-4825-96ED-227F94512597",
+            "database": "",
+            "commandTimeout": 30,
+            "containerName": "explore-education-statistics_db_1"
+        }
+    ],
 }
