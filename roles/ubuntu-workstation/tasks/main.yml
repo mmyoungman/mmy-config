@@ -11,8 +11,9 @@
       - git
 
       # general apps
-      - firefox
-      - torbrowser-launcher  # This may need to be installed via another method
+      # TODO: Add google-chrome-stable from PPA?
+      #- firefox # not for work!
+      #- torbrowser-launcher  # This may need to be installed via another method
       - gimp
       - vlc
       - audacious
