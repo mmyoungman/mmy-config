@@ -30,23 +30,6 @@ vim.keymap.set('n', '<C-l>', '$', { noremap = true })
 vim.keymap.set('v', '<C-h>', '^', { noremap = true })
 vim.keymap.set('v', '<C-l>', '$', { noremap = true })
 
--- quickfix
---function QuickFixOpen()
---  -- quickfix_is_open = vim.fn.winsaveview()
---  -- currentWindow = vim.api.nvim_get_current_win()
---  -- vim.fn.copen
---  -- TODO: execute currentWindow . "wincmd w" thingy here
---  -- vim.fn.winrestview(quickfix_is_open)
---  vim.cmd [[
---  	let quickfix_is_open = winsaveview() "save cursor position
---  	let currentWindow = winnr() "save window cursor is in
---  	copen
---  	execute currentWindow . "wincmd w"
---  	call winrestview(quickfix_is_open)
---  ]]
---end
---
---vim.keymap.set('n', '<leader>h', ':call QuickFixOpen()<CR>', { noremap = true})
 vim.keymap.set('n', '<leader>h', ':copen<CR>', { noremap = true })
 vim.keymap.set('n', '<leader>j', ':write<CR>:cnext<CR>', { noremap = true })
 vim.keymap.set('n', '<leader>k', ':cprevious<CR>', { noremap = true })
@@ -76,36 +59,40 @@ vim.keymap.set("n", "<C-Down>", ":resize -2<CR>", { noremap = true })
 vim.keymap.set("n", "<C-Left>", ":vertical resize -2<CR>", { noremap = true })
 vim.keymap.set("n", "<C-Right>", ":vertical resize +2<CR>", { noremap = true })
 
--- indent
-vim.keymap.set("v", "<", "<gv", { noremap = true })
-vim.keymap.set("v", ">", ">gv", { noremap = true })
-
 -- keep clipboard when pasting over visual selection
 vim.keymap.set("v", "p", '"_dP', { noremap = true })
 
 function Build(buildCmd, errorformat)
-  local quickfixfileCmd = string.format("silent !%s &> quickfixfile", buildCmd)
+  local separateOutputCmd = string.format("%s 2> stderr.log", buildCmd)
+  local stdout = vim.fn.system(separateOutputCmd)
+
+  if #stdout > 0 then
+    vim.notify(stdout)
+  end
 
   -- for debugging
-  --print(quickfixCmd)
-  --vim.cmd("!cat quickfixfile")
-
-  vim.cmd(quickfixfileCmd)
+  --print(separateOutputCmd)
+  --vim.fn.system("cat stderr.log")
 
   vim.opt.errorformat = errorformat
-  vim.cmd("silent cfile quickfixfile")
-  vim.cmd("silent !rm quickfixfile")
+  vim.cmd("silent cfile stderr.log")
 
   if vim.tbl_isempty(vim.fn.getqflist()) then
     vim.cmd("cclose")
-    vim.notify("Build successful")
+    -- if errors in stderroutput not caught by quickfix, notify user
+    if vim.fn.getfsize("stderr.log") ~= 0 then
+      vim.notify("Build failed:")
+      vim.notify(vim.fn.system("cat stderr.log"))
+    end
   else
     vim.cmd("copen")
   end
+
+  vim.cmd("silent !rm stderr.log")
 end
 
 function Run(runCmd, errorformat)
-  local runOutputFileCmd = string.format("silent !%s &> runOutputFile", runCmd)
+  local runOutputFileCmd = string.format("silent !%s 2> stderr.log", runCmd)
 
   -- for debugging
   --print(runOutputFileCmd)
@@ -116,15 +103,21 @@ function Run(runCmd, errorformat)
   if (errorformat ~= nil)
   then
     vim.opt.errorformat = errorformat
-    vim.cmd("silent cfile runOutputFile")
-    vim.cmd("silent !rm runOutputFile")
+    vim.cmd("silent cfile stderr.log")
 
     if vim.tbl_isempty(vim.fn.getqflist()) then
       vim.cmd("cclose")
+      -- if errors in stderroutput not caught by quickfix, notify user
+      if vim.fn.getfsize("stderr.log") ~= 0 then
+        vim.notify("Run failed:")
+        vim.notify(vim.fn.system("cat stderr.log"))
+      end
     else
       vim.cmd("copen")
     end
   end
+
+  vim.cmd("silent !rm stderr.log")
 end
 
 vim.api.nvim_create_user_command('EyestrBuild', function()
@@ -137,8 +130,8 @@ vim.api.nvim_create_user_command('EyestrRun', function()
   Run("./scripts/run.sh", "[%tRROR] (%f:%l) %m,[D%tBUG] (%f:%l) %m,%-G%.%#")
 end, {})
 
-vim.keymap.set("n", "<F5>", ":EyestrBuild<CR>", { noremap = true })
-vim.keymap.set("n", "<F12>", ":EyestrRun<CR>", { noremap = true })
+--vim.keymap.set("n", "<F5>", ":EyestrBuild<CR>", { noremap = true })
+--vim.keymap.set("n", "<F12>", ":EyestrRun<CR>", { noremap = true })
 
 vim.api.nvim_create_user_command('EESBuild', function()
   local buildCmd =
@@ -147,26 +140,18 @@ vim.api.nvim_create_user_command('EESBuild', function()
   Build(buildCmd, errorformat)
 end, {})
 
--- EES project settings
---function SetCSFileSettingsForEES()
---  vim.opt_local.tabstop = 4
---  vim.opt_local.softtabstop = 4
---  vim.opt_local.shiftwidth = 4
---end
---function SetJSFileSettingsForEES()
---  vim.opt_local.tabstop = 2
---  vim.opt_local.softtabstop = 2
---  vim.opt_local.shiftwidth = 2
---end
---if (string.find(vim.fn.getcwd(), "explore%-education%-statistics")) then
---  vim.notify('Settings for EES')
---  --vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
---  --  pattern = "*.cs",
---  --  callback = "SetCSFileSettingsForEES",
---  --})
---  --vim.cmd("autocmd BufRead,BufNewFile cs :call SetCSFileSettingsForEES()")
---  --vim.cmd("autocmd FileType javascript,javascriptreact,typescript,typescriptreact,typescript.tsx :call SetJSFileSettingsForEES()")
---end
+vim.api.nvim_create_user_command('WebGameLinuxBuild', function()
+  local buildCmd = "./build_linux.sh"
+  local errorformat = "%f:%l:%c: %trror: %m,%f:%l:%c: %tarning: %m,%-G%.%#"
+  Build(buildCmd, errorformat)
+end, {})
+
+vim.api.nvim_create_user_command('WebGameLinuxRun', function()
+  Run("./build/main", "[%tRROR] (%f:%l) %m,[D%tBUG] (%f:%l) %m,%-G%.%#")
+end, {})
+
+vim.keymap.set("n", "<F5>", ":WebGameLinuxBuild<CR>", { noremap = true })
+vim.keymap.set("n", "<F12>", ":WebGameLinuxRun<CR>", { noremap = true })
 
 -- Install package manager
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -187,46 +172,41 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
-  -- Git related plugins
-  -- 'tpope/vim-fugitive',
-  -- 'tpope/vim-rhubarb',
-
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
 
   'easymotion/vim-easymotion',
-  --{
-  --  -- LSP Configuration & Plugins
-  --  'neovim/nvim-lspconfig',
-  --  dependencies = {
-  --    -- Automatically install LSPs to stdpath for neovim
-  --    { 'mason-org/mason.nvim', config = true },
-  --    'mason-org/mason-lspconfig.nvim',
+  {
+    -- LSP Configuration & Plugins
+    'neovim/nvim-lspconfig',
+    dependencies = {
+      -- Automatically install LSPs to stdpath for neovim
+      { 'mason-org/mason.nvim', config = true },
+      'mason-org/mason-lspconfig.nvim',
 
-  --    -- Useful status updates for LSP
-  --    -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-  --    { 'j-hui/fidget.nvim',       tag = 'legacy', opts = {} },
+      -- Useful status updates for LSP
+      -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
+      { 'j-hui/fidget.nvim',       tag = 'legacy', opts = {} },
 
-  --    -- Additional lua configuration, makes nvim stuff amazing!
-  --    'folke/neodev.nvim',
-  --  },
-  --},
+      -- Additional lua configuration, makes nvim stuff amazing!
+      'folke/neodev.nvim',
+    },
+  },
+  {
+    -- Autocompletion
+    'hrsh7th/nvim-cmp',
+    dependencies = {
+      -- Snippet Engine & its associated nvim-cmp source
+      'L3MON4D3/LuaSnip',
+      'saadparwaiz1/cmp_luasnip',
 
-  --{
-  --  -- Autocompletion
-  --  'hrsh7th/nvim-cmp',
-  --  dependencies = {
-  --    -- Snippet Engine & its associated nvim-cmp source
-  --    'L3MON4D3/LuaSnip',
-  --    'saadparwaiz1/cmp_luasnip',
+      -- Adds LSP completion capabilities
+      'hrsh7th/cmp-nvim-lsp',
 
-  --    -- Adds LSP completion capabilities
-  --    'hrsh7th/cmp-nvim-lsp',
-
-  --    -- Adds a number of user-friendly snippets
-  --    'rafamadriz/friendly-snippets',
-  --  },
-  --},
+      -- Adds a number of user-friendly snippets
+      'rafamadriz/friendly-snippets',
+    },
+  },
 
   -- Useful plugin to show you pending keybinds.
   { 'folke/which-key.nvim',  opts = {} },
@@ -291,9 +271,6 @@ require('lazy').setup({
     opts = {},
   },
 
-  -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim', opts = {} },
-
   {
     'nvim-telescope/telescope.nvim',
     branch = '0.1.x',
@@ -320,10 +297,12 @@ require('lazy').setup({
 }, {})
 
 vim.hidden = true
+
 vim.expandtab = true
 vim.shiftwidth = 2
 vim.tabstop = 2
 vim.showtabline = 2
+
 vim.mouse = 'a'
 
 vim.splitbelow = true
@@ -525,12 +504,7 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- [[ Configure LSP ]]
 --  This function gets run when an LSP connects to a particular buffer.
 local on_attach = function(_, bufnr)
-  -- NOTE: Remember that lua is a real programming language, and as such it is possible
-  -- to define small helper and utility functions so you don't have to repeat yourself
-  -- many times.
-  --
-  -- In this case, we create a function that lets us more easily define mappings specific
-  -- for LSP related items. It sets the mode, buffer and description for us each time.
+  print("LSP attached to buffer: ", bufnr)
   local nmap = function(keys, func, desc)
     if desc then
       desc = 'LSP: ' .. desc
@@ -576,8 +550,8 @@ end
 --  If you want to override the default filetypes that your language server will attach to you can
 --  define the property 'filetypes' to the map in question.
 local servers = {
-  -- clangd = {},
-  -- gopls = {},
+  clangd = {},
+  gopls = {},
   templ = { filetypes = { 'templ' } },
 
   pyright = {
@@ -600,84 +574,73 @@ local servers = {
 }
 
 -- Setup neovim lua configuration
---require('neodev').setup()
+require('neodev').setup()
 
 -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
---local capabilities = vim.lsp.protocol.make_client_capabilities()
---capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
 -- Ensure the servers above are installed
---local mason_lspconfig = require 'mason-lspconfig'
+local mason_lspconfig = require 'mason-lspconfig'
 
---mason_lspconfig.setup {
---  ensure_installed = vim.tbl_keys(servers),
---  handlers = {
---    function(server_name)
---      require('lspconfig')[server_name].setup {
---        capabilities = capabilities,
---        on_attach = on_attach,
---        settings = servers[server_name],
---        filetypes = (servers[server_name] or {}).filetypes,
---      }
---    end
---  },
---}
-
---mason_lspconfig.setup_handlers {
---  function(server_name)
---    require('lspconfig')[server_name].setup {
---      capabilities = capabilities,
---      on_attach = on_attach,
---      settings = servers[server_name],
---      filetypes = (servers[server_name] or {}).filetypes,
---    }
---  end
---}
+mason_lspconfig.setup {
+  ensure_installed = vim.tbl_keys(servers),
+  handlers = {
+    function(server_name)
+      require('lspconfig')[server_name].setup {
+        capabilities = capabilities,
+        on_attach = on_attach,
+        settings = servers[server_name],
+        filetypes = (servers[server_name] or {}).filetypes,
+      }
+    end
+  },
+}
 
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
---local cmp = require 'cmp'
---local luasnip = require 'luasnip'
---require('luasnip.loaders.from_vscode').lazy_load()
---luasnip.config.setup {}
+local cmp = require 'cmp'
+local luasnip = require 'luasnip'
+require('luasnip.loaders.from_vscode').lazy_load()
+luasnip.config.setup {}
 
---cmp.setup {
---  snippet = {
---    expand = function(args)
---      luasnip.lsp_expand(args.body)
---    end,
---  },
---  mapping = cmp.mapping.preset.insert {
---    ['<C-n>'] = cmp.mapping.select_next_item(),
---    ['<C-p>'] = cmp.mapping.select_prev_item(),
---    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
---    ['<C-f>'] = cmp.mapping.scroll_docs(4),
---    ['<C-Space>'] = cmp.mapping.complete {},
---    ['<CR>'] = cmp.mapping.confirm {
---      behavior = cmp.ConfirmBehavior.Replace,
---      select = true,
---    },
---    ['<Tab>'] = cmp.mapping(function(fallback)
---      if cmp.visible() then
---        cmp.select_next_item()
---      elseif luasnip.expand_or_locally_jumpable() then
---        luasnip.expand_or_jump()
---      else
---        fallback()
---      end
---    end, { 'i', 's' }),
---    ['<S-Tab>'] = cmp.mapping(function(fallback)
---      if cmp.visible() then
---        cmp.select_prev_item()
---      elseif luasnip.locally_jumpable(-1) then
---        luasnip.jump(-1)
---      else
---        fallback()
---      end
---    end, { 'i', 's' }),
---  },
---  sources = {
---    { name = 'nvim_lsp' },
---    { name = 'luasnip' },
---  },
---}
+cmp.setup {
+  snippet = {
+    expand = function(args)
+      luasnip.lsp_expand(args.body)
+    end,
+  },
+  mapping = cmp.mapping.preset.insert {
+    ['<C-n>'] = cmp.mapping.select_next_item(),
+    ['<C-p>'] = cmp.mapping.select_prev_item(),
+    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+    ['<C-Space>'] = cmp.mapping.complete {},
+    ['<CR>'] = cmp.mapping.confirm {
+      behavior = cmp.ConfirmBehavior.Replace,
+      select = true,
+    },
+    ['<Tab>'] = cmp.mapping(function(fallback)
+      if cmp.visible() then
+        cmp.select_next_item()
+      elseif luasnip.expand_or_locally_jumpable() then
+        luasnip.expand_or_jump()
+      else
+        fallback()
+      end
+    end, { 'i', 's' }),
+    ['<S-Tab>'] = cmp.mapping(function(fallback)
+      if cmp.visible() then
+        cmp.select_prev_item()
+      elseif luasnip.locally_jumpable(-1) then
+        luasnip.jump(-1)
+      else
+        fallback()
+      end
+    end, { 'i', 's' }),
+  },
+  sources = {
+    { name = 'nvim_lsp' },
+    { name = 'luasnip' },
+  },
+}
