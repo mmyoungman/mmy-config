@@ -13,6 +13,11 @@
 ansible-playbook workstation.yml --ask-become-pass
 ```
 
+temporary fix for newer ubuntu versions:
+```
+ANSIBLE_BECOME_EXE=sudo.ws ansible-playbook workstation.yml --ask-become-pass
+```
+
 ### TODO
 
 - Test ubuntu role tasks
