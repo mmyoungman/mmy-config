@@ -20,7 +20,7 @@ esac
 # Use nvim, if available
 #[ -f /usr/bin/nvim ] && alias vim=nvim
 #[ -f /usr/bin/nvim ] && EDITOR=/usr/bin/nvim
-EDITOR=nvim
+export EDITOR=nvim
 
 # Git stuff
 GIT_DIR=$HOME/.config/git
