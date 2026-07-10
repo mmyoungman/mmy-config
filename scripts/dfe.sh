@@ -2,8 +2,9 @@
 
 xfce4-terminal \
 	--title="db" --working-directory=/home/mark/projects/explore-education-statistics -e "bash -c 'trap: INT; docker-compose up db; exec bash'" \
-	--tab -T "storage" --working-directory=/home/mark/projects/explore-education-statistics -e "bash -c 'trap : INT; docker-compose up data-storage; exec bash'" \
+	--tab -T "data-storage" --working-directory=/home/mark/projects/explore-education-statistics -e "bash -c 'trap : INT; docker-compose up data-storage; exec bash'" \
 	--tab -T "idp" --working-directory=/home/mark/projects/explore-education-statistics -e "bash -c 'trap : INT; docker-compose up idp; exec bash'" \
+	--tab -T "data-screener" --working-directory=/home/mark/projects/explore-education-statistics -e "bash -c 'trap : INT; docker-compose up data-screener; exec bash'" \
 	--tab -T "admin" --working-directory=/home/mark/projects/explore-education-statistics/src/GovUk.Education.ExploreEducationStatistics.Admin -e "bash -c 'export IdpConfig=Keycloak; dotnet clean; dotnet build; trap : INT; dotnet run; cat ~/dfe.sh | grep admin; exec bash'" \
 	--tab -T "content" --working-directory=/home/mark/projects/explore-education-statistics/src/GovUk.Education.ExploreEducationStatistics.Content.Api -e "bash -c 'dotnet clean; dotnet build; trap : INT; dotnet run; exec bash'" \
 	--tab -T "data" --working-directory=/home/mark/projects/explore-education-statistics/src/GovUk.Education.ExploreEducationStatistics.Data.Api -e "bash -c 'dotnet clean; dotnet build; trap : INT; dotnet run; exec bash'" \
