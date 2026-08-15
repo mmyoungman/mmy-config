@@ -69,8 +69,8 @@
         "editor.tabSize": 4,
     },
     "[csharp]": {
-	"editor.defaultFormatter": "csharpier.csharpier-vscode",
-	"editor.formatOnSave": true,
+	    "editor.defaultFormatter": "csharpier.csharpier-vscode",
+	    "editor.formatOnSave": true,
         "editor.tabSize": 4,
     },
     "[javascript]": {
@@ -83,11 +83,12 @@
         "editor.tabSize": 4,
     },
     "[templ]": {
-        "editor.defaultFormatter": "a-h.templ"
+        "editor.defaultFormatter": "a-h.templ",
+	    "editor.formatOnSave": true,
     },
 
-    "go.buildFlags": ["-tags=prod"],
-    //"go.buildFlags": [],
+    //"go.buildFlags": ["-tags=prod"],
+    "go.buildFlags": [],
 
     "tailwindCSS.includeLanguages": {
         "templ": "html",
@@ -121,4 +122,6 @@
             "containerName": "explore-education-statistics_db_1"
         }
     ],
+    "templ.executablePath": "/home/mark/go/bin/templ",
+    "claudeCode.preferredLocation": "panel",
 }
