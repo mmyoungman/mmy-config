@@ -83,6 +83,7 @@ alias grb="git rebase"
 __git_complete grb _git_rebase
 alias glg="git log --oneline -n 20"
 __git_complete glg _git_log
+alias gwl="git_worktree_list" # function defined at the bottom of this file
 
 alias ls='ls --color=auto'
 alias ll='ls -l --color=auto'
@@ -150,3 +151,81 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
+# Functions
+
+# List git worktrees by what's in them; cd into one by number or fuzzy name.
+# Aliased to gwl above.
+#   gwl          list every worktree of the current repo, most recently touched first
+#   gwl 3        cd into #3
+#   gwl enemy    cd into the first worktree whose dir or branch matches "enemy"
+git_worktree_list() {
+    git rev-parse --git-common-dir >/dev/null 2>&1 || { echo "gwl: not in a git repo" >&2; return 1; }
+
+    # Most recently touched first, keyed on tracked-file mtime, not commit date.
+    local -a rows
+    mapfile -t rows < <(
+        git worktree list --porcelain | sed -n 's/^worktree //p' | while read -r p; do
+            printf '%s\t%s\n' "$(_git_worktree_touched "$p")" "$p"
+        done | sort -rn
+    )
+
+    # Count commits against whatever the main worktree has checked out.
+    local main base
+    main=$(dirname "$(cd "$(git rev-parse --git-common-dir)" && pwd)")
+    base=$(git -C "$main" symbolic-ref --short HEAD 2>/dev/null || echo master)
+
+    local -a paths touched
+    local i
+    for i in "${!rows[@]}"; do
+        touched[i]=${rows[$i]%%$'\t'*}
+        paths[i]=${rows[$i]#*$'\t'}
+    done
+
+    local p branch dirty ahead
+    if [ $# -eq 0 ]; then
+        for i in "${!paths[@]}"; do
+            p=${paths[$i]}
+            branch=$(git -C "$p" branch --show-current 2>/dev/null)
+            [ -n "$branch" ] || branch="(detached)"
+            dirty=""
+            [ -n "$(git -C "$p" status --porcelain 2>/dev/null)" ] && dirty="*"
+            ahead=$(git -C "$p" rev-list --count "$base..HEAD" 2>/dev/null)
+            if [ "${ahead:-0}" -gt 0 ] 2>/dev/null; then ahead="+$ahead"; else ahead=""; fi
+            printf '%2d  %-26.26s %-26.26s %-4s %-9s · %s\n' \
+                $((i + 1)) "$(basename "$p")" "$branch" "$dirty$ahead" \
+                "$(_git_worktree_ago "${touched[$i]:-0}")" \
+                "$(git -C "$p" log -1 --format=%s 2>/dev/null | cut -c1-50)"
+        done
+        return 0
+    fi
+
+    local target=""
+    if [[ $1 =~ ^[0-9]+$ ]] && [ "$1" -ge 1 ] && [ "$1" -le "${#paths[@]}" ]; then
+        target=${paths[$(($1 - 1))]}
+    else
+        for p in "${paths[@]}"; do
+            branch=$(git -C "$p" branch --show-current 2>/dev/null)
+            if [[ ${p,,} == *"${1,,}"* || ${branch,,} == *"${1,,}"* ]]; then target=$p; break; fi
+        done
+    fi
+
+    [ -n "$target" ] || { echo "gwl: no worktree matching '$1'" >&2; return 1; }
+    cd "$target" || return 1
+    git log --oneline -1
+}
+
+# Newest mtime among a worktree's tracked files, as a unix timestamp.
+_git_worktree_touched() {
+    (cd "$1" 2>/dev/null && git ls-files -z 2>/dev/null |
+        xargs -0r stat -c %Y -- 2>/dev/null | sort -rn | head -1)
+}
+
+_git_worktree_ago() {
+    local s=$(($(date +%s) - $1))
+    if [ "$s" -lt 60 ]; then echo "${s}s ago"
+    elif [ "$s" -lt 3600 ]; then echo "$((s / 60))m ago"
+    elif [ "$s" -lt 86400 ]; then echo "$((s / 3600))h ago"
+    else echo "$((s / 86400))d ago"
+    fi
+}
