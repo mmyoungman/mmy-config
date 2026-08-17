@@ -28,17 +28,41 @@ if [ ! -d $GIT_DIR ]; then
     mkdir -p $GIT_DIR
 fi
 
+# These two are fetched from upstream, so they are pinned by sha256 and a file
+# that fails verification is not sourced. The URLs track master, so an upstream
+# change trips the check: re-verify the new file, then update the hash here.
+GIT_PROMPT_SHA256='7ff718f4a06fd0a0be7edfef926abb41b1353c48c1515ad312d226965b74943a'
+GIT_COMPLETION_SHA256='cdb0883002cf02e2e9f3c6888341c7213eddb0b56729ef706719cd3d716fb753'
+
+source_pinned() {
+    local path=$1 url=$2 want=$3 got
+    if [ ! -f "$path" ]; then
+        curl -fsS --proto '=https' --tlsv1.2 -o "$path" "$url" \
+            || { echo "bashrc: could not fetch ${path##*/}" >&2; return 1; }
+    fi
+    got=$(sha256sum "$path" | cut -d' ' -f1)
+    if [ "$got" != "$want" ]; then
+        echo "bashrc: sha256 mismatch for ${path##*/} - not sourced" >&2
+        return 1
+    fi
+    source "$path"
+}
+
 GIT_PROMPT=$GIT_DIR/git-prompt.sh
-if [ ! -f $GIT_PROMPT ]; then
-    curl -o $GIT_PROMPT 'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh'
+if ! source_pinned "$GIT_PROMPT" \
+    'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh' \
+    "$GIT_PROMPT_SHA256"; then
+    # Keep PS1 working rather than erroring on every prompt.
+    __git_ps1() { :; }
 fi
-source $GIT_PROMPT
 
 GIT_COMPLETION=$GIT_DIR/git-completion.bash
-if [ ! -f $GIT_COMPLETION ]; then
-    curl -o $GIT_COMPLETION 'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash'
+if ! source_pinned "$GIT_COMPLETION" \
+    'https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash' \
+    "$GIT_COMPLETION_SHA256"; then
+    # Keep the __git_complete calls below from erroring.
+    __git_complete() { :; }
 fi
-source $GIT_COMPLETION
 
 # Git aliases
 alias gst="git status"
