@@ -29,6 +29,7 @@
       - p7zip-full    # 7zip
       - ffmpeg
       - ripgrep
+      - fzf           # fuzzy finder, required by nvim's fzf-lua
       - fd-find
       - entr
       #- zbar
