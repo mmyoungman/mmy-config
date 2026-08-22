@@ -34,7 +34,10 @@ ln -s $CONFIG_FILES_DIR/nvim $HOME/.config/nvim
 [ -f $HOME/.gitconfig ] && rm $HOME/.gitconfig
 # we copy later using a template to obscure the email address
 
-# @MarkFix v0.12 has a built in plugin manager...
-# nvim --headless -c 'Lazy install' -c 'Lazy update' -c 'quitall'
+# Pre-install plugins via nvim's built-in plugin manager (:help vim.pack).
+# vim.pack.add() installs anything missing on the first run; the revisions come
+# from config_files/nvim/nvim-pack-lock.json. Plugins are updated separately
+# with :lua vim.pack.update().
+command -v nvim >/dev/null && nvim --headless -c 'quitall'
 
 exit 0
