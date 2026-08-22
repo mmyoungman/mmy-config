@@ -2,9 +2,6 @@
 # ~/.bashrc
 #
 
-# .xprofile applies setxkbmap options, which needs a real X server (xfce4).
-# Skip it under Wayland compositors (e.g. Hyprland/omarchy) to avoid setxkbmap's
-# "cannot open display" warning on every new terminal.
 [ "$XDG_SESSION_TYPE" = "x11" ] && source $HOME/.xprofile
 
 #stty -ixon # Disable ctrl-s and ctrl-q
@@ -16,14 +13,18 @@ case $unameOut in
    Linux*) machine="linux";;
    Darwin*) machine="mac";;
    *)
-      echo ".bashrc says: Unsupported OS detected!"
+      echo "bashrc: Unsupported OS detected!"
       ;;
 esac
 
 # Use nvim, if available
 #[ -f /usr/bin/nvim ] && alias vim=nvim
 #[ -f /usr/bin/nvim ] && EDITOR=/usr/bin/nvim
-export EDITOR=nvim
+if command -v nvim &> /dev/null; then
+    export EDITOR=nvim
+else
+    echo "bashrc: nvim is not installed"
+fi
 
 # Git stuff
 source_first() {
@@ -90,25 +91,15 @@ alias dfe-notify='dotnet clean; func host start --port 7073 --pause-on-error'
 alias dfe-public-data-processor='dotnet clean; func host start --port 7074 --pause-on-error'
 alias dfe-analytics='dotnet clean; func host start --port 7075 --pause-on-error'
 
-#PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] ' # without git branch
 PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;33m\]$(__git_ps1 " [%s]")\[\033[01;32m\]]\$\[\033[00m\] '
 
-# Nix aliases
-alias nixupgrade="sudo nixos-rebuild switch --upgrade"
-alias nixeditconfig="sudo nvim /etc/nixos/configuration.nix"
-#alias nixclean="nix-collect-garbage -d"
-#alias nixclean="nix profile wipe-history --profile /nix/var/nix/profiles/system --older-than 30d"
-#alias nixclean="nix-store --gc"
-#alias nixclean="sudo nix-env -p /nix/var/nix/profiles/system --delete-generations +3"
-#alias nixrebuildboot="sudo nixos-rebuild boot"
-
-# For nvm
+# For node version manager
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-#[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # For dotnet
 export DOTNET_ROOT=$HOME/.dotnet
+
 # Add .NET Core SDK tools
 export PATH="$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools"
 
@@ -141,9 +132,6 @@ case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
-# pnpm end
-
-# Functions
 
 # List git worktrees by what's in them; cd into one by number or fuzzy name.
 # Aliased to gwl above.
