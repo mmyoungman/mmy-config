@@ -8,6 +8,13 @@
       - ansible
       - git
 
+      # hyprland
+      - hyprland
+      - hyprpolkitagent
+      - dolphin
+      - hyprlauncher
+      - waybar
+
       # general apps
       - firefox
       - torbrowser-launcher
