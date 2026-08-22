@@ -4,6 +4,13 @@
   apt:
     update_cache: yes
 
+- name: Install XFCE stuff
+  apt:
+    name:
+      - xfce4-whiskermenu-plugin
+      - xfce4-screenshooter
+      - xfce4-clipman-plugin
+
 - name: Install general apps
   apt:
     name:

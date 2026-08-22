@@ -2,6 +2,13 @@
 - name: Update all packages
   pacman:
     update_cache: yes
+- name: Install XFCE stuff
+  pacman:
+    name:
+      - xfce4-whiskermenu-plugin
+      - xfce4-screenshooter
+      - xfce4-clipman-plugin
+
 - name: Install general apps
   pacman:
     name:
