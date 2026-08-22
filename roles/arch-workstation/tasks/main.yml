@@ -55,8 +55,6 @@
       - sqlite
       - sqlitebrowser
 
-      - wireshark-qt
-
       - docker
       - docker-compose
 
