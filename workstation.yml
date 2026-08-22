@@ -87,3 +87,36 @@
         - name: Pre-install nvim plugins
           command: nvim --headless -c quitall
           changed_when: false
+    # check_mode: no because a command task skipped under --check registers
+    # rc 0, which would make the guard below pass on a non-XFCE machine. This
+    # only reads a version string, so it's safe to run either way.
+    - name: Check whether this is an XFCE machine
+      become: no
+      command: xfconf-query --version
+      register: xfconf_query
+      changed_when: false
+      failed_when: false
+      check_mode: no
+      tags: [xfce]
+
+    # Copied rather than symlinked: xfconfd buffers changes in memory and
+    # flushes on exit by renaming a temp file over the target, which would
+    # replace the symlink with a real file and orphan the repo copy. New
+    # bindings show up after logging out and back in.
+    - name: Restore XFCE keyboard shortcuts
+      become: no
+      when: xfconf_query.rc | default(1) == 0
+      tags: [xfce]
+      block:
+        - name: Stop xfconfd so it can't flush stale settings over the new file
+          command: pkill -x xfconfd
+          register: pkill_xfconfd
+          changed_when: false
+          # rc 1 just means it wasn't running.
+          failed_when: pkill_xfconfd.rc not in [0, 1]
+
+        - name: Copy keyboard shortcuts into place
+          copy:
+            src: config_files/xfce4/xfce4-keyboard-shortcuts.xml
+            dest: "{{ home }}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml"
+            backup: yes
