@@ -199,13 +199,7 @@ vim.pack.add({
   -- Lua LS config for editing Neovim config itself
   gh('folke/lazydev.nvim'),
 
-  -- Autocompletion
-  gh('hrsh7th/nvim-cmp'),
-  gh('L3MON4D3/LuaSnip'),
-  gh('saadparwaiz1/cmp_luasnip'),
-  gh('hrsh7th/cmp-nvim-lsp'),
-  -- Adds a number of user-friendly snippets
-  gh('rafamadriz/friendly-snippets'),
+  -- Autocompletion is Neovim's built-in `vim.lsp.completion`; see below.
 
   -- Shows pending keybinds
   gh('folke/which-key.nvim'),
@@ -351,8 +345,12 @@ vim.wo.signcolumn = 'yes'
 vim.o.updatetime = 250
 vim.o.timeoutlen = 300
 
--- Set completeopt to have a better completion experience
-vim.o.completeopt = 'menuone,noselect'
+-- Set completeopt to have a better completion experience.
+--  menuone  show the menu even for a single match
+--  noselect never preselect; nothing is inserted until you pick it
+--  popup    show the item's documentation in a floating window
+--  fuzzy    fuzzy-match against what you have typed so far
+vim.o.completeopt = 'menuone,noselect,popup,fuzzy'
 
 -- NOTE: You should make sure your terminal supports this
 vim.o.termguicolors = true
@@ -472,13 +470,36 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
       vim.lsp.buf.format()
     end, { desc = 'Format current buffer with LSP' })
+
+    -- Built-in completion, `:help vim.lsp.completion`. `autotrigger` opens the
+    -- menu on the server's own triggerCharacters ('.', ':', '->', ...); for
+    -- anything else use <C-Space> below, or <C-x><C-o> ('omnifunc' is set for
+    -- us on attach).
+    vim.lsp.completion.enable(true, event.data.client_id, bufnr, { autotrigger = true })
   end,
 })
 
--- nvim-cmp supports additional completion capabilities, so broadcast that to servers
-vim.lsp.config('*', {
-  capabilities = require('cmp_nvim_lsp').default_capabilities(),
-})
+-- Completion menu keys. The menu is Vim's own |ins-completion| popup, so
+-- <C-n>/<C-p> move and <C-e> aborts; these make <CR>/<Tab> behave as they did
+-- under nvim-cmp without shadowing them when no menu is open.
+vim.keymap.set('i', '<C-Space>', function() vim.lsp.completion.get() end,
+  { desc = 'Trigger LSP completion' })
+vim.keymap.set('i', '<CR>', function()
+  return vim.fn.pumvisible() == 1 and '<C-y>' or '<CR>'
+end, { expr = true })
+-- <Tab> keeps the nvim-cmp precedence: menu first, then snippet placeholders,
+-- then a literal tab. Neovim installs its own <Tab> mapping for snippet jumps
+-- (`:help vim.snippet.jump`); this replaces it, so it has to handle that case.
+vim.keymap.set({ 'i', 's' }, '<Tab>', function()
+  if vim.fn.pumvisible() == 1 then return '<C-n>' end
+  if vim.snippet.active({ direction = 1 }) then return '<Cmd>lua vim.snippet.jump(1)<CR>' end
+  return '<Tab>'
+end, { expr = true, silent = true })
+vim.keymap.set({ 'i', 's' }, '<S-Tab>', function()
+  if vim.fn.pumvisible() == 1 then return '<C-p>' end
+  if vim.snippet.active({ direction = -1 }) then return '<Cmd>lua vim.snippet.jump(-1)<CR>' end
+  return '<S-Tab>'
+end, { expr = true, silent = true })
 
 -- Per-server overrides. The base config for each of these comes from
 -- nvim-lspconfig's `lsp/<name>.lua`; see `:help vim.lsp.config()`.
@@ -508,52 +529,5 @@ require('mason-lspconfig').setup({
   ensure_installed = { 'clangd', 'gopls', 'templ', 'pyright', 'lua_ls' },
 })
 
--- [[ Configure nvim-cmp ]]
--- See `:help cmp`
-local cmp = require 'cmp'
-local luasnip = require 'luasnip'
-require('luasnip.loaders.from_vscode').lazy_load()
-luasnip.config.setup {}
-
-cmp.setup {
-  snippet = {
-    expand = function(args)
-      luasnip.lsp_expand(args.body)
-    end,
-  },
-  mapping = cmp.mapping.preset.insert {
-    ['<C-n>'] = cmp.mapping.select_next_item(),
-    ['<C-p>'] = cmp.mapping.select_prev_item(),
-    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete {},
-    ['<CR>'] = cmp.mapping.confirm {
-      behavior = cmp.ConfirmBehavior.Replace,
-      select = true,
-    },
-    ['<Tab>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      elseif luasnip.expand_or_locally_jumpable() then
-        luasnip.expand_or_jump()
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
-    ['<S-Tab>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif luasnip.locally_jumpable(-1) then
-        luasnip.jump(-1)
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
-  },
-  sources = {
-    { name = 'nvim_lsp' },
-    { name = 'luasnip' },
-    -- lazydev completions for the Neovim Lua API (replaces neodev)
-    { name = 'lazydev', group_index = 0 },
-  },
-}
+-- Snippets from LSP completion items expand via the built-in `vim.snippet`;
+-- placeholder navigation is on <Tab>/<S-Tab> alongside the completion menu.
