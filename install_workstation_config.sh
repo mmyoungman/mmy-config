@@ -19,6 +19,9 @@ done
 [ -L $HOME/.config/hypr/input.lua ] && rm $HOME/.config/hypr/input.lua
 [ -f $HOME/.config/hypr/input.lua ] && mv $HOME/.config/hypr/input.lua $HOME/.config/hypr/input$(date +%Y%m%d).lua
 [ -d $HOME/.config/hypr ] && ln -s $CONFIG_FILES_DIR/hypr/input.lua $HOME/.config/hypr/input.lua
+[ -L $HOME/.config/hypr/monitors.lua ] && rm $HOME/.config/hypr/monitors.lua
+[ -f $HOME/.config/hypr/monitors.lua ] && mv $HOME/.config/hypr/monitors.lua $HOME/.config/hypr/monitors$(date +%Y%m%d).lua
+[ -d $HOME/.config/hypr ] && ln -s $CONFIG_FILES_DIR/hypr/monitors.lua $HOME/.config/hypr/monitors.lua
 
 [ -L $HOME/.config/Code/User/settings.json ] && rm $HOME/.config/Code/User/settings.json
 [ -f $HOME/.config/Code/User/settings.json ] && mv $HOME/.config/Code/User/settings.json $HOME/.config/Code/User/settings$(date +%Y%m%d).json
