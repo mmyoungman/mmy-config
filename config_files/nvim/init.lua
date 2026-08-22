@@ -272,50 +272,43 @@ require('lualine').setup({
 
 require('ibl').setup({})
 
-vim.hidden = true
+vim.o.hidden = true
 
-vim.expandtab = true
-vim.shiftwidth = 2
 vim.tabstop = 2
-vim.showtabline = 2
 
-vim.mouse = 'a'
+vim.o.splitbelow = true
+vim.o.splitright = true
 
-vim.splitbelow = true
-vim.splitright = true
+-- Must be expanded here: `vim.o.*` assigns the raw string, so '~' and '$HOME'
+-- are NOT expanded and nvim creates a literal '~'/'$HOME' directory instead.
+-- (Only `:set undodir=...` does that expansion. Nothing to do with the symlink.)
+vim.o.undodir = vim.fn.expand('~/.config/nvim/undo')
+vim.o.undolevels = 1000
+vim.o.undoreload = 10000
 
--- bug when you use ~ which ends in creation of '~' dir? because of my symlinked nvim dir?
-vim.undodir = '/home/mark/.config/nvim/undo'
-vim.undofile = true
-vim.undolevels = 1000
-vim.undoreload = 10000
+vim.opt.backspace = { 'indent', 'eol', 'start' }
 
-vim.backspace = { 'indent', 'eol', 'start' }
+vim.o.showbreak = '…'
 
-vim.showbreak = '…'
+vim.o.incsearch = true
 
-vim.incsearch = true
-vim.hlsearch = true
-
-vim.backup = false
-vim.writebackup = false
+vim.o.backup = false
+vim.o.writebackup = false
 --vim.cmd('!mkdir -p ~/.config/nvim/backup', { silent = true })
 --vim.opt.backup = true
 --vim.opt.backupdir = '~/.config/nvim/backup/'
 --
-vim.ignorecase = true
-vim.smartcase = true
+vim.o.autoread = true
+vim.o.scrolloff = 5
 
-vim.autoread = true
-vim.scrolloff = 5
+vim.o.showcmd = true
 
-vim.showcmd = true
+vim.o.showmatch = true
+vim.o.matchpairs = "(:),{:},[:],<:>"
 
-vim.showmatch = true
-vim.matchpairs = "(:),{:},[:],<:>"
-
--- Set highlight on search
-vim.o.hlsearch = false
+-- Set highlight on search, and clear it with <Esc>
+vim.o.hlsearch = true
+vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Make line numbers default
 vim.wo.number = true

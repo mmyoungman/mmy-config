@@ -5,10 +5,10 @@ tags
 .DS_Store
 
 # Neovim stuff
-nvim/undo/*
-nvim/backup/*
-nvim/plugin/*
-nvim/plugged
+config_files/nvim/undo/
+config_files/nvim/backup/
+config_files/nvim/plugin/
+config_files/nvim/plugged/
 
 # NixOs
 nixos/hardware-configuration.nix
