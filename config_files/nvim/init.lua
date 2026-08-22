@@ -1,5 +1,10 @@
-if vim.fn.executable('rg') == 0 then -- for telescope plugin live_grep
-  print("Ripgrep not installed! Telescope live_grep won't work!")
+-- Both are external binaries the fuzzy finder shells out to; the Ansible roles
+-- install them.
+if vim.fn.executable('rg') == 0 then
+  print("Ripgrep not installed! fzf-lua live_grep won't work!")
+end
+if vim.fn.executable('fzf') == 0 then
+  print("fzf not installed! fzf-lua won't work!")
 end
 
 vim.g.mapleader = '\\'
@@ -156,7 +161,7 @@ vim.keymap.set("n", "<F12>", ":WebGameLinuxRun<CR>", { noremap = true })
 -- [[ Plugins ]]
 -- Managed by Neovim's built-in plugin manager, `:help vim.pack`.
 --  :lua vim.pack.update()                -- update all, review, `:w` to confirm
---  :lua vim.pack.update({ 'telescope.nvim' })  -- update just one
+--  :lua vim.pack.update({ 'fzf-lua' })   -- update just one
 --  :lua vim.pack.update(nil, { offline = true })  -- just list what's installed
 -- The lockfile lives next to this file as `nvim-pack-lock.json`; commit it.
 
@@ -170,19 +175,8 @@ end
 
 local gh = function(repo) return 'https://github.com/' .. repo end
 
--- Build hooks. Must be registered *before* `vim.pack.add()` so they fire on a
--- fresh install as well as on update.
-vim.api.nvim_create_autocmd('PackChanged', {
-  desc = 'Run plugin build steps',
-  callback = function(ev)
-    local name, kind = ev.data.spec.name, ev.data.kind
-    if name == 'telescope-fzf-native.nvim' and (kind == 'install' or kind == 'update') then
-      if vim.fn.executable('make') == 1 then
-        vim.system({ 'make' }, { cwd = ev.data.path }):wait()
-      end
-    end
-  end,
-})
+-- No plugin here needs a compile step, so there is no `PackChanged` build hook.
+-- (There used to be one for telescope-fzf-native's C matcher.)
 
 vim.pack.add({
   -- Detect tabstop and shiftwidth automatically
@@ -194,8 +188,7 @@ vim.pack.add({
   gh('neovim/nvim-lspconfig'),
   gh('mason-org/mason.nvim'),
   gh('mason-org/mason-lspconfig.nvim'),
-  -- Useful status updates for LSP
-  gh('j-hui/fidget.nvim'),
+  -- LSP progress is `vim.lsp.status()` in the lualine config below.
   -- Lua LS config for editing Neovim config itself
   gh('folke/lazydev.nvim'),
 
@@ -212,18 +205,14 @@ vim.pack.add({
 
   gh('nvim-lualine/lualine.nvim'),
 
-  gh('lukas-reineke/indent-blankline.nvim'),
-
-  gh('nvim-lua/plenary.nvim'),
-  { src = gh('nvim-telescope/telescope.nvim'), version = '0.1.x' },
-  gh('nvim-telescope/telescope-fzf-native.nvim'),
+  -- Fuzzy finder. Wraps the external `fzf` binary (installed by the Ansible
+  -- roles), so unlike telescope it needs no Lua dependencies and no C build.
+  gh('ibhagwan/fzf-lua'),
 }, { confirm = false })
 
 -- [[ Plugin setup ]]
 -- `vim.pack` does not call `setup()` for you the way lazy.nvim's `opts` did,
 -- so each plugin is configured explicitly below.
-
-require('fidget').setup({})
 
 require('lazydev').setup({})
 
@@ -267,14 +256,18 @@ require('lualine').setup({
   },
   sections = {
     lualine_c = {{'filename',path=2}},
+    -- LSP progress ("clangd: parsing 34/120"), builtin since 0.10. This stands
+    -- in for fidget.nvim, which showed the same information as an animated
+    -- toast in the corner. If plain text tucked into the statusline turns out
+    -- to be too easy to miss, put `gh('j-hui/fidget.nvim')` back in
+    -- vim.pack.add above with `require('fidget').setup({})` and drop this line.
+    -- lualine_x has to be spelled out in full because naming it replaces the
+    -- default components rather than adding to them.
+    lualine_x = { vim.lsp.status, 'encoding', 'fileformat', 'filetype' },
   },
 })
 
-require('ibl').setup({})
-
-vim.o.hidden = true
-
-vim.tabstop = 2
+-- Indentation is left to vim-sleuth, which detects it per project.
 
 vim.o.splitbelow = true
 vim.o.splitright = true
@@ -286,28 +279,20 @@ vim.o.undodir = vim.fn.expand('~/.config/nvim/undo')
 vim.o.undolevels = 1000
 vim.o.undoreload = 10000
 
-vim.opt.backspace = { 'indent', 'eol', 'start' }
-
 vim.o.showbreak = '…'
 
-vim.o.incsearch = true
-
-vim.o.backup = false
+-- 'backup' is off by default; only 'writebackup' needs changing.
 vim.o.writebackup = false
 --vim.cmd('!mkdir -p ~/.config/nvim/backup', { silent = true })
 --vim.opt.backup = true
 --vim.opt.backupdir = '~/.config/nvim/backup/'
 --
-vim.o.autoread = true
 vim.o.scrolloff = 5
-
-vim.o.showcmd = true
 
 vim.o.showmatch = true
 vim.o.matchpairs = "(:),{:},[:],<:>"
 
--- Set highlight on search, and clear it with <Esc>
-vim.o.hlsearch = true
+-- Clear search highlighting with <Esc> ('hlsearch' is on by default).
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Make line numbers default
@@ -381,39 +366,29 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 
--- [[ Configure Telescope ]]
-require('telescope').setup {
-  defaults = {
-    mappings = {
-      i = {
-        ['<C-u>'] = false,
-        ['<C-d>'] = false,
-      },
-    },
-  },
-}
+-- [[ Configure fzf-lua ]]
+-- The 'telescope' profile makes the popup and its in-picker keys behave the way
+-- telescope did (<C-x> split, <C-v> vsplit, <C-t> tab), so the muscle memory
+-- carries over. `:FzfLua profiles` previews the alternatives.
+local fzf = require('fzf-lua')
+fzf.setup({ 'telescope' })
 
--- Enable telescope fzf native, if installed
-pcall(require('telescope').load_extension, 'fzf')
-
--- See `:help telescope.builtin`
-vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
-vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
+-- See `:help fzf-lua` or `:FzfLua` for the full picker list.
+vim.keymap.set('n', '<leader>?', fzf.oldfiles, { desc = '[?] Find recently opened files' })
+vim.keymap.set('n', '<leader><space>', fzf.buffers, { desc = '[ ] Find existing buffers' })
 vim.keymap.set('n', '<leader>/', function()
-  -- You can pass additional configuration to telescope to change theme, layout, etc.
-  require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-    winblend = 10,
-    previewer = false,
-  })
+  -- `blines` is the current-buffer fuzzy search; no preview, since the preview
+  -- would just be showing the buffer you are already looking at.
+  fzf.blines({ winopts = { preview = { hidden = true } } })
 end, { desc = '[/] Fuzzily search in current buffer' })
 
-vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
-vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
-vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
-vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
-vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
-vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
-vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
+vim.keymap.set('n', '<leader>gf', fzf.git_files, { desc = 'Search [G]it [F]iles' })
+vim.keymap.set('n', '<leader>sf', fzf.files, { desc = '[S]earch [F]iles' })
+vim.keymap.set('n', '<leader>sh', fzf.helptags, { desc = '[S]earch [H]elp' })
+vim.keymap.set('n', '<leader>sw', fzf.grep_cword, { desc = '[S]earch current [W]ord' })
+vim.keymap.set('n', '<leader>sg', fzf.live_grep, { desc = '[S]earch by [G]rep' })
+vim.keymap.set('n', '<leader>sd', fzf.diagnostics_document, { desc = '[S]earch [D]iagnostics' })
+vim.keymap.set('n', '<leader>sr', fzf.resume, { desc = '[S]earch [R]esume' })
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', function() vim.diagnostic.jump({ count = -1, float = true }) end,
@@ -441,11 +416,11 @@ vim.api.nvim_create_autocmd('LspAttach', {
     nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
 
     nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
-    nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-    nmap('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+    nmap('gr', fzf.lsp_references, '[G]oto [R]eferences')
+    nmap('gI', fzf.lsp_implementations, '[G]oto [I]mplementation')
     nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
-    nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-    nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+    nmap('<leader>ds', fzf.lsp_document_symbols, '[D]ocument [S]ymbols')
+    nmap('<leader>ws', fzf.lsp_live_workspace_symbols, '[W]orkspace [S]ymbols')
 
     -- See `:help K` for why this keymap
     nmap('K', vim.lsp.buf.hover, 'Hover Documentation')

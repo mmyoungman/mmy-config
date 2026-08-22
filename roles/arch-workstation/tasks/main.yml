@@ -33,6 +33,7 @@
       - 7zip
       - ffmpeg
       - ripgrep
+      - fzf # fuzzy finder, required by nvim's fzf-lua
       - fd
       - entr
       - zbar
