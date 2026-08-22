@@ -40,8 +40,10 @@
 
     "vim.easymotion": true,
     "vim.enableNeovim": true,
+    // No neovimConfigPath: left empty, VSCodeVim loads the default XDG config.
+    // Setting it to "$HOME/..." does NOT expand -- VSCodeVim treats it as a
+    // relative path and creates a literal '$HOME' dir wherever it was launched.
     "vim.neovimUseConfigFile": true,
-    "vim.neovimConfigPath": "$HOME/.config/nvim/",
     "vim.insertModeKeyBindings": [],
     "vim.normalModeKeyBindingsNonRecursive": [
         {
