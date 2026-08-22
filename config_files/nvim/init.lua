@@ -7,13 +7,43 @@ if vim.fn.executable('fzf') == 0 then
   print("fzf not installed! fzf-lua won't work!")
 end
 
+-- Plugins are managed by `vim.pack` (see the Plugins section below), which
+-- landed in 0.12. There is no useful degraded mode without them, so bail here
+-- rather than part-loading a config whose `require()` calls would then error.
+if vim.fn.has('nvim-0.12') == 0 then
+  vim.notify(
+    'Neovim 0.12+ required for vim.pack; config not loaded (running ' .. tostring(vim.version()) .. ')',
+    vim.log.levels.WARN
+  )
+  return
+end
+
 vim.g.mapleader = '\\'
 vim.g.maplocalleader = '\\'
 
-vim.api.nvim_create_autocmd('BufWritePre', {
-  desc = 'Clear whitespace before save',
+-- The autosave below writes *every* modified buffer, so a blanket strip would
+-- silently reformat files opened only to read them. Track which buffers we
+-- actually typed in and limit the strip to those. `keeppatterns` stops the
+-- substitution clobbering the last search pattern (and lighting up hlsearch).
+vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI' }, {
+  desc = 'Remember buffers edited in this session',
   pattern = '*',
-  command = ':%s/\\s\\+$//e'
+  callback = function(event)
+    vim.b[event.buf].mmy_edited = true
+  end
+})
+
+vim.api.nvim_create_autocmd('BufWritePre', {
+  desc = 'Clear whitespace before save, in buffers we edited',
+  pattern = '*',
+  callback = function(event)
+    if not vim.b[event.buf].mmy_edited then return end
+    local view = vim.fn.winsaveview()
+    vim.api.nvim_buf_call(event.buf, function()
+      vim.cmd([[silent! keeppatterns %s/\s\+$//e]])
+    end)
+    vim.fn.winrestview(view)
+  end
 })
 
 vim.api.nvim_create_autocmd({'CursorHold','FocusLost'}, {
@@ -164,14 +194,6 @@ vim.keymap.set("n", "<F12>", ":WebGameLinuxRun<CR>", { noremap = true })
 --  :lua vim.pack.update({ 'fzf-lua' })   -- update just one
 --  :lua vim.pack.update(nil, { offline = true })  -- just list what's installed
 -- The lockfile lives next to this file as `nvim-pack-lock.json`; commit it.
-
-if vim.fn.has('nvim-0.12') == 0 then
-  vim.notify(
-    'Neovim 0.12+ required for vim.pack; plugins not loaded (running ' .. tostring(vim.version()) .. ')',
-    vim.log.levels.WARN
-  )
-  return
-end
 
 local gh = function(repo) return 'https://github.com/' .. repo end
 
