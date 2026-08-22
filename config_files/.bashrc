@@ -2,7 +2,10 @@
 # ~/.bashrc
 #
 
-source $HOME/.xprofile
+# .xprofile applies setxkbmap options, which needs a real X server (xfce4).
+# Skip it under Wayland compositors (e.g. Hyprland/omarchy) to avoid setxkbmap's
+# "cannot open display" warning on every new terminal.
+[ "$XDG_SESSION_TYPE" = "x11" ] && source $HOME/.xprofile
 
 #stty -ixon # Disable ctrl-s and ctrl-q
 #shopt -s autocd # cd into dir by typing dir name
