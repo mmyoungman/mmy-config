@@ -80,14 +80,6 @@ vim.keymap.set('n', '<leader><', 'viw<esc>a><esc>hbi<<esc>lel', { noremap = true
 vim.keymap.set('n', '<leader>(', 'viw<esc>a)<esc>hbi(<esc>lel', { noremap = true })
 --Test: flkjal alfkjalf lajslkf
 
--- copy to end of line, to match behaviour of D and C
-vim.keymap.set('n', 'Y', 'y$', { noremap = true })
-
--- copy and paste to system clipboard
-vim.keymap.set('v', '<leader>y', '"+y', { noremap = true })
-vim.keymap.set('n', '<leader>p', '"+p', { noremap = true })
-vim.keymap.set('n', '<leader>P', '"+P', { noremap = true })
-
 -- Resize split with arrows
 vim.keymap.set("n", "<C-Up>", ":resize +2<CR>", { noremap = true })
 vim.keymap.set("n", "<C-Down>", ":resize -2<CR>", { noremap = true })
@@ -97,6 +89,12 @@ vim.keymap.set("n", "<C-Right>", ":vertical resize +2<CR>", { noremap = true })
 -- keep clipboard when pasting over visual selection
 vim.keymap.set("v", "p", '"_dP', { noremap = true })
 
+-- TODO: revisit these two. The per-project commands that used to wrap them
+-- (Eyestr/EES/WebGame) have been cut -- define those in a project-local
+-- `.nvim.lua` instead (`:help 'exrc'`) and call Build()/Run() from there.
+-- They also want a tidy-up when that happens: they write `stderr.log` into the
+-- cwd rather than a `vim.fn.tempname()`, and they set `errorformat` globally
+-- without restoring it, so the last build's format leaks into later `:make`.
 function Build(buildCmd, errorformat)
   local separateOutputCmd = string.format("%s 2> stderr.log", buildCmd)
   local stdout = vim.fn.system(separateOutputCmd)
@@ -154,39 +152,6 @@ function Run(runCmd, errorformat)
 
   vim.cmd("silent !rm stderr.log")
 end
-
-vim.api.nvim_create_user_command('EyestrBuild', function()
-  local buildCmd = "./scripts/build.sh"
-  local errorformat = "%f:%l:%c: %trror: %m,%f:%l:%c: %tarning: %m,%-G%.%#"
-  Build(buildCmd, errorformat)
-end, {})
-
-vim.api.nvim_create_user_command('EyestrRun', function()
-  Run("./scripts/run.sh", "[%tRROR] (%f:%l) %m,[D%tBUG] (%f:%l) %m,%-G%.%#")
-end, {})
-
---vim.keymap.set("n", "<F5>", ":EyestrBuild<CR>", { noremap = true })
---vim.keymap.set("n", "<F12>", ":EyestrRun<CR>", { noremap = true })
-
-vim.api.nvim_create_user_command('EESBuild', function()
-  local buildCmd =
-  "dotnet build /nologo /v:q /property:GenerateFullPaths=true src/GovUk.Education.ExploreEducationStatistics.sln"
-  local errorformat = "%f(%l\\,%c): %trror %m,%-G%.%#"
-  Build(buildCmd, errorformat)
-end, {})
-
-vim.api.nvim_create_user_command('WebGameLinuxBuild', function()
-  local buildCmd = "./build_linux.sh"
-  local errorformat = "%f:%l:%c: %trror: %m,%f:%l:%c: %tarning: %m,%-G%.%#"
-  Build(buildCmd, errorformat)
-end, {})
-
-vim.api.nvim_create_user_command('WebGameLinuxRun', function()
-  Run("./build/main", "[%tRROR] (%f:%l) %m,[D%tBUG] (%f:%l) %m,%-G%.%#")
-end, {})
-
-vim.keymap.set("n", "<F5>", ":WebGameLinuxBuild<CR>", { noremap = true })
-vim.keymap.set("n", "<F12>", ":WebGameLinuxRun<CR>", { noremap = true })
 
 -- [[ Plugins ]]
 -- Managed by Neovim's built-in plugin manager, `:help vim.pack`.
@@ -357,10 +322,6 @@ vim.o.termguicolors = true
 
 -- [[ Basic Keymaps ]]
 
--- Keymaps for better default experience
--- See `:help vim.keymap.set()`
-vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
-
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
@@ -444,7 +405,9 @@ vim.api.nvim_create_autocmd('LspAttach', {
     nmap('<leader>ds', fzf.lsp_document_symbols, '[D]ocument [S]ymbols')
     nmap('<leader>ws', fzf.lsp_live_workspace_symbols, '[W]orkspace [S]ymbols')
 
-    -- See `:help K` for why this keymap
+    -- Redundant since 0.11 -- Neovim sets this exact mapping itself on
+    -- LspAttach. Kept deliberately, as a visible reminder that it exists.
+    -- See `:help K` and `:help lsp-defaults`.
     nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
     nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
