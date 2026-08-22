@@ -23,11 +23,6 @@ done
 [ -f $HOME/.config/Code\ -\ OSS/User/settings.json ] && mv $HOME/.config/Code\ -\ OSS/User/settings.json $HOME/.config/Code\ -\ OSS/User/settings$(date +%Y%m%d).json
 [ -d $HOME/.config/Code\ -\ OSS/User ] && ln -s $CONFIG_FILES_DIR/vscode-settings.json $HOME/.config/Code\ -\ OSS/User/settings.json
 
-[ -L $HOME/.config/hypr ] && rm $HOME/.config/hypr
-[ -d $HOME/.config/hypr ] && mv $HOME/.config/hypr $HOME/.config/hypr$(date +%Y%m%d)
-ln -s $CONFIG_FILES_DIR/hypr $HOME/.config/hypr
-[ ! -L "$HOME/.config/hypr" ] && echo "symlink not found $HOME/.config/hypr" && exit 1
-
 [ -L $HOME/.config/nvim ] && rm $HOME/.config/nvim
 [ -d $HOME/.config/nvim ] && mv $HOME/.config/nvim $HOME/.config/nvim$(date +%Y%m%d)
 ln -s $CONFIG_FILES_DIR/nvim $HOME/.config/nvim
