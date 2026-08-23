@@ -4,11 +4,10 @@ tags
 # ???
 .DS_Store
 
-# Neovim stuff
-config_files/nvim/undo/
-config_files/nvim/backup/
-config_files/nvim/plugin/
-config_files/nvim/plugged/
+# Nothing under config_files/nvim needs ignoring now: undo state uses nvim's
+# default ~/.local/state/nvim/undo, and vim.pack installs plugins into
+# ~/.local/share/nvim/site/pack. plugin/ should not go back in here -- nvim
+# auto-sources ~/.config/nvim/plugin/, so anything there is real config.
 
 # NixOs
 nixos/hardware-configuration.nix

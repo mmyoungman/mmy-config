@@ -5,8 +5,11 @@
     gitemail: "mark@[domain]" # avoid bot scraping via a template
     home: "{{ lookup('env', 'HOME') }}"
     config_files_dir: "{{ playbook_dir }}/config_files"
-    # Each link is only created when its parent dir already exists, so config
-    # for an editor that isn't installed on this machine is skipped.
+    # Every parent dir below is created if missing, so all of these are linked
+    # unconditionally. The VS Code dirs in particular only appear when the
+    # editor is first *launched*, not when it is installed -- gating on them
+    # meant a fresh machine got VS Code from the role and silently no settings.
+    # The cost is an empty ~/.config/Code/User on a machine with no VS Code.
     config_links:
       - { src: .bashrc, dest: .bashrc }
       - { src: .inputrc, dest: .inputrc }
@@ -41,10 +44,13 @@
 
     - name: Set bash/nvim/vscode/idea config
       block:
-        - name: Make sure ~/.config exists
+        - name: Make sure each link's parent dir exists
           file:
-            path: "{{ home }}/.config"
+            path: "{{ (home + '/' + item.dest) | dirname }}"
             state: directory
+          loop: "{{ config_links }}"
+          loop_control:
+            label: "{{ (home + '/' + item.dest) | dirname }}"
 
         # --backup=numbered so a second backup on the same date bumps the older
         # one to .~1~ rather than clobbering it. The 'is not link' check below
@@ -57,7 +63,6 @@
           vars:
             target: "{{ home }}/{{ item.dest }}"
           when:
-            - target | dirname is directory
             - target is exists
             - target is not link
           loop: "{{ config_links }}"
@@ -67,12 +72,9 @@
         - name: Symlink config into place
           file:
             src: "{{ config_files_dir }}/{{ item.src }}"
-            dest: "{{ target }}"
+            dest: "{{ home }}/{{ item.dest }}"
             state: link
             force: yes
-          vars:
-            target: "{{ home }}/{{ item.dest }}"
-          when: target | dirname is directory
           loop: "{{ config_links }}"
           loop_control:
             label: "{{ item.dest }}"

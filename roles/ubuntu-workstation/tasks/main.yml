@@ -1,5 +1,9 @@
 ---
-- name: Update all packages
+# Cache only, deliberately no upgrade: unlike pacman's -Sy, a bare `apt update`
+# followed by installs is safe on Debian, so there is no partial-upgrade hazard
+# to avoid here -- and this role targets a work machine where an unattended
+# upgrade would be an unwelcome surprise. The Arch role does a full -Syu.
+- name: Update package cache
   changed_when: false
   apt:
     update_cache: yes

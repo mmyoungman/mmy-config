@@ -199,7 +199,10 @@ require('lualine').setup({
 vim.o.splitbelow = true
 vim.o.splitright = true
 
-vim.o.undodir = vim.fn.expand('~/.config/nvim/undo')
+-- 'undodir' is deliberately left at its default, ~/.local/state/nvim/undo.
+-- This config is symlinked to ~/.config/nvim, so pointing undo there wrote
+-- editor state back into the repo working tree, where a `git clean -xdf` would
+-- take your undo history with it.
 vim.o.undolevels = 1000
 vim.o.undoreload = 10000
 
