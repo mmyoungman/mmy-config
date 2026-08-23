@@ -119,19 +119,9 @@ vim.keymap.set("v", "p", '"_dP', { noremap = true })
 require('project')
 
 -- [[ Plugins ]]
--- Managed by Neovim's built-in plugin manager, `:help vim.pack`.
---  :lua vim.pack.update()                -- update all, review, `:w` to confirm
---  :lua vim.pack.update({ 'fzf-lua' })   -- update just one
---  :lua vim.pack.update(nil, { offline = true })  -- just list what's installed
--- The lockfile lives next to this file as `nvim-pack-lock.json`; commit it.
-
 local gh = function(repo) return 'https://github.com/' .. repo end
 
--- No plugin here needs a compile step, so there is no `PackChanged` build hook.
--- (There used to be one for telescope-fzf-native's C matcher.)
-
 vim.pack.add({
-  -- Detect tabstop and shiftwidth automatically
   gh('tpope/vim-sleuth'),
 
   gh('easymotion/vim-easymotion'),
@@ -140,38 +130,25 @@ vim.pack.add({
   gh('neovim/nvim-lspconfig'),
   gh('mason-org/mason.nvim'),
   gh('mason-org/mason-lspconfig.nvim'),
-  -- LSP progress is `vim.lsp.status()` in the lualine config below.
-  -- Lua LS config for editing Neovim config itself
   gh('folke/lazydev.nvim'),
 
-  -- Autocompletion is Neovim's built-in `vim.lsp.completion`; see below.
-
-  -- Shows pending keybinds
   gh('folke/which-key.nvim'),
 
-  -- Git signs in the gutter, plus utilities for managing changes
   gh('lewis6991/gitsigns.nvim'),
 
-  -- Theme inspired by Atom
   gh('navarasu/onedark.nvim'),
 
   gh('nvim-lualine/lualine.nvim'),
 
-  -- Fuzzy finder. Wraps the external `fzf` binary (installed by the Ansible
-  -- roles), so unlike telescope it needs no Lua dependencies and no C build.
   gh('ibhagwan/fzf-lua'),
 }, { confirm = false })
 
 -- [[ Plugin setup ]]
--- `vim.pack` does not call `setup()` for you the way lazy.nvim's `opts` did,
--- so each plugin is configured explicitly below.
-
 require('lazydev').setup({})
 
 require('which-key').setup({})
 
 require('gitsigns').setup({
-  -- See `:help gitsigns.txt`
   signs = {
     add = { text = '+' },
     change = { text = '~' },
@@ -219,25 +196,16 @@ require('lualine').setup({
   },
 })
 
--- Indentation is left to vim-sleuth, which detects it per project.
-
 vim.o.splitbelow = true
 vim.o.splitright = true
 
--- Must be expanded here: `vim.o.*` assigns the raw string, so '~' and '$HOME'
--- are NOT expanded and nvim creates a literal '~'/'$HOME' directory instead.
--- (Only `:set undodir=...` does that expansion. Nothing to do with the symlink.)
 vim.o.undodir = vim.fn.expand('~/.config/nvim/undo')
 vim.o.undolevels = 1000
 vim.o.undoreload = 10000
 
 vim.o.showbreak = '…'
 
--- 'backup' is off by default; only 'writebackup' needs changing.
 vim.o.writebackup = false
---vim.cmd('!mkdir -p ~/.config/nvim/backup', { silent = true })
---vim.opt.backup = true
---vim.opt.backupdir = '~/.config/nvim/backup/'
 --
 vim.o.scrolloff = 5
 
@@ -247,31 +215,21 @@ vim.o.matchpairs = "(:),{:},[:],<:>"
 -- Clear search highlighting with <Esc> ('hlsearch' is on by default).
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
--- Make line numbers default
 vim.wo.number = true
 
--- Enable mouse mode
 vim.o.mouse = 'a'
 
--- Sync clipboard between OS and Neovim.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
 vim.o.clipboard = 'unnamedplus'
 
--- Enable break indent
 vim.o.breakindent = true
 
--- Save undo history
 vim.o.undofile = true
 
--- Case-insensitive searching UNLESS \C or capital in search
 vim.o.ignorecase = true
 vim.o.smartcase = true
 
--- Keep signcolumn on by default
 vim.wo.signcolumn = 'yes'
 
--- Decrease update time
 vim.o.updatetime = 250
 vim.o.timeoutlen = 300
 
@@ -282,12 +240,9 @@ vim.o.timeoutlen = 300
 --  fuzzy    fuzzy-match against what you have typed so far
 vim.o.completeopt = 'menuone,noselect,popup,fuzzy'
 
--- NOTE: You should make sure your terminal supports this
 vim.o.termguicolors = true
 
 -- [[ Basic Keymaps ]]
-
--- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
@@ -302,10 +257,6 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- [[ Treesitter ]]
--- nvim-treesitter's `master` branch is archived, so it is no longer installed.
--- Neovim ships parsers for these filetypes; turn highlighting on for the ones
--- it does not already enable itself (it does lua/markdown/help/query).
--- Incremental selection is now built in: see `:help v_an` / `:help v_in`.
 vim.api.nvim_create_autocmd('FileType', {
   desc = 'Treesitter highlighting for parsers bundled with Neovim',
   pattern = { 'bash', 'sh', 'c', 'python', 'vim' },
@@ -315,18 +266,12 @@ vim.api.nvim_create_autocmd('FileType', {
 })
 
 -- [[ Configure fzf-lua ]]
--- The 'telescope' profile makes the popup and its in-picker keys behave the way
--- telescope did (<C-x> split, <C-v> vsplit, <C-t> tab), so the muscle memory
--- carries over. `:FzfLua profiles` previews the alternatives.
 local fzf = require('fzf-lua')
 fzf.setup({ 'telescope' })
 
--- See `:help fzf-lua` or `:FzfLua` for the full picker list.
 vim.keymap.set('n', '<leader>?', fzf.oldfiles, { desc = '[?] Find recently opened files' })
 vim.keymap.set('n', '<leader><space>', fzf.buffers, { desc = '[ ] Find existing buffers' })
 vim.keymap.set('n', '<leader>/', function()
-  -- `blines` is the current-buffer fuzzy search; no preview, since the preview
-  -- would just be showing the buffer you are already looking at.
   fzf.blines({ winopts = { preview = { hidden = true } } })
 end, { desc = '[/] Fuzzily search in current buffer' })
 
@@ -347,7 +292,6 @@ vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open float
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
 -- [[ Configure LSP ]]
---  These keymaps get set when an LSP connects to a particular buffer.
 vim.api.nvim_create_autocmd('LspAttach', {
   desc = 'LSP keymaps',
   callback = function(event)
@@ -370,13 +314,10 @@ vim.api.nvim_create_autocmd('LspAttach', {
     nmap('<leader>ds', fzf.lsp_document_symbols, '[D]ocument [S]ymbols')
     nmap('<leader>ws', fzf.lsp_live_workspace_symbols, '[W]orkspace [S]ymbols')
 
-    -- Redundant since 0.11 -- Neovim sets this exact mapping itself on
-    -- LspAttach. Kept deliberately, as a visible reminder that it exists.
-    -- See `:help K` and `:help lsp-defaults`.
+    -- K mapping is redundant, but kept deliberately as reminder it exists
     nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
     nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
-    -- Lesser used LSP functionality
     nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
     nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
     nmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
@@ -384,7 +325,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
       print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
     end, '[W]orkspace [L]ist Folders')
 
-    -- Create a command `:Format` local to the LSP buffer
     vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
       vim.lsp.buf.format()
     end, { desc = 'Format current buffer with LSP' })
@@ -397,9 +337,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end,
 })
 
--- Completion menu keys. The menu is Vim's own |ins-completion| popup, so
--- <C-n>/<C-p> move and <C-e> aborts; these make <CR>/<Tab> behave as they did
--- under nvim-cmp without shadowing them when no menu is open.
 vim.keymap.set('i', '<C-Space>', function() vim.lsp.completion.get() end,
   { desc = 'Trigger LSP completion' })
 vim.keymap.set('i', '<CR>', function()
@@ -440,12 +377,7 @@ vim.lsp.config('lua_ls', {
   },
 })
 
--- Install the servers above, then enable them. mason-lspconfig calls
--- `vim.lsp.enable()` for every installed server automatically.
 require('mason').setup({})
 require('mason-lspconfig').setup({
   ensure_installed = { 'clangd', 'gopls', 'templ', 'pyright', 'lua_ls' },
 })
-
--- Snippets from LSP completion items expand via the built-in `vim.snippet`;
--- placeholder navigation is on <Tab>/<S-Tab> alongside the completion menu.
