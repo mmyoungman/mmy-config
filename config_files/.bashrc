@@ -2,7 +2,16 @@
 # ~/.bashrc
 #
 
-[ "$XDG_SESSION_TYPE" = "x11" ] && source $HOME/.xprofile
+# Nothing below is any use to a non-interactive shell, and some of it is
+# actively harmful there: bash sources this file for `ssh host 'cmd'`, where
+# anything written to stdout lands in the middle of an scp/rsync/sftp stream
+# and breaks the transfer. Skipping also saves ~0.3s of pyenv/nvm/emsdk setup
+# per remote command. Matches /etc/skel/.bashrc. Note this means PATH additions
+# below do not apply to `ssh host 'cmd'`; that belongs in ~/.bash_profile.
+[[ $- != *i* ]] && return
+
+# ensure xprofile config gets applied
+[ "$XDG_SESSION_TYPE" = "x11" ] && source "$HOME/.xprofile"
 
 #stty -ixon # Disable ctrl-s and ctrl-q
 #shopt -s autocd # cd into dir by typing dir name
@@ -13,7 +22,7 @@ case $unameOut in
    Linux*) machine="linux";;
    Darwin*) machine="mac";;
    *)
-      echo "bashrc: Unsupported OS detected!"
+      echo "bashrc: Unsupported OS detected!" >&2
       ;;
 esac
 
@@ -23,7 +32,7 @@ esac
 if command -v nvim &> /dev/null; then
     export EDITOR=nvim
 else
-    echo "bashrc: nvim is not installed"
+    echo "bashrc: nvim is not installed" >&2
 fi
 
 # Git stuff
@@ -97,30 +106,49 @@ PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;33m\]$(__git_ps1 " [%s]")\
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 
+# Append dirs to PATH, or prepend them with -p, skipping any already there.
+# This file runs for every interactive shell and PATH is inherited by child
+# shells, so a bare `PATH="$PATH:$dir"` gains another copy of $dir per nesting
+# level -- a tmux pane inside a terminal was already up to three.
+path_add() {
+    local prepend="" dir
+    [ "$1" = "-p" ] && { prepend=1; shift; }
+    for dir in "$@"; do
+        case ":$PATH:" in
+            *":$dir:"*) continue ;;
+        esac
+        if [ -n "$prepend" ]; then PATH="$dir:$PATH"; else PATH="$PATH:$dir"; fi
+    done
+    export PATH
+}
+
 # For dotnet
 export DOTNET_ROOT=$HOME/.dotnet
 
 # Add .NET Core SDK tools
-export PATH="$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools"
+path_add "$DOTNET_ROOT" "$DOTNET_ROOT/tools"
 
 # Go stuff
-export PATH="$PATH:$HOME/go/bin"
+path_add "$HOME/go/bin"
 
 # DuckDb
-export PATH="$PATH:$HOME/.duckdb/cli/latest"
+path_add "$HOME/.duckdb/cli/latest"
 
-# For emscripten/webassembly
-#[ -f $HOME/projects/emsdk/emsdk_env.sh ] && source $HOME/projects/emsdk/emsdk_env.sh ?> /dev/null
+# For emscripten/webassembly. EMSDK_QUIET rather than a redirect: the script
+# announces itself on stderr, so `> /dev/null` suppresses nothing. It prepends
+# its own dirs to PATH but dedupes them itself, so re-sourcing is safe.
+[ -f "$HOME/projects/emsdk/emsdk_env.sh" ] &&
+    EMSDK_QUIET=1 source "$HOME/projects/emsdk/emsdk_env.sh"
 
 # FZF
 #[ -f $HOME/.fzf.bash ] && source $HOME/.fzf.bash
 
 # For pipenv
-export PATH="$PATH:$HOME/.local/bin"
+path_add "$HOME/.local/bin"
 
 # For pyenv
 export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+[[ -d $PYENV_ROOT/bin ]] && path_add -p "$PYENV_ROOT/bin"
 if command -v pyenv &> /dev/null
 then
    eval "$(pyenv init -)"
@@ -128,10 +156,7 @@ fi
 
 # pnpm
 export PNPM_HOME="/home/mark/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
+path_add -p "$PNPM_HOME"
 
 # List git worktrees by what's in them; cd into one by number or fuzzy name.
 # Aliased to gwl above.
