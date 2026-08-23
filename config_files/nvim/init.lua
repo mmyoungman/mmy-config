@@ -229,6 +229,14 @@ vim.api.nvim_create_user_command('Run', function(opts)
   end
   vim.cmd('silent! wall')
   vim.cmd('botright split | terminal ' .. vim.fn.expandcmd(cmd))
+  -- Output is only "tailed" while the cursor is on the last line (`:help
+  -- terminal`). A terminal opens in Normal mode with the cursor at the top,
+  -- where it stays, so the view falls behind as soon as the program prints
+  -- more than a screenful. Parking the cursor on the last line makes it
+  -- follow. Note this stays in Normal mode on purpose -- `startinsert` would
+  -- tail too, but then keystrokes go to the program and gF / <leader>cq stop
+  -- working without first escaping terminal-mode.
+  vim.cmd('normal! G')
 end, { nargs = '*', desc = 'Run the program in a terminal split' })
 
 vim.api.nvim_create_autocmd('TermOpen', {
