@@ -89,68 +89,222 @@ vim.keymap.set("n", "<C-Right>", ":vertical resize +2<CR>", { noremap = true })
 -- keep clipboard when pasting over visual selection
 vim.keymap.set("v", "p", '"_dP', { noremap = true })
 
--- TODO: revisit these two. The per-project commands that used to wrap them
--- (Eyestr/EES/WebGame) have been cut -- define those in a project-local
--- `.nvim.lua` instead (`:help 'exrc'`) and call Build()/Run() from there.
--- They also want a tidy-up when that happens: they write `stderr.log` into the
--- cwd rather than a `vim.fn.tempname()`, and they set `errorformat` globally
--- without restoring it, so the last build's format leaks into later `:make`.
-function Build(buildCmd, errorformat)
-  local separateOutputCmd = string.format("%s 2> stderr.log", buildCmd)
-  local stdout = vim.fn.system(separateOutputCmd)
+-- [[ Build & run ]]
+-- A project declares how it builds in a `.nvim.lua` at its root -- see
+-- Project() at the end of this section; everything generic lives here so that
+-- file stays a plain declaration. 'exrc' is what loads it: it searches the cwd
+-- and every parent directory, and `:trust` gates it so a repo you have just
+-- cloned cannot run code at you. See `:help 'exrc'`.
+vim.o.exrc = true
 
-  if #stdout > 0 then
-    vim.notify(stdout)
-  end
-
-  -- for debugging
-  --print(separateOutputCmd)
-  --vim.fn.system("cat stderr.log")
-
-  vim.opt.errorformat = errorformat
-  vim.cmd("silent cfile stderr.log")
-
-  if vim.tbl_isempty(vim.fn.getqflist()) then
-    vim.cmd("cclose")
-    -- if errors in stderroutput not caught by quickfix, notify user
-    if vim.fn.getfsize("stderr.log") ~= 0 then
-      vim.notify("Build failed:")
-      vim.notify(vim.fn.system("cat stderr.log"))
-    end
-  else
-    vim.cmd("copen")
-  end
-
-  vim.cmd("silent !rm stderr.log")
+-- 'makeprg' and 'errorformat' are |global-local|: a buffer-local value (which
+-- is what `:compiler` and the ftplugins set) wins over the global one.
+local function buf_or_global(name)
+  local buf_value = vim.bo[name]
+  return buf_value ~= '' and buf_value or vim.o[name]
 end
 
-function Run(runCmd, errorformat)
-  local runOutputFileCmd = string.format("silent !%s 2> stderr.log", runCmd)
+-- `:make` does all of this already, but synchronously -- it freezes the UI
+-- until the compiler exits. vim.system() runs the build in the background;
+-- 'errorformat' still does the parsing, via setqflist()'s `efm`.
+local build_running = false
 
-  -- for debugging
-  --print(runOutputFileCmd)
-  --vim.cmd("!cat runOutputFile")
+-- The quickfix list is only a *view* of a build: 'errorformat' drops every
+-- line it does not recognise, so a bash error, a missing tool, or any compiler
+-- we have no format for would vanish from it. Keep the raw output of the last
+-- build so :BuildLog can always show exactly what happened.
+local last_build = {}
 
-  vim.cmd(runOutputFileCmd)
+vim.api.nvim_create_user_command('Build', function(opts)
+  if build_running then
+    return vim.notify('Build already running', vim.log.levels.WARN)
+  end
+  vim.cmd('silent! wall')
 
-  if (errorformat ~= nil)
-  then
-    vim.opt.errorformat = errorformat
-    vim.cmd("silent cfile stderr.log")
+  -- 'makeprg' may hold pipes, quotes and `%`, so hand it to the shell rather
+  -- than splitting it into argv here; expandcmd() does the `%`/`#` expansion
+  -- that :make would have done.
+  local prg = buf_or_global('makeprg')
+  local cmd = vim.fn.expandcmd(opts.args ~= '' and (prg .. ' ' .. opts.args) or prg)
+  local efm = buf_or_global('errorformat')
 
-    if vim.tbl_isempty(vim.fn.getqflist()) then
-      vim.cmd("cclose")
-      -- if errors in stderroutput not caught by quickfix, notify user
-      if vim.fn.getfsize("stderr.log") ~= 0 then
-        vim.notify("Run failed:")
-        vim.notify(vim.fn.system("cat stderr.log"))
+  build_running = true
+  vim.notify(cmd)
+  -- Merge stderr into stdout in the shell, rather than concatenating the two
+  -- captured strings afterwards: concatenating puts every stderr line after
+  -- every stdout line, and 'errorformat' is order-sensitive -- its %D/%X
+  -- "Entering/Leaving directory" directives can only track the compiler's cwd
+  -- against genuinely interleaved output. `:make` merges for the same reason,
+  -- via 'shellpipe' (`2>&1| tee`). The subshell keeps the redirect applied to
+  -- the whole command, not just the last stage of a `&&` chain.
+  local shell_cmd = ('(%s) 2>&1'):format(cmd)
+  vim.system({ vim.o.shell, vim.o.shellcmdflag, shell_cmd }, { text = true }, function(res)
+    vim.schedule(function()
+      build_running = false
+      local output = res.stdout or ''
+      last_build = { cmd = cmd, code = res.code, output = output }
+
+      vim.fn.setqflist({}, ' ', {
+        title = cmd,
+        lines = vim.split(output, '\n', { trimempty = true }),
+        efm = efm,
+      })
+      -- Opens the quickfix window only if 'errorformat' matched something and
+      -- closes it if not, so a clean build just quietly succeeds.
+      vim.cmd('cwindow')
+
+      -- Lines 'errorformat' did *not* match are still added to the list, as
+      -- entries with valid=0, so a non-empty list does not mean the build
+      -- produced anything jumpable -- count the valid ones. A non-zero exit is
+      -- always reported, even when there are errors in quickfix, because the
+      -- interesting failure is often the one that did not parse: `bear: command
+      -- not found` next to three real compile errors. When nothing parsed at
+      -- all, the raw output goes straight into the message.
+      local qf = vim.fn.getqflist()
+      local matched = #vim.tbl_filter(function(e) return e.valid == 1 end, qf)
+      if res.code ~= 0 then
+        local msg = ('Build failed (exit %d): %d in quickfix, %d unparsed. :BuildLog for raw output')
+          :format(res.code, matched, #qf - matched)
+        vim.notify(
+          matched == 0 and (msg .. '\n' .. vim.trim(output)) or msg,
+          vim.log.levels.ERROR
+        )
       end
-    else
-      vim.cmd("copen")
-    end
+    end)
+  end)
+end, { nargs = '*', desc = 'Build asynchronously into the quickfix list' })
+
+-- The unfiltered truth about the last build, for when quickfix looks wrong or
+-- suspiciously empty. `gF` jumps to any file:line in here too, and `:cbuffer`
+-- re-parses the whole thing into quickfix.
+vim.api.nvim_create_user_command('BuildLog', function()
+  if not last_build.cmd then
+    return vim.notify('No build has run yet', vim.log.levels.WARN)
+  end
+  vim.cmd('botright new')
+  local buf = vim.api.nvim_get_current_buf()
+  vim.bo[buf].buftype, vim.bo[buf].bufhidden, vim.bo[buf].swapfile = 'nofile', 'wipe', false
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(
+    ('$ %s\n[exit %d]\n\n%s'):format(last_build.cmd, last_build.code, last_build.output),
+    '\n'))
+  vim.bo[buf].modified = false
+end, { desc = 'Raw output of the last :Build' })
+
+-- Running is not the same problem as building: you usually want to watch the
+-- program and type at it, not scrape its stderr. So :Run gets a terminal
+-- split. To chase a `file.c:42:` in its log, `gF` on the reference jumps
+-- straight there; <leader>cq instead pushes the whole log through
+-- 'errorformat' into quickfix, so <leader>j / <leader>k walk the references.
+vim.api.nvim_create_user_command('Run', function(opts)
+  local cmd = opts.args ~= '' and opts.args or vim.g.runprg
+  if not cmd or cmd == '' then
+    return vim.notify(
+      'Nothing to run: pass a command, or set vim.g.runprg in the project .nvim.lua',
+      vim.log.levels.WARN
+    )
+  end
+  vim.cmd('silent! wall')
+  vim.cmd('botright split | terminal ' .. vim.fn.expandcmd(cmd))
+end, { nargs = '*', desc = 'Run the program in a terminal split' })
+
+vim.api.nvim_create_autocmd('TermOpen', {
+  desc = 'Let a terminal log be sent to the quickfix list',
+  callback = function(event)
+    vim.keymap.set('n', '<leader>cq', '<Cmd>cbuffer<CR><Cmd>cwindow<CR>',
+      { buffer = event.buf, desc = 'Terminal output -> [q]uickfix' })
+  end,
+})
+
+vim.keymap.set('n', '<leader>b', '<Cmd>Build<CR>', { desc = '[B]uild' })
+vim.keymap.set('n', '<leader>x', '<Cmd>Run<CR>', { desc = 'Run (e[x]ecute)' })
+
+-- [[ Project declarations ]]
+-- A project's `.nvim.lua` should be a declaration and nothing more:
+--
+--     Project({
+--       lang  = 'c',                       -- or { 'c', 'go' } when mixed
+--       build = './build_linux.sh',        -- :Build  <leader>b
+--       run   = './build_linux.sh --run',  -- :Run    <leader>x  (terminal)
+--       test  = './build_tests.sh',        -- :Test
+--       wasm  = './build_wasm.sh',         -- any other key becomes :Wasm
+--     })
+--
+-- Everything runs from the project root -- the directory holding the
+-- `.nvim.lua` -- because build scripts routinely refuse to run anywhere else,
+-- and 'exrc' searching upwards means nvim is often started in a subdirectory.
+
+-- Language name -> the compiler plugin that knows its 'errorformat', from
+-- $VIMRUNTIME/compiler. Names not listed here are used as-is, so `lang = 'go'`,
+-- `lang = 'cargo'` or `lang = 'pytest'` all work without an entry.
+local compiler_alias = {
+  c = 'gcc', cpp = 'gcc', objc = 'gcc',
+  rust = 'cargo', zig = 'zig_build', python = 'pyright',
+  typescript = 'tsc', javascript = 'eslint',
+}
+
+-- 'exrc' does not stop at the first `.nvim.lua` it finds: it loads the nearest
+-- one and then keeps walking up, so in a monorepo the repo-root file runs
+-- *last* and would clobber the sub-project's. Nearest-wins instead -- the
+-- first declaration sticks and later (outer) ones are ignored, so
+-- `frontend/.nvim.lua` beats the root when you are working in frontend/.
+local project_declared = false
+
+function Project(spec)
+  if project_declared then return end
+  project_declared = true
+
+  -- The root is the directory of whatever called us, i.e. the `.nvim.lua`
+  -- itself: stack level 2, with `@` marking a real filename.
+  local source = debug.getinfo(2, 'S').source
+  local root = source:sub(1, 1) == '@' and vim.fs.dirname(source:sub(2)) or assert(vim.uv.cwd())
+
+  local function at_root(cmd)
+    return ('cd %s && %s'):format(vim.fn.shellescape(root), cmd)
   end
 
-  vim.cmd("silent !rm stderr.log")
+  -- 'errorformat' is a comma-separated list of alternatives that Vim tries in
+  -- turn, so a mixed-language project concatenates its compilers' formats
+  -- rather than having to pick one per buffer. The `!` on :compiler sets the
+  -- *global* option -- exrc runs before the file named on the command line is
+  -- opened, so a buffer-local value would land on a throwaway buffer and be
+  -- lost the moment the real file appeared.
+  local formats = {}
+  for _, lang in ipairs(type(spec.lang) == 'table' and spec.lang or { spec.lang }) do
+    local name = compiler_alias[lang] or lang
+    if pcall(vim.cmd, 'compiler! ' .. name) then
+      -- Several compiler plugins (tsc among them) end their format with
+      -- `%-G%.%#`, a catch-all that discards every line they do not recognise
+      -- -- which is exactly the line you most need to see when a build script
+      -- dies on `bear: command not found`. It also swallows any format merged
+      -- after it. Drop it: unrecognised lines then stay in the quickfix list
+      -- as unjumpable entries instead of disappearing.
+      formats[#formats + 1] = (vim.o.errorformat:gsub(',%%%-G%%%.%%%#$', ''))
+    else
+      vim.notify(('Project: no compiler plugin %q, see $VIMRUNTIME/compiler'):format(name),
+        vim.log.levels.WARN)
+    end
+  end
+  if #formats > 0 then
+    vim.o.errorformat = table.concat(formats, ',')
+  end
+
+  if spec.build then vim.o.makeprg = at_root(spec.build) end
+  if spec.run then vim.g.runprg = at_root(spec.run) end
+
+  -- Every other key becomes a :Capitalised command reusing :Build's async
+  -- quickfix. :Build reads 'makeprg' synchronously before it forks, so putting
+  -- the old value back on the next line is safe and <leader>b goes on meaning
+  -- the normal build.
+  for key, cmd in pairs(spec) do
+    if key ~= 'lang' and key ~= 'build' and key ~= 'run' then
+      vim.api.nvim_create_user_command(key:sub(1, 1):upper() .. key:sub(2), function(opts)
+        local saved = vim.o.makeprg
+        vim.o.makeprg = at_root(cmd)
+        vim.cmd('Build ' .. opts.args)
+        vim.o.makeprg = saved
+      end, { nargs = '*', desc = cmd })
+    end
+  end
 end
 
 -- [[ Plugins ]]
