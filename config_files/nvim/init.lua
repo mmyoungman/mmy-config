@@ -65,9 +65,33 @@ vim.keymap.set('n', '<C-l>', '$', { noremap = true })
 vim.keymap.set('v', '<C-h>', '^', { noremap = true })
 vim.keymap.set('v', '<C-l>', '$', { noremap = true })
 
+-- Step through the quickfix list. Two things this has to work around:
+--
+-- `:cnext` and `:cprevious` move *off* the current entry and stop dead at the
+-- ends of the list. A fresh list is already sitting on entry 1, so with a
+-- single error `:cnext` has no entry 2 to reach and `:cprevious` has no entry
+-- 0 -- both fail and you can never jump to the only error you have. Falling
+-- back to the far end wraps the list and fixes that case as a side effect.
+--
+-- `:update` rather than `:write`, because `:write` rewrites a file even when
+-- the buffer is unmodified -- touching the mtime of everything you merely step
+-- through, which can retrigger a build watching those files. It also errors in
+-- the quickfix window itself (no file name), and an error inside a mapping
+-- aborts the rest of it, so `:write` silently ate the jump there.
+local function qf_step(step, wrap)
+  vim.cmd('silent! update')
+  if not pcall(vim.cmd, step) then
+    if not pcall(vim.cmd, wrap) then
+      vim.notify('Quickfix list is empty', vim.log.levels.WARN)
+    end
+  end
+end
+
 vim.keymap.set('n', '<leader>h', ':copen<CR>', { noremap = true })
-vim.keymap.set('n', '<leader>j', ':write<CR>:cnext<CR>', { noremap = true })
-vim.keymap.set('n', '<leader>k', ':cprevious<CR>', { noremap = true })
+vim.keymap.set('n', '<leader>j', function() qf_step('cnext', 'cfirst') end,
+  { desc = 'Next quickfix entry' })
+vim.keymap.set('n', '<leader>k', function() qf_step('cprevious', 'clast') end,
+  { desc = 'Previous quickfix entry' })
 vim.keymap.set('n', '<leader>l', ':cclose<CR>', { noremap = true })
 
 -- Since insert mode C-h is backspace, C-l should delete char infront
