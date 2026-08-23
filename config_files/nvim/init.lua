@@ -399,6 +399,27 @@ function Project(spec)
   end
 end
 
+-- 'exrc' searches the *cwd* and its parents, not the file you opened, so
+-- `nvim ~/projects/foo/src/x.c` from somewhere else gets no project at all:
+-- :Build falls back to plain `make` and dies on a repo with no makefile, and
+-- :Test does not exist. Search upward from the first file as well.
+-- vim.secure.read() applies the same `:trust` gate 'exrc' does, and naming the
+-- chunk `@<path>` keeps debug.getinfo() in Project() pointing at the real file.
+vim.api.nvim_create_autocmd('VimEnter', {
+  desc = 'Load a project declaration from the first file, if the cwd had none',
+  callback = function()
+    local name = project_declared and '' or vim.api.nvim_buf_get_name(0)
+    local found = name ~= ''
+      and vim.fs.find('.nvim.lua', { path = vim.fs.dirname(name), upward = true })[1]
+    local contents = found and vim.secure.read(found)
+    if not contents then return end
+    local chunk, err = load(contents, '@' .. found)
+    if not chunk then return vim.notify(err, vim.log.levels.ERROR) end
+    local ok, run_err = pcall(chunk)
+    if not ok then vim.notify(run_err, vim.log.levels.ERROR) end
+  end,
+})
+
 -- [[ Plugins ]]
 -- Managed by Neovim's built-in plugin manager, `:help vim.pack`.
 --  :lua vim.pack.update()                -- update all, review, `:w` to confirm
