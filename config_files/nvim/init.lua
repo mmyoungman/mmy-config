@@ -247,11 +247,40 @@ vim.api.nvim_create_user_command('Build', function(opts)
           matched == 0 and (msg .. '\n' .. vim.trim(output)) or msg,
           vim.log.levels.ERROR
         )
-        -- Unlike sync :make there is no automatic jump: this fires while you
-        -- may be typing. A project that wants :make's behavior adds
-        -- `vim.g.build_jump_first = true` to its .nvim.lua.
-        if matched > 0 and vim.g.build_jump_first then vim.cmd('cc 1') end
+      else
+        -- An exit code is only as honest as the build script that returns it.
+        -- A shell script whose last statement is an untaken `if` exits 0 no
+        -- matter how the compiler fared, so a clean exit sitting next to
+        -- parsed errors means the failure got swallowed on the way out. Trust
+        -- 'errorformat' over the exit code here and say so, rather than
+        -- letting a broken build pass for a quiet success. A build that only
+        -- warns, though, did genuinely succeed, so grade the entries first.
+        --
+        -- %t stores the compiler's severity character verbatim, in whatever
+        -- case it printed it ('e' from "error:", 'w' from "warning:"), and is
+        -- empty for a format carrying no severity at all. So count the
+        -- explicit errors -- but if nothing in the list was graded, as with a
+        -- custom efm like `FAIL %f:%l %m` where every match is a failure by
+        -- construction, fall back to the whole list rather than going quiet
+        -- on a format we cannot read severities from.
+        local function count(predicate)
+          return #vim.tbl_filter(function(e) return e.valid == 1 and predicate(e) end, qf)
+        end
+        local errors = count(function(e) return e.type:lower() == 'e' end)
+        local graded = count(function(e) return e.type ~= '' end) > 0
+        local suspect = errors > 0 and errors or (graded and 0 or matched)
+        if suspect > 0 then
+          vim.notify(
+            ('Build exited 0 but %d error(s) parsed -- exit code likely swallowed by the build script')
+              :format(suspect),
+            vim.log.levels.WARN
+          )
+        end
       end
+      -- Unlike sync :make there is no automatic jump: this fires while you
+      -- may be typing. A project that wants :make's behavior adds
+      -- `vim.g.build_jump_first = true` to its .nvim.lua.
+      if matched > 0 and vim.g.build_jump_first then vim.cmd('cc 1') end
     end)
   end)
   if not ok then
