@@ -229,6 +229,16 @@ vim.api.nvim_create_user_command('Run', function(opts)
   end
   vim.cmd('silent! wall')
   vim.cmd('botright split | terminal ' .. vim.fn.expandcmd(cmd))
+  -- The run's own 'errorformat' rides on the terminal buffer, so <leader>cq
+  -- parses the program's log format rather than the compiler's -- a line like
+  -- "[ERROR] (src/game.c:12) oops" matches no compiler format at all.
+  if vim.g.runefm then vim.bo.errorformat = vim.g.runefm end
+  -- The program runs from the project root, so paths it logs are relative to
+  -- that, not to wherever nvim was started. Give the terminal window the same
+  -- cwd, so gF and <leader>cq resolve them.
+  if vim.g.project_root then
+    vim.cmd('lcd ' .. vim.fn.fnameescape(vim.g.project_root))
+  end
   -- Output is only "tailed" while the cursor is on the last line (`:help
   -- terminal`). A terminal opens in Normal mode with the cursor at the top,
   -- where it stays, so the view falls behind as soon as the program prints
@@ -254,12 +264,21 @@ vim.keymap.set('n', '<leader>x', '<Cmd>Run<CR>', { desc = 'Run (e[x]ecute)' })
 -- A project's `.nvim.lua` should be a declaration and nothing more:
 --
 --     Project({
---       lang  = 'c',                       -- or { 'c', 'go' } when mixed
+--       lang  = 'c',                       -- default format; { 'c', 'go' } if mixed
 --       build = './build_linux.sh',        -- :Build  <leader>b
---       run   = './build_linux.sh --run',  -- :Run    <leader>x  (terminal)
 --       test  = './build_tests.sh',        -- :Test
 --       wasm  = './build_wasm.sh',         -- any other key becomes :Wasm
+--       -- a command that prints in its own format overrides it:
+--       run   = { './build_linux.sh --run', efm = '[%t%*[A-Z]] (%f:%l) %m' },
 --     })
+--
+-- Each entry is a command string, or a table `{ '<command>', lang = ... }` or
+-- `{ '<command>', efm = ... }` when that command's output does not look like
+-- the project default. This matters more than it sounds: a compiler, a test
+-- runner and the program's own log are three different formats, and a build's
+-- 'errorformat' will not match a line like "[ERROR] (src/game.c:12) oops".
+-- `run`'s format rides on the terminal buffer, so <leader>cq parses the
+-- program's log rather than the compiler's.
 --
 -- Everything runs from the project root -- the directory holding the
 -- `.nvim.lua` -- because build scripts routinely refuse to run anywhere else,
@@ -294,47 +313,74 @@ function Project(spec)
     return ('cd %s && %s'):format(vim.fn.shellescape(root), cmd)
   end
 
-  -- 'errorformat' is a comma-separated list of alternatives that Vim tries in
-  -- turn, so a mixed-language project concatenates its compilers' formats
-  -- rather than having to pick one per buffer. The `!` on :compiler sets the
-  -- *global* option -- exrc runs before the file named on the command line is
-  -- opened, so a buffer-local value would land on a throwaway buffer and be
-  -- lost the moment the real file appeared.
-  local formats = {}
-  for _, lang in ipairs(type(spec.lang) == 'table' and spec.lang or { spec.lang }) do
-    local name = compiler_alias[lang] or lang
-    if pcall(vim.cmd, 'compiler! ' .. name) then
-      -- Several compiler plugins (tsc among them) end their format with
-      -- `%-G%.%#`, a catch-all that discards every line they do not recognise
-      -- -- which is exactly the line you most need to see when a build script
-      -- dies on `bear: command not found`. It also swallows any format merged
-      -- after it. Drop it: unrecognised lines then stay in the quickfix list
-      -- as unjumpable entries instead of disappearing.
-      formats[#formats + 1] = (vim.o.errorformat:gsub(',%%%-G%%%.%%%#$', ''))
-    else
-      vim.notify(('Project: no compiler plugin %q, see $VIMRUNTIME/compiler'):format(name),
-        vim.log.levels.WARN)
+  -- Turn one entry into { cmd, efm }. An explicit `efm` wins; otherwise `lang`
+  -- -- the entry's own, falling back to the project default -- names compiler
+  -- plugins whose formats get concatenated. 'errorformat' is a comma-separated
+  -- list of alternatives Vim tries in turn, so a mixed-language build merges
+  -- them rather than having to pick one.
+  local function resolve(entry)
+    local cmd = type(entry) == 'string' and entry or entry[1]
+    local opts = type(entry) == 'table' and entry or {}
+    if opts.efm then return { cmd = at_root(cmd), efm = opts.efm } end
+
+    local lang = opts.lang or spec.lang
+    local langs = lang == nil and {} or (type(lang) == 'table' and lang or { lang })
+    local formats = {}
+    for _, name in ipairs(langs) do
+      name = compiler_alias[name] or name
+      -- The `!` sets the *global* option, which is what we read back here.
+      if pcall(vim.cmd, 'compiler! ' .. name) then
+        -- Several compiler plugins (tsc among them) end their format with
+        -- `%-G%.%#`, a catch-all that discards every line they do not
+        -- recognise -- exactly the line you need when a build script dies on
+        -- `bear: command not found`. It also swallows any format merged after
+        -- it. Drop it, so unrecognised lines stay in the quickfix list as
+        -- unjumpable entries instead of disappearing.
+        formats[#formats + 1] = (vim.o.errorformat:gsub(',%%%-G%%%.%%%#$', ''))
+      else
+        vim.notify(('Project: no compiler plugin %q, see $VIMRUNTIME/compiler'):format(name),
+          vim.log.levels.WARN)
+      end
     end
-  end
-  if #formats > 0 then
-    vim.o.errorformat = table.concat(formats, ',')
+    return {
+      cmd = at_root(cmd),
+      efm = #formats > 0 and table.concat(formats, ',') or nil,
+    }
   end
 
-  if spec.build then vim.o.makeprg = at_root(spec.build) end
-  if spec.run then vim.g.runprg = at_root(spec.run) end
+  -- resolve() runs `:compiler!`, which clobbers the global 'errorformat' as a
+  -- side effect, so resolve everything first and only then decide what the
+  -- global value should be.
+  local original_efm = vim.o.errorformat
+  local resolved = {}
+  for key, entry in pairs(spec) do
+    if key ~= 'lang' then resolved[key] = resolve(entry) end
+  end
+
+  -- The build's format becomes the global one, <leader>b being the common case.
+  vim.o.errorformat = (resolved.build and resolved.build.efm) or original_efm
+  if resolved.build then vim.o.makeprg = resolved.build.cmd end
+  if resolved.run then
+    vim.g.runprg, vim.g.runefm = resolved.run.cmd, resolved.run.efm
+  end
+  -- :Run needs this to resolve the relative paths a program logs. A C program's
+  -- __FILE__ is the path the compiler was given ("src/rules.c"), which is
+  -- relative to the root the build ran from, not to wherever nvim was started.
+  vim.g.project_root = root
 
   -- Every other key becomes a :Capitalised command reusing :Build's async
-  -- quickfix. :Build reads 'makeprg' synchronously before it forks, so putting
-  -- the old value back on the next line is safe and <leader>b goes on meaning
-  -- the normal build.
-  for key, cmd in pairs(spec) do
-    if key ~= 'lang' and key ~= 'build' and key ~= 'run' then
+  -- quickfix. :Build reads 'makeprg' and 'errorformat' synchronously before it
+  -- forks, so putting the old values back on the next line is safe, and
+  -- <leader>b goes on meaning the normal build.
+  for key, r in pairs(resolved) do
+    if key ~= 'build' and key ~= 'run' then
       vim.api.nvim_create_user_command(key:sub(1, 1):upper() .. key:sub(2), function(opts)
-        local saved = vim.o.makeprg
-        vim.o.makeprg = at_root(cmd)
+        local makeprg, efm = vim.o.makeprg, vim.o.errorformat
+        vim.o.makeprg = r.cmd
+        if r.efm then vim.o.errorformat = r.efm end
         vim.cmd('Build ' .. opts.args)
-        vim.o.makeprg = saved
-      end, { nargs = '*', desc = cmd })
+        vim.o.makeprg, vim.o.errorformat = makeprg, efm
+      end, { nargs = '*', desc = r.cmd })
     end
   end
 end
