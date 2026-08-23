@@ -1,7 +1,11 @@
 ---
+# update_cache without upgrade would be a bare `pacman -Sy`, so the installs
+# below would pull new packages onto an un-upgraded system. Both together are
+# the `pacman -Syu` the task name promises.
 - name: Update all packages
   pacman:
     update_cache: yes
+    upgrade: yes
 - name: Install XFCE stuff
   pacman:
     name:

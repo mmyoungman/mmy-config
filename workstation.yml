@@ -15,20 +15,22 @@
       - { src: nvim, dest: .config/nvim }
       - { src: vscode-settings.json, dest: .config/Code/User/settings.json }
       - { src: vscode-settings.json, dest: .config/Code - OSS/User/settings.json }
-  become: yes
   tasks:
     - name: If arch, do this
       include_role:
         name: arch-workstation
-      when: ansible_os_family == "Archlinux"
+        apply:
+          become: yes
+      when: ansible_facts['os_family'] == "Archlinux"
 
     - name: If ubuntu, do this
       include_role:
         name: ubuntu-workstation
-      when: ansible_os_family == "Debian"
+        apply:
+          become: yes
+      when: ansible_facts['os_family'] == "Debian"
 
     - name: Set bash/nvim/vscode/idea config
-      become: no
       block:
         - name: Make sure ~/.config exists
           file:
@@ -91,7 +93,6 @@
     # rc 0, which would make the guard below pass on a non-XFCE machine. This
     # only reads a version string, so it's safe to run either way.
     - name: Check whether this is an XFCE machine
-      become: no
       command: xfconf-query --version
       register: xfconf_query
       changed_when: false
@@ -104,19 +105,33 @@
     # replace the symlink with a real file and orphan the repo copy. New
     # bindings show up after logging out and back in.
     - name: Restore XFCE keyboard shortcuts
-      become: no
       when: xfconf_query.rc | default(1) == 0
       tags: [xfce]
       block:
+        - name: Make sure the xfconf channel dir exists
+          file:
+            path: "{{ home }}/.config/xfce4/xfconf/xfce-perchannel-xml"
+            state: directory
+
+        # Probe first so a re-run that changes nothing leaves xfconfd alone.
+        # Killing it discards whatever the current desktop session has buffered
+        # but not yet flushed, which is a bad trade for a no-op copy.
+        - name: Check whether the shortcuts file needs replacing
+          copy: &shortcuts
+            src: config_files/xfce4/xfce4-keyboard-shortcuts.xml
+            dest: "{{ home }}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml"
+            backup: yes
+          check_mode: yes
+          register: shortcuts
+
         - name: Stop xfconfd so it can't flush stale settings over the new file
           command: pkill -x xfconfd
           register: pkill_xfconfd
           changed_when: false
           # rc 1 just means it wasn't running.
           failed_when: pkill_xfconfd.rc not in [0, 1]
+          when: shortcuts.changed
 
         - name: Copy keyboard shortcuts into place
-          copy:
-            src: config_files/xfce4/xfce4-keyboard-shortcuts.xml
-            dest: "{{ home }}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml"
-            backup: yes
+          copy: *shortcuts
+          when: shortcuts.changed

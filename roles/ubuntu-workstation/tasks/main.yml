@@ -37,7 +37,7 @@
       - ffmpeg
       - ripgrep
       - fzf           # fuzzy finder, required by nvim's fzf-lua
-      - fd-find
+      - fd-find       # ships the binary as fdfind, which fzf-lua looks for
       - entr
       #- zbar
       - xclip
@@ -68,7 +68,7 @@
   apt:
     name:
       - neovim
-      - code           # Visual Studio Code
+      #- code # not in debian repos
       - qtcreator
 
 # Google Chrome, Etcher
