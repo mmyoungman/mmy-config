@@ -168,11 +168,19 @@ vim.api.nvim_create_user_command('Build', function(opts)
       local output = res.stdout or ''
       last_build = { cmd = cmd, code = res.code, output = output }
 
+      -- setqflist() resolves relative filenames against the cwd at the moment
+      -- the list is built, and the command ran from the project root (Project()
+      -- prefixes a `cd`). A compiler given `src/foo.c`, or a test printing
+      -- `tests/bar.c:41`, therefore reports paths relative to the root, not to
+      -- wherever nvim happened to be started -- so build the list from there
+      -- and put the cwd back.
+      local previous = vim.g.project_root and vim.fn.chdir(vim.g.project_root) or nil
       vim.fn.setqflist({}, ' ', {
         title = cmd,
         lines = vim.split(output, '\n', { trimempty = true }),
         efm = efm,
       })
+      if previous and previous ~= '' then vim.fn.chdir(previous) end
       -- Opens the quickfix window only if 'errorformat' matched something and
       -- closes it if not, so a clean build just quietly succeeds.
       vim.cmd('cwindow')
@@ -321,9 +329,13 @@ function Project(spec)
   local function resolve(entry)
     local cmd = type(entry) == 'string' and entry or entry[1]
     local opts = type(entry) == 'table' and entry or {}
-    if opts.efm then return { cmd = at_root(cmd), efm = opts.efm } end
 
-    local lang = opts.lang or spec.lang
+    -- `efm` and `lang` combine rather than compete: a test runner prints its
+    -- own failures *and* the compile errors from building the tests, so :Test
+    -- wants both formats. The project-wide `lang` is only inherited by an entry
+    -- that asks for no format of its own -- otherwise `run`, whose log looks
+    -- nothing like a compiler, would pick up a format that can only mismatch.
+    local lang = opts.lang or (opts.efm == nil and spec.lang or nil)
     local langs = lang == nil and {} or (type(lang) == 'table' and lang or { lang })
     local formats = {}
     for _, name in ipairs(langs) do
@@ -342,6 +354,8 @@ function Project(spec)
           vim.log.levels.WARN)
       end
     end
+    -- The entry's own format goes first, so it wins on a line both could match.
+    if opts.efm then table.insert(formats, 1, opts.efm) end
     return {
       cmd = at_root(cmd),
       efm = #formats > 0 and table.concat(formats, ',') or nil,
