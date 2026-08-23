@@ -102,7 +102,6 @@ vim.keymap.set('n', '<leader>"', 'viw<esc>a"<esc>hbi"<esc>lel', { noremap = true
 vim.keymap.set('n', '<leader>\'', 'viw<esc>a\'<esc>hbi\'<esc>lel', { noremap = true })
 vim.keymap.set('n', '<leader><', 'viw<esc>a><esc>hbi<<esc>lel', { noremap = true })
 vim.keymap.set('n', '<leader>(', 'viw<esc>a)<esc>hbi(<esc>lel', { noremap = true })
---Test: flkjal alfkjalf lajslkf
 
 -- Resize split with arrows
 vim.keymap.set("n", "<C-Up>", ":resize +2<CR>", { noremap = true })
@@ -132,12 +131,27 @@ end
 -- until the compiler exits. vim.system() runs the build in the background;
 -- 'errorformat' still does the parsing, via setqflist()'s `efm`.
 local build_running = false
+local build_handle = nil             -- the vim.system object of the running build
+local build_cancel_requested = false
 
 -- The quickfix list is only a *view* of a build: 'errorformat' drops every
 -- line it does not recognise, so a bash error, a missing tool, or any compiler
 -- we have no format for would vanish from it. Keep the raw output of the last
 -- build so :BuildLog can always show exactly what happened.
 local last_build = {}
+
+-- Builds are async, so C-c in the UI cannot reach them: this is the
+-- interrupt. The build runs detached -- a process-group leader -- so the
+-- negative-pid signal reaches the whole group: a script that spawned children
+-- of its own cannot outlive the stop by holding the output pipe open.
+vim.api.nvim_create_user_command('BuildStop', function()
+  if not build_running or not build_handle then
+    return vim.notify('No build is running', vim.log.levels.WARN)
+  end
+  build_cancel_requested = true
+  pcall(vim.uv.kill, -build_handle.pid, 'sigterm')
+  build_handle:kill('sigterm')
+end, { desc = 'Kill the running :Build' })
 
 vim.api.nvim_create_user_command('Build', function(opts)
   if build_running then
@@ -153,6 +167,7 @@ vim.api.nvim_create_user_command('Build', function(opts)
   local efm = buf_or_global('errorformat')
 
   build_running = true
+  build_cancel_requested = false
   vim.notify(cmd)
   -- Merge stderr into stdout in the shell, rather than concatenating the two
   -- captured strings afterwards: concatenating puts every stderr line after
@@ -162,25 +177,50 @@ vim.api.nvim_create_user_command('Build', function(opts)
   -- via 'shellpipe' (`2>&1| tee`). The subshell keeps the redirect applied to
   -- the whole command, not just the last stage of a `&&` chain.
   local shell_cmd = ('(%s) 2>&1'):format(cmd)
-  vim.system({ vim.o.shell, vim.o.shellcmdflag, shell_cmd }, { text = true }, function(res)
+  -- pcall: if the spawn itself fails, undo the running flag rather than
+  -- wedging :Build until restart. `detach` makes the shell a process-group
+  -- leader, which is what lets :BuildStop signal the whole group.
+  local ok, handle_or_err = pcall(vim.system,
+    { vim.o.shell, vim.o.shellcmdflag, shell_cmd },
+    { text = true, detach = true }, function(res)
     vim.schedule(function()
       build_running = false
+      build_handle = nil
       local output = res.stdout or ''
+      -- A killed process reports a signal rather than a meaningful exit code.
+      -- res.signal is a number: 0 on a normal exit, the signum otherwise;
+      -- report our own stop request (or an external SIGTERM) as a
+      -- cancellation, not a failure.
+      local cancelled = build_cancel_requested or (res.signal or 0) ~= 0
       last_build = { cmd = cmd, code = res.code, output = output }
 
       -- setqflist() resolves relative filenames against the cwd at the moment
       -- the list is built, and the command ran from the project root (Project()
       -- prefixes a `cd`). A compiler given `src/foo.c`, or a test printing
       -- `tests/bar.c:41`, therefore reports paths relative to the root, not to
-      -- wherever nvim happened to be started -- so build the list from there
-      -- and put the cwd back.
+      -- wherever nvim happened to be started -- so parse from there. While
+      -- still sitting in the root, rewrite every parsed filename to an
+      -- absolute path: relative ones would otherwise resolve against the cwd
+      -- of whichever window you jump (<leader>j/k) *from*, which is often not
+      -- the root. pcall guards the whole dance -- a bad merged 'errorformat'
+      -- must not leave your window silently cd'd into the project.
       local previous = vim.g.project_root and vim.fn.chdir(vim.g.project_root) or nil
-      vim.fn.setqflist({}, ' ', {
+      local set_ok, set_err = pcall(vim.fn.setqflist, {}, ' ', {
         title = cmd,
         lines = vim.split(output, '\n', { trimempty = true }),
         efm = efm,
       })
+      if set_ok then
+        local items = vim.fn.getqflist({ items = 0 }).items
+        for _, item in ipairs(items) do
+          if item.filename and item.filename ~= '' then
+            item.filename = vim.fn.fnamemodify(item.filename, ':p')
+          end
+        end
+        vim.fn.setqflist({}, 'r', { title = cmd, items = items })
+      end
       if previous and previous ~= '' then vim.fn.chdir(previous) end
+      if not set_ok then return vim.notify(set_err, vim.log.levels.ERROR) end
       -- Opens the quickfix window only if 'errorformat' matched something and
       -- closes it if not, so a clean build just quietly succeeds.
       vim.cmd('cwindow')
@@ -194,6 +234,12 @@ vim.api.nvim_create_user_command('Build', function(opts)
       -- all, the raw output goes straight into the message.
       local qf = vim.fn.getqflist()
       local matched = #vim.tbl_filter(function(e) return e.valid == 1 end, qf)
+      if cancelled then
+        return vim.notify(
+          ('Build cancelled: %d entries kept. :BuildLog for raw output'):format(matched),
+          vim.log.levels.WARN
+        )
+      end
       if res.code ~= 0 then
         local msg = ('Build failed (exit %d): %d in quickfix, %d unparsed. :BuildLog for raw output')
           :format(res.code, matched, #qf - matched)
@@ -201,9 +247,18 @@ vim.api.nvim_create_user_command('Build', function(opts)
           matched == 0 and (msg .. '\n' .. vim.trim(output)) or msg,
           vim.log.levels.ERROR
         )
+        -- Unlike sync :make there is no automatic jump: this fires while you
+        -- may be typing. A project that wants :make's behavior adds
+        -- `vim.g.build_jump_first = true` to its .nvim.lua.
+        if matched > 0 and vim.g.build_jump_first then vim.cmd('cc 1') end
       end
     end)
   end)
+  if not ok then
+    build_running = false
+    return vim.notify(('Build failed to start: %s'):format(handle_or_err), vim.log.levels.ERROR)
+  end
+  build_handle = handle_or_err
 end, { nargs = '*', desc = 'Build asynchronously into the quickfix list' })
 
 -- The unfiltered truth about the last build, for when quickfix looks wrong or
@@ -216,6 +271,11 @@ vim.api.nvim_create_user_command('BuildLog', function()
   vim.cmd('botright new')
   local buf = vim.api.nvim_get_current_buf()
   vim.bo[buf].buftype, vim.bo[buf].bufhidden, vim.bo[buf].swapfile = 'nofile', 'wipe', false
+  -- Same treatment as :Run's terminal: paths in the log are relative to the
+  -- project root, so give this window that cwd for gF and :cbuffer.
+  if vim.g.project_root then
+    vim.cmd('lcd ' .. vim.fn.fnameescape(vim.g.project_root))
+  end
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(
     ('$ %s\n[exit %d]\n\n%s'):format(last_build.cmd, last_build.code, last_build.output),
     '\n'))
@@ -227,6 +287,9 @@ end, { desc = 'Raw output of the last :Build' })
 -- split. To chase a `file.c:42:` in its log, `gF` on the reference jumps
 -- straight there; <leader>cq instead pushes the whole log through
 -- 'errorformat' into quickfix, so <leader>j / <leader>k walk the references.
+-- Buffer of the current run terminal; :Run keeps exactly one alive.
+local run_buf
+
 vim.api.nvim_create_user_command('Run', function(opts)
   local cmd = opts.args ~= '' and opts.args or vim.g.runprg
   if not cmd or cmd == '' then
@@ -236,7 +299,20 @@ vim.api.nvim_create_user_command('Run', function(opts)
     )
   end
   vim.cmd('silent! wall')
+  -- One run slot: kill the previous program and clear it out, so <leader>xr is
+  -- a predictable restart instead of stacking splits full of old servers.
+  if run_buf and vim.api.nvim_buf_is_valid(run_buf) then
+    local job = vim.b[run_buf].terminal_job_id
+    if job then pcall(vim.fn.jobstop, job) end
+    for _ = 1, 10 do
+      local win = vim.fn.bufwinid(run_buf)
+      if win == -1 then break end
+      pcall(vim.api.nvim_win_close, win, true)
+    end
+    pcall(vim.api.nvim_buf_delete, run_buf, { force = true })
+  end
   vim.cmd('botright split | terminal ' .. vim.fn.expandcmd(cmd))
+  run_buf = vim.api.nvim_get_current_buf()
   -- The run's own 'errorformat' rides on the terminal buffer, so <leader>cq
   -- parses the program's log format rather than the compiler's -- a line like
   -- "[ERROR] (src/game.c:12) oops" matches no compiler format at all.
@@ -265,20 +341,25 @@ vim.api.nvim_create_autocmd('TermOpen', {
   end,
 })
 
-vim.keymap.set('n', '<leader>b', '<Cmd>Build<CR>', { desc = '[B]uild' })
-vim.keymap.set('n', '<leader>x', '<Cmd>Run<CR>', { desc = 'Run (e[x]ecute)' })
+vim.keymap.set('n', '<leader>xb', '<Cmd>Build<CR>', { desc = '[B]uild' })
+vim.keymap.set('n', '<leader>xr', '<Cmd>Run<CR>', { desc = '[R]un' })
 
 -- [[ Project declarations ]]
 -- A project's `.nvim.lua` should be a declaration and nothing more:
 --
 --     Project({
 --       lang  = 'c',                       -- default format; { 'c', 'go' } if mixed
---       build = './build_linux.sh',        -- :Build  <leader>b
---       test  = './build_tests.sh',        -- :Test
+--       build = './build_linux.sh',        -- :Build  <leader>xb
+--       test  = './build_tests.sh',        -- :Test   <leader>xt
 --       wasm  = './build_wasm.sh',         -- any other key becomes :Wasm
 --       -- a command that prints in its own format overrides it:
 --       run   = { './build_linux.sh --run', efm = '[%t%*[A-Z]] (%f:%l) %m' },
 --     })
+--     -- optional extras:
+--     vim.g.build_jump_first = true        -- jump to the first error on a
+--                                          -- failed build (off by default:
+--                                          -- the notification lands while
+--                                          -- you may be typing)
 --
 -- Each entry is a command string, or a table `{ '<command>', lang = ... }` or
 -- `{ '<command>', efm = ... }` when that command's output does not look like
@@ -362,18 +443,21 @@ function Project(spec)
     }
   end
 
-  -- resolve() runs `:compiler!`, which clobbers the global 'errorformat' as a
-  -- side effect, so resolve everything first and only then decide what the
-  -- global value should be.
-  local original_efm = vim.o.errorformat
+  -- resolve() runs `:compiler!`, which clobbers the global 'makeprg' AND
+  -- 'errorformat' as a side effect, so resolve everything first and only then
+  -- decide what the global values should be.
+  local original_efm, original_makeprg = vim.o.errorformat, vim.o.makeprg
   local resolved = {}
   for key, entry in pairs(spec) do
     if key ~= 'lang' then resolved[key] = resolve(entry) end
   end
 
-  -- The build's format becomes the global one, <leader>b being the common case.
+  -- The build's format becomes the global one, <leader>xb being the common
+  -- case. With no `build` key the originals go back -- pairs() order is
+  -- random, so without this, whichever compiler plugin resolved last would
+  -- quietly donate its 'makeprg' (pyright's, cargo's...) to :Build.
   vim.o.errorformat = (resolved.build and resolved.build.efm) or original_efm
-  if resolved.build then vim.o.makeprg = resolved.build.cmd end
+  vim.o.makeprg = resolved.build and resolved.build.cmd or original_makeprg
   if resolved.run then
     vim.g.runprg, vim.g.runefm = resolved.run.cmd, resolved.run.efm
   end
@@ -385,16 +469,22 @@ function Project(spec)
   -- Every other key becomes a :Capitalised command reusing :Build's async
   -- quickfix. :Build reads 'makeprg' and 'errorformat' synchronously before it
   -- forks, so putting the old values back on the next line is safe, and
-  -- <leader>b goes on meaning the normal build.
+  -- <leader>xb goes on meaning the normal build.
   for key, r in pairs(resolved) do
     if key ~= 'build' and key ~= 'run' then
-      vim.api.nvim_create_user_command(key:sub(1, 1):upper() .. key:sub(2), function(opts)
+      local name = key:sub(1, 1):upper() .. key:sub(2)
+      vim.api.nvim_create_user_command(name, function(opts)
         local makeprg, efm = vim.o.makeprg, vim.o.errorformat
         vim.o.makeprg = r.cmd
         if r.efm then vim.o.errorformat = r.efm end
         vim.cmd('Build ' .. opts.args)
         vim.o.makeprg, vim.o.errorformat = makeprg, efm
       end, { nargs = '*', desc = r.cmd })
+      -- <leader>xt completes the x{b,r,t} trio when a project declares tests;
+      -- other generated commands stay :Command-only.
+      if key == 'test' then
+        vim.keymap.set('n', '<leader>xt', '<Cmd>' .. name .. '<CR>', { desc = '[T]est' })
+      end
     end
   end
 end
