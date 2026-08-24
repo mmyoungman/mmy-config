@@ -143,6 +143,16 @@ vim.pack.add({
   gh('ibhagwan/fzf-lua'),
 }, { confirm = false })
 
+-- Deleting a line above is not enough: vim.pack leaves the directory on disk,
+-- and the next start "repairs" it back into the lockfile. Anything not in the
+-- add() above is non-active, so pruning those makes the list here the single
+-- source of truth for both.
+local stale = vim.iter(vim.pack.get())
+  :filter(function(p) return not p.active end)
+  :map(function(p) return p.spec.name end)
+  :totable()
+if #stale > 0 then vim.pack.del(stale) end
+
 -- [[ Plugin setup ]]
 require('lazydev').setup({})
 
@@ -382,5 +392,8 @@ vim.lsp.config('lua_ls', {
 
 require('mason').setup({})
 require('mason-lspconfig').setup({
-  ensure_installed = { 'clangd', 'gopls', 'templ', 'pyright', 'lua_ls' },
+  ensure_installed = {
+    'clangd', 'gopls', 'templ', 'pyright', 'lua_ls',
+    'bashls', 'robotframework_ls', 'roslyn_ls',
+  },
 })

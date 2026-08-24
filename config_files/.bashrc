@@ -123,10 +123,13 @@ path_add() {
 }
 
 # For dotnet
-export DOTNET_ROOT=$HOME/.dotnet
+if [ -x "$HOME/.dotnet/dotnet" ]; then
+    export DOTNET_ROOT="$HOME/.dotnet"
+    path_add "$DOTNET_ROOT"
+fi
 
-# Add .NET Core SDK tools
-path_add "$DOTNET_ROOT" "$DOTNET_ROOT/tools"
+# Add .NET Core SDK tools. Global tools land here whatever the runtime layout.
+path_add "$HOME/.dotnet/tools"
 
 # Go stuff
 path_add "$HOME/go/bin"
