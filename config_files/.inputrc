@@ -7,8 +7,18 @@ set keyseq-timeout 0
 
 $if mode=vi
    set show-mode-in-prompt
-   set vi-ins-mode-string \1\e[6 q\2
-   set vi-cmd-mode-string \1\e[2 q\2
+   # The mode indicator is the cursor shape (DECSCUSR: 6 = beam, 2 = block).
+   # The Linux virtual console does not implement DECSCUSR -- it reads
+   # ESC [ n q as DECLL and toggles a keyboard LED instead, so on a bare tty
+   # the cursor never changes and escape looks like it did nothing. There the
+   # indicator has to be text.
+   $if term=linux
+      set vi-ins-mode-string +
+      set vi-cmd-mode-string :
+   $else
+      set vi-ins-mode-string \1\e[6 q\2
+      set vi-cmd-mode-string \1\e[2 q\2
+   $endif
 
    set keymap vi-command
    "ciw": "lbcw"
