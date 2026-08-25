@@ -65,6 +65,13 @@
 # vim.pack.add() installs anything missing on the first run; the revisions
 # come from config_files/nvim/nvim-pack-lock.json. Plugins are updated
 # separately with :lua vim.pack.update().
+#
+# The PATH override is not redundant with .bashrc: that file returns early for
+# non-interactive shells, which is exactly what Ansible gets, so its path_add
+# lines never run here. Without this a bare `nvim` finds Debian's stale
+# /usr/bin/nvim, init.lua bails on the 0.12 check, and no plugins install.
 - name: Pre-install nvim plugins
   command: nvim --headless -c quitall
+  environment:
+    PATH: "{{ home }}/.local/bin:{{ ansible_facts['env']['PATH'] }}"
   changed_when: false

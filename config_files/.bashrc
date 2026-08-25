@@ -146,8 +146,11 @@ path_add "$HOME/.duckdb/cli/latest"
 # FZF
 #[ -f $HOME/.fzf.bash ] && source $HOME/.fzf.bash
 
-# For pipenv
-path_add "$HOME/.local/bin"
+# For pipenv, and for anything installed by hand rather than by the package
+# manager. Prepended, unlike the appends above, so a hand-installed binary
+# beats a distro package of the same name: the server's neovim is an AppImage there
+# because Debian's /usr/bin/nvim is older than config_files/nvim requires.
+path_add -p "$HOME/.local/bin"
 
 # For pyenv
 export PYENV_ROOT="$HOME/.pyenv"
