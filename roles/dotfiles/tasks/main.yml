@@ -16,17 +16,23 @@
 
 # --backup=numbered so a second backup on the same date bumps the older
 # one to .~1~ rather than clobbering it. The 'is not link' check below
-# is what makes this idempotent: after the first run every target is a
+# is what makes this idempotent: after the first run every dest is a
 # symlink, so this only fires again if something replaces one with a
 # real file.
+#
+# Not named 'target': server.yml takes the host to run against as
+# `-e target=<host>`, and extra vars outrank task vars, so the path here would
+# resolve to the hostname. Every 'is exists' would then be false, the backup
+# would silently skip, and the link task below would force: yes over a real
+# file with nothing kept.
 - name: Back up config that isn't already a symlink
   command:
-    cmd: mv --backup=numbered -- "{{ target }}" "{{ target }}.{{ ansible_facts.date_time.date }}"
+    cmd: mv --backup=numbered -- "{{ link_path }}" "{{ link_path }}.{{ ansible_facts.date_time.date }}"
   vars:
-    target: "{{ home }}/{{ item.dest }}"
+    link_path: "{{ home }}/{{ item.dest }}"
   when:
-    - target is exists
-    - target is not link
+    - link_path is exists
+    - link_path is not link
   loop: "{{ config_links }}"
   loop_control:
     label: "{{ item.dest }}"
