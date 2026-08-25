@@ -1,0 +1,64 @@
+---
+# Expects home, config_files_dir, config_links and gitemail from the calling
+# playbook. Each playbook passes its own config_links: the workstation links
+# .xprofile/.ideavimrc/VS Code as well, the server only wants the headless set.
+#
+# config_files_dir must be a path on the *target*, not the controller --
+# these are symlinks, so a controller path would dangle on a pushed run.
+
+- name: Make sure each link's parent dir exists
+  file:
+    path: "{{ (home + '/' + item.dest) | dirname }}"
+    state: directory
+  loop: "{{ config_links }}"
+  loop_control:
+    label: "{{ (home + '/' + item.dest) | dirname }}"
+
+# --backup=numbered so a second backup on the same date bumps the older
+# one to .~1~ rather than clobbering it. The 'is not link' check below
+# is what makes this idempotent: after the first run every target is a
+# symlink, so this only fires again if something replaces one with a
+# real file.
+- name: Back up config that isn't already a symlink
+  command:
+    cmd: mv --backup=numbered -- "{{ target }}" "{{ target }}.{{ ansible_facts.date_time.date }}"
+  vars:
+    target: "{{ home }}/{{ item.dest }}"
+  when:
+    - target is exists
+    - target is not link
+  loop: "{{ config_links }}"
+  loop_control:
+    label: "{{ item.dest }}"
+
+- name: Symlink config into place
+  file:
+    src: "{{ config_files_dir }}/{{ item.src }}"
+    dest: "{{ home }}/{{ item.dest }}"
+    state: link
+    force: yes
+  loop: "{{ config_links }}"
+  loop_control:
+    label: "{{ item.dest }}"
+
+# Older installs symlinked this into the repo; the template below would
+# write the real email address through the link and into git.
+- name: Drop ~/.gitconfig if it's a symlink
+  file:
+    path: "{{ home }}/.gitconfig"
+    state: absent
+  when: (home + '/.gitconfig') is link
+
+- name: Copy gitconfig template
+  template:
+    src: gitconfig.j2
+    dest: "{{ home }}/.gitconfig"
+    backup: yes
+
+# Pre-install plugins via nvim's built-in plugin manager (:help vim.pack).
+# vim.pack.add() installs anything missing on the first run; the revisions
+# come from config_files/nvim/nvim-pack-lock.json. Plugins are updated
+# separately with :lua vim.pack.update().
+- name: Pre-install nvim plugins
+  command: nvim --headless -c quitall
+  changed_when: false
