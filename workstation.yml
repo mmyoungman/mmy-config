@@ -3,7 +3,7 @@
 - hosts: localhost
   vars:
     gitemail: "mark@[domain]" # avoid bot scraping via a template
-    home: "{{ ansible_env.HOME }}"
+    home: "{{ ansible_facts['env']['HOME'] }}"
     # Safe as a controller path because this playbook only ever targets
     # localhost. server.yml has to point at a checkout on the target instead.
     config_files_dir: "{{ playbook_dir }}/config_files"
