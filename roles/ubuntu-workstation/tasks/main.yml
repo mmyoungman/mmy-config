@@ -48,6 +48,7 @@
       - jq
       - htop
       - curl
+      - viewnior
 
 - name: Install programming tools
   apt:
@@ -64,7 +65,6 @@
       #- npm
       #- sqlite3
       - sqlitebrowser
-      - wireshark
       #- docker.io
       #- docker-compose
 
