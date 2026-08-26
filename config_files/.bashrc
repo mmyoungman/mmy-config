@@ -52,14 +52,20 @@ source_first() {
 GIT_PROMPT_PATHS=(
     /usr/share/git/completion/git-prompt.sh                              # Arch, Manjaro
     /usr/lib/git-core/git-sh-prompt                                      # Debian, Ubuntu
+    /run/current-system/sw/share/git/contrib/completion/git-prompt.sh    # NixOS
 )
 if ! source_first git-prompt.sh "${GIT_PROMPT_PATHS[@]}"; then
     __git_ps1() { :; }
 fi
 
+# NixOS has effectively no /usr, so both /usr paths above miss there and the
+# fallback fires: no branch in PS1 and no completion on the git aliases below.
+# /run/current-system/sw is the system profile -- stable across rebuilds, unlike
+# the hashed store path the file actually lives at.
 GIT_COMPLETION_PATHS=(
     /usr/share/git/completion/git-completion.bash                              # Arch, Manjaro
     /usr/share/bash-completion/completions/git                                 # Debian, Ubuntu
+    /run/current-system/sw/share/bash-completion/completions/git               # NixOS
 )
 if ! source_first git-completion.bash "${GIT_COMPLETION_PATHS[@]}"; then
     __git_complete() { :; }
