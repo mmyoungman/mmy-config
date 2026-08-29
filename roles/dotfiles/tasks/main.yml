@@ -13,6 +13,36 @@
 # the role twice, which would also re-template ~/.gitconfig and pay for the
 # headless nvim run a second time.
 
+# First, before anything below has moved a file or made a link. `file:
+# state=link` with force: yes will cheerfully point a link at a path that does
+# not exist, and ansible calls that a success -- so a target whose checkout is
+# behind, or whose submodule was never initialised, ends up with a tree of
+# dangling links and a green run. Nothing notices until something tries to use
+# one, and what that looks like depends entirely on the consumer: a missing
+# .bashrc is obvious at the next login, but a link exec'd by a service just
+# returns 127 to something that is not watching.
+- name: Check every link source exists before linking to it
+  stat:
+    path: "{{ (item.dir | default(config_files_dir)) + '/' + item.src }}"
+  loop: "{{ config_links }}"
+  loop_control:
+    label: "{{ item.src }}"
+  register: link_sources
+
+# config_files_dir and any per-item `dir` are paths on the *target*, so this
+# reports on the target's checkout rather than the controller's. Both causes in
+# the message are things a pushed run is meant to have handled before reaching
+# this role, which is why naming them is worth the line.
+- name: Fail rather than leave a dangling symlink
+  assert:
+    that: link_sources.results | rejectattr('stat.exists') | list | length == 0
+    fail_msg: >-
+      Missing on the target, so these links would dangle:
+      {{ link_sources.results | rejectattr('stat.exists')
+         | map(attribute='item.src') | list | join(', ') }}.
+      The checkout is behind, or a submodule was never initialised.
+    success_msg: "All {{ config_links | length }} link sources present."
+
 - name: Make sure each link's parent dir exists
   file:
     path: "{{ (home + '/' + item.dest) | dirname }}"
