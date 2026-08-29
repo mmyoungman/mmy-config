@@ -154,8 +154,8 @@ path_add "$HOME/.duckdb/cli/latest"
 
 # For pipenv, and for anything installed by hand rather than by the package
 # manager. Prepended, unlike the appends above, so a hand-installed binary
-# beats a distro package of the same name: the server's neovim is an AppImage there
-# because Debian's /usr/bin/nvim is older than config_files/nvim requires.
+# beats a distro package of the same name -- on a box whose distro neovim is
+# older than config_files/nvim requires, that is what makes nvim usable at all.
 path_add -p "$HOME/.local/bin"
 
 # For pyenv

@@ -5,7 +5,8 @@
     gitemail: "mark@[domain]" # avoid bot scraping via a template
     home: "{{ ansible_facts['env']['HOME'] }}"
     # Safe as a controller path because this playbook only ever targets
-    # localhost. server.yml has to point at a checkout on the target instead.
+    # localhost. A playbook that pushed to another machine could not use one --
+    # these are symlinks, so a controller path would dangle on the target.
     config_files_dir: "{{ playbook_dir }}/config_files"
     # Every parent dir below is created if missing, so all of these are linked
     # unconditionally. The VS Code dirs in particular only appear when the
