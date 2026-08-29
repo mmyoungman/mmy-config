@@ -5,6 +5,13 @@
 #
 # config_files_dir must be a path on the *target*, not the controller --
 # these are symlinks, so a controller path would dangle on a pushed run.
+#
+# An item may carry its own `dir` to be linked from somewhere other than
+# config_files_dir. Nothing here uses it, but the homelab repo does: its
+# server-only scripts live in that repo rather than this one, so a single run
+# has to link from two directories. Without this the alternative was calling
+# the role twice, which would also re-template ~/.gitconfig and pay for the
+# headless nvim run a second time.
 
 - name: Make sure each link's parent dir exists
   file:
@@ -39,7 +46,7 @@
 
 - name: Symlink config into place
   file:
-    src: "{{ config_files_dir }}/{{ item.src }}"
+    src: "{{ item.dir | default(config_files_dir) }}/{{ item.src }}"
     dest: "{{ home }}/{{ item.dest }}"
     state: link
     force: yes
