@@ -84,6 +84,40 @@
       - fwupd
       - arch-audit
 
+# config_files/.xprofile swaps these with setxkbmap, which is an X client and so
+# does nothing on a virtual console -- dropping to a TTY to debug a broken X
+# session left caps as caps. The console is a separate mechanism entirely:
+# systemd-vconsole-setup runs `loadkeys $KEYMAP` from /etc/vconsole.conf, and
+# stock uk leaves caps as caps. Arch has no console-setup, so unlike Debian
+# there is no XKBOPTIONS to set -- the swap has to be a keymap of its own.
+#
+# It cannot live in config_files/ with the dotfiles: loadkeys resolves a bare
+# name only under /usr/share/kbd/keymaps. Not /usr/local either -- some distros
+# patch that path in, Arch's build does not.
+#
+# Next to uk.map.gz rather than at the top of the keymaps tree because every
+# name that is known to resolve lives in a subdirectory like this one. pacman
+# leaves unowned files alone, so a kbd upgrade will not clear it out.
+- name: Install a console keymap with caps and escape swapped
+  copy:
+    dest: /usr/share/kbd/keymaps/i386/qwerty/uk-swapescape.map
+    # The include needs an absolute path. A bare `include "uk"` does not
+    # resolve -- includes are searched only under keymaps/*/include/, never
+    # next to the including file or across the rest of the tree.
+    content: |
+      include "/usr/share/kbd/keymaps/i386/qwerty/uk.map.gz"
+      keycode 58 = Escape
+      keycode  1 = Caps_Lock
+    mode: "0644"
+  notify: reload console keymap
+
+- name: Use that keymap on the virtual consoles
+  lineinfile:
+    path: /etc/vconsole.conf
+    regexp: '^KEYMAP='
+    line: KEYMAP=uk-swapescape
+  notify: reload console keymap
+
 # @MarkFix shenanigans required to install AUR packages...
 #- name: Install AUR packages with yay
 #  become: no

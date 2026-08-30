@@ -1,0 +1,12 @@
+---
+# Without this the swap waits for the next boot. Restarting the unit re-runs
+# loadkeys against every VT, so it takes effect on the console you are already
+# sitting at.
+#
+# become is not inherited here: workstation.yml includes this role with
+# `apply: become: yes`, which covers the role's tasks but not its handlers.
+- name: reload console keymap
+  become: yes
+  service:
+    name: systemd-vconsole-setup.service
+    state: restarted
