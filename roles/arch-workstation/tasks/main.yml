@@ -78,6 +78,12 @@
       - code
       - qtcreator
 
+- name: Install security tools
+  pacman:
+    name:
+      - fwupd
+      - arch-audit
+
 # @MarkFix shenanigans required to install AUR packages...
 #- name: Install AUR packages with yay
 #  become: no

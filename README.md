@@ -1,13 +1,5 @@
 # Mark's config stuff
 
-Dotfiles and workstation setup, managed with Ansible. One `config_files/`
-directory is the single source of truth; the playbook symlinks it into `$HOME`
-so an edit is live immediately and a `git pull` picks up a change made on
-another machine.
-
-Arch and Debian families are both supported — the roles are routed by
-`ansible_facts['os_family']`, so the same command works on either.
-
 ### How to set up a workstation
 
 1. Install ansible
@@ -53,6 +45,19 @@ Neovim's config requires 0.12 for `vim.pack` and refuses to load below it.
 Plugins are pre-installed by a headless run at the end of the dotfiles role,
 pinned by `config_files/nvim/nvim-pack-lock.json`, and updated separately with
 `:lua vim.pack.update()`.
+
+### Security
+
+The playbook writes `/etc/sysctl.d/99-hardening.conf` and installs two
+reporting tools per OS family: `fwupd` plus `arch-audit` on Arch, `fwupd` plus
+`debsecan` on Debian. Both only report, which is why installing them
+unattended is safe — neither changes anything until run by hand.
+
+```
+fwupdmgr refresh && fwupdmgr get-updates   # UEFI/SSD/dock firmware
+arch-audit -u                              # Arch
+debsecan --suite <codename> --only-fixed   # Debian
+```
 
 ### XFCE keyboard shortcuts
 

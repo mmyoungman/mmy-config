@@ -36,6 +36,38 @@
           become: yes
       when: ansible_facts['os_family'] == "Debian"
 
+    # Lives here rather than in the per-OS roles because these are kernel
+    # settings and identical on both families -- splitting it would mean
+    # maintaining the same list twice.
+    #
+    # Deliberately narrow. Two knobs the hardening guides push, and why they
+    # are not here:
+    #   kernel.unprivileged_userns_clone=0 breaks bubblewrap, Flatpak and
+    #     Chrome's sandbox. It removes more isolation than it adds.
+    #   net.*.send_redirects=0 only matters on a machine that forwards
+    #     packets. Neither of these is a router.
+    - name: Harden kernel settings
+      become: yes
+      ansible.posix.sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        sysctl_file: /etc/sysctl.d/99-hardening.conf
+        sysctl_set: yes
+        reload: yes
+      loop:
+        # Kernel pointers exposed through /proc leak KASLR offsets, handing an
+        # exploit addresses it would otherwise have to guess. 1 hides them from
+        # unprivileged users, 2 from everyone. The default is 0.
+        - { name: kernel.kptr_restrict, value: "2" }
+        # A laptop joins untrusted networks, where an ICMP redirect is a way to
+        # be nudged onto someone else's next hop. 'all' and 'default' are both
+        # needed: 'all' covers the interfaces that exist now, 'default' covers
+        # any brought up later.
+        - { name: net.ipv4.conf.all.accept_redirects, value: "0" }
+        - { name: net.ipv4.conf.default.accept_redirects, value: "0" }
+        - { name: net.ipv6.conf.all.accept_redirects, value: "0" }
+        - { name: net.ipv6.conf.default.accept_redirects, value: "0" }
+
     # CachyOS ships fish as the login shell, but the config below (.bashrc,
     # .inputrc) assumes bash. Changing your own shell still needs root, hence
     # become. Takes effect on the next login, not in the current session.

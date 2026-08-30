@@ -75,4 +75,10 @@
       #- code # not in debian repos
       - qtcreator
 
+- name: Install security tools
+  apt:
+    name:
+      - fwupd
+      - debsecan
+
 # Google Chrome, Etcher
