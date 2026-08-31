@@ -19,6 +19,7 @@
       - { src: .xprofile, dest: .xprofile }
       - { src: .ideavimrc, dest: .ideavimrc }
       - { src: nvim, dest: .config/nvim }
+      - { src: tmux, dest: .config/tmux }
       - { src: vscode-settings.json, dest: .config/Code/User/settings.json }
       - { src: vscode-settings.json, dest: .config/Code - OSS/User/settings.json }
   tasks:

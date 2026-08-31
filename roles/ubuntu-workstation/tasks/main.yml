@@ -49,6 +49,7 @@
       - htop
       - curl
       - viewnior
+      - tmux
 
 - name: Install programming tools
   apt:

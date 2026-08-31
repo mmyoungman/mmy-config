@@ -46,6 +46,7 @@
       - htop
       - curl
       - viewnior
+      - tmux
 
 - name: Install programming stuff
   pacman:
