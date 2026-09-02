@@ -186,54 +186,39 @@ require('gitsigns').setup({
 
 vim.cmd.colorscheme('onedark')
 
--- What an LSP server is busy with, held on screen until it says it is done.
+-- Whether any LSP server is still working, for the statusline. Every server
+-- reports what it is doing over $/progress -- Roslyn loading a solution, clangd
+-- parsing a translation unit -- and this tracks only whether something is
+-- outstanding, not what. What you do about it is the same either way: wait.
 --
--- vim.lsp.status() is the obvious component for this and is what the statusline
--- used to call, but it *drains* the progress ring: each call returns only the
--- messages that arrived since the last one, and nothing at all between two of
--- them. Sampled once a second by lualine's refresh it therefore blinks in and
--- out, and a Roslyn solution load -- around seven seconds on the EES tree, all
--- of it with `gd` silently doing nothing -- can go by without the statusline
--- ever catching a message. The LspProgress event loses nothing, so track the
--- outstanding operations from it and render those instead.
---
--- This is the part of fidget.nvim that was actually wanted, minus the toast.
-local lsp_tasks = {}                 -- one entry per operation still running
-local lsp_progress = ''
+-- vim.lsp.status() is the obvious thing to call here and is what this used to
+-- be, but it *drains* the progress ring: each call returns only the messages
+-- that arrived since the last one, and nothing between two of them. Sampled
+-- once a second by lualine, it mostly caught nothing. The LspProgress event
+-- loses nothing.
+local lsp_jobs = {}                   -- operations not yet finished
+local lsp_busy = ''
 
 vim.api.nvim_create_autocmd('LspProgress', {
-  desc = 'Keep the statusline showing what an LSP server is busy with',
+  desc = 'Show on the statusline that an LSP server is still working',
   callback = function(ev)
-    local value = ev.data.params.value
     local key = ('%d/%s'):format(ev.data.client_id, tostring(ev.data.params.token))
+    -- `or nil` deletes the entry: a table with a false in it is not empty.
+    lsp_jobs[key] = (ev.data.params.value.kind ~= 'end') or nil
+    lsp_busy = next(lsp_jobs) and 'LSP indexing' or ''
 
-    if value.kind == 'end' then
-      lsp_tasks[key] = nil
-    else
-      local client = vim.lsp.get_client_by_id(ev.data.client_id)
-      -- Roslyn titles its load with the absolute path of the solution, which is
-      -- a statusline on its own. Drop the directory part: `/%S+/` needs two
-      -- slashes, so clangd's `34/120` is left alone.
-      local what = (value.message or value.title or ''):gsub('/%S+/', '')
-      lsp_tasks[key] = ('%s: %s%s'):format(
-        client and client.name or 'lsp',
-        what,
-        -- floor(): the protocol says percentage is a uinteger, but '%d' on a
-        -- server that sends 3.5 anyway is an error, not a rounded number.
-        value.percentage and (' %d%%'):format(math.floor(value.percentage)) or '')
-    end
-
-    local parts = {}
-    for _, text in pairs(lsp_tasks) do parts[#parts + 1] = text end
-    -- pairs() order is arbitrary, so without this two concurrent operations
-    -- would swap places between redraws.
-    table.sort(parts)
-    lsp_progress = table.concat(parts, ' ')
-
-    -- lualine refreshes on its own once a second, which is too slow to show a
-    -- load that only lasts a few: without this the first message can appear
-    -- after the work it describes has finished.
-    pcall(vim.cmd, 'redrawstatus')
+    -- Both of these, in this order, or nothing appears. lualine hands out a
+    -- string it built earlier and only rebuilds on its own timer, so
+    -- redrawstatus by itself repaints the stale one; and lualine sets
+    -- 'statusline' to a fixed expression rather than to the text, so a rebuild
+    -- changes no option and nothing marks the screen dirty. Waiting on a server
+    -- is precisely when nothing else is redrawing either -- which is why this
+    -- looked like it worked until a load was watched on a real screen rather
+    -- than read back out of lualine's cache.
+    pcall(function()
+      require('lualine').refresh({ place = { 'statusline' }, force = true })
+      vim.cmd('redrawstatus')
+    end)
   end,
 })
 
@@ -246,16 +231,15 @@ require('lualine').setup({
   },
   sections = {
     lualine_c = {{'filename',path=2}},
-    -- LSP progress ("clangd: 34/120", "roslyn_ls: Loading Foo.sln... 42%"),
-    -- tracked just above. This stands in for fidget.nvim, which showed the same
-    -- information as an animated toast in the corner. If plain text tucked into
-    -- the statusline turns out to be too easy to miss, put
-    -- `gh('j-hui/fidget.nvim')` back in vim.pack.add above with
-    -- `require('fidget').setup({})` and drop this component.
+    -- "LSP indexing" while any server is still working, tracked just above.
+    -- This stands in for fidget.nvim, which showed the same thing as an animated
+    -- toast in the corner. If plain text tucked into the statusline turns out to
+    -- be too easy to miss, put `gh('j-hui/fidget.nvim')` back in vim.pack.add
+    -- above with `require('fidget').setup({})` and drop this component.
     -- lualine_x has to be spelled out in full because naming it replaces the
     -- default components rather than adding to them.
     lualine_x = {
-      function() return lsp_progress end,
+      function() return lsp_busy end,
       'encoding', 'fileformat', 'filetype',
     },
   },
