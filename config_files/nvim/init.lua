@@ -390,6 +390,85 @@ vim.lsp.config('lua_ls', {
   },
 })
 
+-- Roslyn does not scan for projects: it opens whatever solution it is told to,
+-- once, and every C# file outside that solution then falls back to single-file
+-- semantics -- syntax highlighting, but `gd` on a class in the same namespace
+-- silently does nothing. lspconfig picks "the first solution we find" by
+-- iterating vim.fs.dir(), which yields entries in *filesystem* order, so a repo
+-- holding two .sln files gets a coin toss.
+--
+-- A project names the one it means by setting `vim.g.roslyn_solution` in its
+-- `.nvim.lua` (relative to the root, or absolute); 'exrc' loads that during
+-- startup, before the LSP client initialises. Note this misses the VimEnter
+-- fallback in project.lua -- opening a file by absolute path from outside the
+-- project sets the global too late -- so it wants nvim started from the tree.
+--
+-- Without a declaration, sort before taking the first, so an undeclared repo at
+-- least fails the same way every time rather than differing between starts.
+--
+-- This replaces lspconfig's on_init rather than adding to it: vim.lsp.config
+-- merges with tbl_deep_extend('force'), and their on_init is a one-element
+-- list, so ours takes index 1 and theirs never runs.
+vim.lsp.config('roslyn_ls', {
+  on_init = {
+    function(client)
+      local root = client.config.root_dir
+
+      local declared = vim.g.roslyn_solution
+      if declared then
+        -- The declaration lives in a `.nvim.lua` at the *repo* root, while
+        -- root_dir is wherever the solution sits -- often `src/`. So a
+        -- repo-relative path does not resolve against root_dir. Try root_dir
+        -- and then each parent, which reads correctly written either way.
+        local path = vim.startswith(declared, '/') and declared or nil
+        local dir = root
+        while not path and dir do
+          local candidate = vim.fs.joinpath(dir, declared)
+          if vim.uv.fs_stat(candidate) then path = candidate end
+          local parent = vim.fs.dirname(dir)
+          dir = parent ~= dir and parent or nil
+        end
+        if path and vim.uv.fs_stat(path) then
+          return client:notify('solution/open', { solution = vim.uri_from_fname(path) })
+        end
+        vim.notify(('roslyn_ls: g:roslyn_solution %q not found from %s, falling back')
+          :format(declared, root), vim.log.levels.WARN)
+      end
+
+      local solutions, projects = {}, {}
+      for entry, type in vim.fs.dir(root) do
+        if type == 'file' then
+          if entry:match('%.slnx?$') then
+            solutions[#solutions + 1] = entry
+          elseif entry:match('%.csproj$') then
+            projects[#projects + 1] = entry
+          end
+        end
+      end
+      table.sort(solutions)
+
+      if solutions[1] then
+        -- Worth saying out loud: the symptom of guessing wrong is not an error,
+        -- it is navigation quietly doing nothing in half the repo.
+        if #solutions > 1 then
+          vim.notify(('roslyn_ls: %d solutions in %s, opening %s. Set '
+            .. 'vim.g.roslyn_solution in .nvim.lua to pick another.')
+            :format(#solutions, root, solutions[1]), vim.log.levels.WARN)
+        end
+        client:notify('solution/open', {
+          solution = vim.uri_from_fname(vim.fs.joinpath(root, solutions[1])),
+        })
+      elseif projects[1] then
+        client:notify('project/open', {
+          projects = vim.tbl_map(function(p)
+            return vim.uri_from_fname(vim.fs.joinpath(root, p))
+          end, projects),
+        })
+      end
+    end,
+  },
+})
+
 require('mason').setup({})
 require('mason-lspconfig').setup({
   ensure_installed = {

@@ -128,10 +128,20 @@ path_add() {
     export PATH
 }
 
-# For dotnet
+# For dotnet. Prepended, unlike the appends below, because the distro packages a
+# dotnet of its own: the muxer looks for SDKs relative to the binary you invoke,
+# not under DOTNET_ROOT, so an append leaves /usr/bin/dotnet winning and its
+# SDKs the only ones found however this variable is set. A repo whose
+# global.json pins a version the distro does not carry then cannot build, and
+# Roslyn -- which needs a design-time build to load a project at all -- answers
+# "go to definition" with silence rather than an error.
+#
+# The cost is that the SDKs under here become the only ones visible: install
+# every version this machine needs into it (dotnet-install.sh --channel N.0)
+# rather than expecting a fallback to the distro's.
 if [ -x "$HOME/.dotnet/dotnet" ]; then
     export DOTNET_ROOT="$HOME/.dotnet"
-    path_add "$DOTNET_ROOT"
+    path_add -p "$DOTNET_ROOT"
 fi
 
 # Add .NET Core SDK tools. Global tools land here whatever the runtime layout.
