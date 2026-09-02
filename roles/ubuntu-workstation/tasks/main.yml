@@ -59,7 +59,8 @@
       - clang
       - gdb
       - golang
-      #- dotnet-sdk
+      # No dotnet-sdk: the SDK is installed into ~/.dotnet by workstation.yml,
+      # which explains why. A distro one on PATH would shadow that tree.
       #- python3
       #- python3-pip
       #- nodejs

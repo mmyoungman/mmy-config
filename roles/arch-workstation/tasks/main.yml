@@ -58,7 +58,8 @@
 
       - go
 
-      - dotnet-sdk
+      # No dotnet-sdk: the SDK is installed into ~/.dotnet by workstation.yml,
+      # which explains why. A distro one on PATH would shadow that tree.
 
       - python
 
@@ -70,6 +71,34 @@
 
       - docker
       - docker-compose
+
+# Not merely absent from the list above: an already-installed distro dotnet has
+# to go, because it does not sit quietly beside the ~/.dotnet tree that
+# workstation.yml unpacks -- it shadows it. The muxer finds SDKs relative to the
+# binary you invoke, so whichever dotnet PATH resolves first decides which SDKs
+# exist at all, and the distro's will never carry every feature band a repo's
+# global.json might pin.
+#
+# Only the six explicitly-installed packages are named. --recursive takes the
+# runtimes and targeting packs they pull in, but pacman will not drop a package
+# someone installed by hand as though it were a dependency, so the two that are
+# both (dotnet-host, dotnet-runtime) have to be listed as well.
+#
+# This is enforced on every run, so installing a distro dotnet by hand later
+# will not survive the next play. That is the intent -- a second SDK tree is
+# exactly the failure this is here to prevent -- but it means an extra SDK
+# version belongs in workstation.yml's list, not in pacman.
+- name: Remove the distro .NET, which the ~/.dotnet install replaces
+  pacman:
+    name:
+      - aspnet-runtime
+      - dotnet-host
+      - dotnet-runtime
+      - dotnet-sdk
+      - dotnet-sdk-6.0
+      - dotnet-sdk-8.0
+    state: absent
+    extra_args: --recursive
 
 - name: Install IDEs
   pacman:

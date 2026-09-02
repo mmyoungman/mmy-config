@@ -37,6 +37,82 @@
           become: yes
       when: ansible_facts['os_family'] == "Debian"
 
+    # Here rather than in the per-OS roles for the usual reason -- it is
+    # identical on both -- but also because it is the one piece of software
+    # that installs into $HOME rather than system-wide, so it wants the
+    # `become: no` the roles cannot give it.
+    #
+    # The distro packages (pacman dotnet-sdk, apt dotnet-sdk) are deliberately
+    # not used. A .NET repo pins its SDK in global.json and the resolver only
+    # rolls *forward*, so a box carrying 10.0.111 cannot build a repo asking
+    # for 10.0.302 -- and no distro carries every feature band a repo might
+    # name. Worse, the muxer looks for SDKs relative to the binary you invoke
+    # rather than under DOTNET_ROOT, so a distro dotnet earlier on PATH hides
+    # this tree completely however that variable is set. config_files/.bashrc
+    # prepends ~/.dotnet for that reason, which in turn means the versions
+    # here are the only ones anything will find: add each one this machine
+    # needs below rather than expecting a fallback to the distro's.
+    #
+    # Unpacked directly rather than run through dotnet-install.sh. That script
+    # is fetched over the wire and changes a dozen times a year, so pinning its
+    # hash would mean a re-audit every few weeks and an unpinned one is an
+    # unreviewed script run as this user -- neither is worth it for what it
+    # does here, which is pick a URL and untar it. Microsoft publishes a
+    # .sha512 beside each tarball, so pin that instead: it only changes when
+    # the version below is deliberately bumped.
+    #
+    # linux-x64 is hardcoded because both machines are; supporting arm would
+    # mean a x86_64 -> x64 translation table for no user that exists.
+    - name: Install the .NET SDK
+      become: no
+      vars:
+        dotnet_version: "10.0.302"
+        # Published at the tarball URL below with `.sha512` appended.
+        dotnet_sha512: "10069bec8783596484a610332f090d562802a41b9b40e3327a5a5688b572e10c296ae300f940d40461f23c157ed1b0843c2f8e6b3f20d8d8d9d83432d8143bac"
+        dotnet_tarball: "/tmp/dotnet-sdk-{{ dotnet_version }}-linux-x64.tar.gz"
+      block:
+        # unarchive has no checksum option, so the download is a task of its
+        # own and the guard cannot be `creates:` on the unpack. Checking first
+        # also keeps a re-run from re-fetching 235MB it would then discard.
+        - name: Check whether the .NET SDK is already installed
+          stat:
+            path: "{{ home }}/.dotnet/sdk/{{ dotnet_version }}"
+          register: dotnet_sdk
+
+        - name: Install the SDK if it is missing
+          when: not dotnet_sdk.stat.exists
+          block:
+            # unarchive does not create its destination.
+            - name: Make sure the SDK root exists
+              file:
+                path: "{{ home }}/.dotnet"
+                state: directory
+                mode: "0755"
+
+            # A checksum mismatch fails the task, so nothing is unpacked.
+            - name: Download the SDK tarball
+              get_url:
+                url: "https://builds.dotnet.microsoft.com/dotnet/Sdk/{{ dotnet_version }}/dotnet-sdk-{{ dotnet_version }}-linux-x64.tar.gz"
+                dest: "{{ dotnet_tarball }}"
+                checksum: "sha512:{{ dotnet_sha512 }}"
+                mode: "0644"
+
+            # The tarball lays down sdk/<version> and shared/ alongside
+            # whatever is already there, so adding a second version joins the
+            # first rather than replacing it.
+            - name: Unpack it into ~/.dotnet
+              unarchive:
+                src: "{{ dotnet_tarball }}"
+                remote_src: yes
+                dest: "{{ home }}/.dotnet"
+          always:
+            # 235MB, and the installed tree is the thing worth keeping. In
+            # `always` so a failed unpack does not leave it behind either.
+            - name: Remove the downloaded tarball
+              file:
+                path: "{{ dotnet_tarball }}"
+                state: absent
+
     # Lives here rather than in the per-OS roles because these are kernel
     # settings and identical on both families -- splitting it would mean
     # maintaining the same list twice.
