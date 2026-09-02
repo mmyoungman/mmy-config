@@ -402,6 +402,8 @@ vim.lsp.config('lua_ls', {
 -- startup, before the LSP client initialises. Note this misses the VimEnter
 -- fallback in project.lua -- opening a file by absolute path from outside the
 -- project sets the global too late -- so it wants nvim started from the tree.
+-- A repo declaring it in this config instead, as `projects/<name>.lua`, has no
+-- such constraint: load_stored() runs at require time either way.
 --
 -- Without a declaration, sort before taking the first, so an undeclared repo at
 -- least fails the same way every time rather than differing between starts.

@@ -8,6 +8,9 @@
 -- that file stays a plain declaration. 'exrc' is what loads it: it searches the
 -- cwd and every parent directory, and `:trust` gates it so a repo you have just
 -- cloned cannot run code at you. See `:help 'exrc'`.
+--
+-- A repo we cannot commit to keeps the same declaration in this config instead,
+-- as `projects/<its directory name>.lua` -- see load_stored() further down.
 vim.o.exrc = true
 
 -- The directory holding the `.nvim.lua`. Every task runs from here, and it is
@@ -320,6 +323,11 @@ local reserved_letters = { l = ':ProjectLog', s = ':ProjectStop' }
 -- `frontend/.nvim.lua` beats the root when you are working in frontend/.
 local project_declared = false
 
+-- Set while a declaration held in this config rather than in the project is
+-- running -- see load_stored() below. The file is not at the root it describes,
+-- so the root cannot be inferred from it.
+local stored_root
+
 function Project(spec)
   if project_declared then return end
   project_declared = true
@@ -327,7 +335,8 @@ function Project(spec)
   -- The root is the directory of whatever called us, i.e. the `.nvim.lua`
   -- itself: stack level 2, with `@` marking a real filename.
   local source = debug.getinfo(2, 'S').source
-  project_root = source:sub(1, 1) == '@' and vim.fs.dirname(source:sub(2))
+  project_root = stored_root
+    or (source:sub(1, 1) == '@' and vim.fs.dirname(source:sub(2)))
     or assert(vim.uv.cwd())
 
   -- Project() runs while 'exrc' sources, before the UI has settled, where a
@@ -379,6 +388,52 @@ function Project(spec)
       vim.keymap.set('n', '<leader>x' .. letter, '<Cmd>' .. name .. '<CR>',
         { desc = key .. ': ' .. task[1] })
     end
+  end
+end
+
+-- Some repos are not ours to put a `.nvim.lua` in -- a work checkout carries it
+-- as an untracked file, and a reclone or `git clean -xdf` takes it with them.
+-- Those keep their declaration in this config instead, as
+-- `<stdpath('config')>/projects/<the repo's directory name>.lua`, holding the
+-- same `Project({ ... })` call and/or `vim.g` settings a `.nvim.lua` would.
+--
+-- Keyed on the directory name rather than the remote so it costs no subprocess
+-- at startup, and so two clones of one repo can be configured apart. `.git` is
+-- what marks the root, since there is no declaration file to mark it here.
+--
+-- No `:trust` is involved: that gate is for code arriving from outside, and
+-- this is our own config. Nor is 'exrc' -- we load it ourselves, at require
+-- time, which is what makes it usable for `vim.g.roslyn_solution`: the VimEnter
+-- fallback below already runs after the LSP client has initialised.
+local function load_stored(from)
+  local root = vim.fs.root(from, '.git')
+  if not root then return end
+  local path = vim.fs.joinpath(vim.fn.stdpath('config'), 'projects',
+    vim.fs.basename(root) .. '.lua')
+  if not vim.uv.fs_stat(path) then return end
+
+  stored_root = root
+  local ok, err = pcall(dofile, path)
+  stored_root = nil
+  if not ok then
+    vim.notify(('Project: %s: %s'):format(path, err), vim.log.levels.ERROR)
+  end
+end
+
+-- A `.nvim.lua` in the repo wins, so only look when the upward search finds
+-- none. Search from the first file's directory rather than the cwd where there
+-- is one: unlike 'exrc' this is not tied to where nvim was started, so
+-- `nvim ~/projects/foo/src/x.cs` from elsewhere still gets the declaration.
+do
+  local from = assert(vim.uv.cwd())
+  local first = vim.fn.argv(0)
+  if first ~= '' then
+    -- `nvim ~/projects/foo` opens a directory, and its dirname is the parent.
+    local path = vim.fn.fnamemodify(first, ':p')
+    from = vim.fn.isdirectory(path) == 1 and path or vim.fs.dirname(path)
+  end
+  if not vim.fs.find('.nvim.lua', { path = from, upward = true })[1] then
+    load_stored(from)
   end
 end
 

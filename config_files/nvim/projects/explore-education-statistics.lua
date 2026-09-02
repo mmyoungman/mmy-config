@@ -1,0 +1,11 @@
+-- Loaded by lua/project.lua for any repo checked out as
+-- `explore-education-statistics/`, in place of a `.nvim.lua` at its root: that
+-- repo is not ours to commit to, so the file would sit there untracked and a
+-- reclone or `git clean -xdf` would take it with them. The symptom of losing it
+-- is not an error -- highlighting still works and the LSP still attaches, but
+-- `gd` on a class in the same namespace silently does nothing.
+--
+-- src/ holds two solutions. The Search one is the smaller of the two and does
+-- not contain Data.Model, so letting Roslyn pick for itself loses cross-file
+-- navigation across most of the repo.
+vim.g.roslyn_solution = 'src/GovUk.Education.ExploreEducationStatistics.sln'
