@@ -23,6 +23,28 @@
       - { src: vscode-settings.json, dest: .config/Code/User/settings.json }
       - { src: vscode-settings.json, dest: .config/Code - OSS/User/settings.json }
   tasks:
+    # A mistyped --ask-become-pass password otherwise surfaces as a baffling
+    # "Duplicate become password prompt" error from whichever task happens to
+    # escalate first (sudo re-prompts for a retry; Ansible bails at the second
+    # prompt). Escalate once up front so a bad password fails here, under a
+    # name that says so, before any real work runs. check_mode: no because the
+    # remaining become tasks still escalate under --check, so the guard is
+    # wanted there too.
+    - name: Verify the become password before doing anything
+      block:
+        - name: Try to escalate
+          become: yes
+          command: "true"
+          changed_when: false
+          check_mode: no
+      rescue:
+        - name: Explain the failure
+          fail:
+            msg: >-
+              sudo rejected the become password -- re-run and re-enter it.
+              (If the password was right, escalation itself is broken; the
+              original error is above.)
+
     - name: If arch, do this
       include_role:
         name: arch-workstation
