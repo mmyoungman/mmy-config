@@ -21,7 +21,10 @@ unameOut="$(uname -s)"
 case $unameOut in
    Linux*) machine="linux";;
    Darwin*) machine="mac";;
+   # Git Bash, MSYS2 and Cygwin all report <subsystem>_NT-<version> here.
+   MINGW*|MSYS*|CYGWIN*) machine="windows";;
    *)
+      machine="unknown"
       echo "bashrc: Unsupported OS detected!" >&2
       ;;
 esac
@@ -54,9 +57,6 @@ GIT_PROMPT_PATHS=(
     /usr/lib/git-core/git-sh-prompt                                      # Debian, Ubuntu
     /run/current-system/sw/share/git/contrib/completion/git-prompt.sh    # NixOS
 )
-if ! source_first git-prompt.sh "${GIT_PROMPT_PATHS[@]}"; then
-    __git_ps1() { :; }
-fi
 
 # NixOS has effectively no /usr, so both /usr paths above miss there and the
 # fallback fires: no branch in PS1 and no completion on the git aliases below.
@@ -67,7 +67,28 @@ GIT_COMPLETION_PATHS=(
     /usr/share/bash-completion/completions/git                                 # Debian, Ubuntu
     /run/current-system/sw/share/bash-completion/completions/git               # NixOS
 )
-if ! source_first git-completion.bash "${GIT_COMPLETION_PATHS[@]}"; then
+
+# Git for Windows keeps both files under the MSYSTEM prefix, which is /mingw64
+# on the usual 64-bit install but /clangarm64 on an ARM one -- so build the path
+# from the variable rather than hardcoding the common case.
+if [ "$machine" = windows ]; then
+    GIT_PROMPT_PATHS+=("/${MSYSTEM,,}/share/git/completion/git-prompt.sh")
+    GIT_COMPLETION_PATHS+=("/${MSYSTEM,,}/share/git/completion/git-completion.bash")
+fi
+
+# Look before searching, and never stub over a function that already works.
+# Git for Windows sources both files from /etc/profile.d/git-prompt.sh before
+# this one runs, so an unguarded fallback replaces a working __git_ps1 with a
+# no-op -- losing the branch in PS1 and completion on the aliases below, on the
+# one platform that had handed both over for free. Re-sourcing this file is
+# idempotent for the same reason.
+if ! declare -F __git_ps1 > /dev/null &&
+    ! source_first git-prompt.sh "${GIT_PROMPT_PATHS[@]}"; then
+    __git_ps1() { :; }
+fi
+
+if ! declare -F __git_complete > /dev/null &&
+    ! source_first git-completion.bash "${GIT_COMPLETION_PATHS[@]}"; then
     __git_complete() { :; }
 fi
 
@@ -95,7 +116,13 @@ alias gwl="git_worktree_list" # function defined at the bottom of this file
 alias ls='ls --color=auto'
 alias ll='ls -l --color=auto'
 alias la='ls -al --color=auto'
-alias sdn='shutdown now'
+# Windows has a shutdown.exe of its own, and it answers `shutdown now` with its
+# usage text rather than doing anything.
+if [ "$machine" = windows ]; then
+    alias sdn='shutdown /s /t 0'
+else
+    alias sdn='shutdown now'
+fi
 
 alias dotnetall='dotnet clean; dotnet build; dotnet run'
 alias dfe-admin='export IdpConfig=Keycloak; dotnet clean; dotnet build; trap : INT; dotnet run'
@@ -176,8 +203,14 @@ then
    eval "$(pyenv init -)"
 fi
 
-# pnpm
-export PNPM_HOME="/home/mark/.local/share/pnpm"
+# pnpm. Windows installs keep this under %LOCALAPPDATA%; everywhere else it
+# follows the XDG data dir. Built from $HOME rather than written out: this file
+# is shared with machines whose user and home dir are not this one's.
+if [ "$machine" = windows ]; then
+    export PNPM_HOME="$HOME/AppData/Local/pnpm"
+else
+    export PNPM_HOME="$HOME/.local/share/pnpm"
+fi
 path_add -p "$PNPM_HOME"
 
 # List git worktrees by what's in them; cd into one by number or fuzzy name.

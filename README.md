@@ -35,6 +35,43 @@ A `config_links` entry may carry its own `dir` to be linked from somewhere
 other than `config_files_dir`. Nothing in this repo uses it; it exists so a
 separate playbook can add machine-specific files without a second role call.
 
+### Windows / Git Bash
+
+Ansible can't run as a controller on Windows, so `workstation.yml` is the Linux
+entry point only. `bootstrap-gitbash.sh` is the Windows one — run it once from
+Git Bash:
+
+```
+./bootstrap-gitbash.sh
+```
+
+It mirrors `roles/dotfiles`: assert the sources exist, back up anything that
+isn't already a symlink, then link. It links a deliberate subset — `.bashrc`,
+`.inputrc`, and `nvim` to `AppData/Local/nvim`, which is where Neovim looks on
+Windows. The rest of `config_links` is left out until each one has actually
+been tried here. It also writes a `~/.bash_profile` if none exists, because Git
+Bash starts as a login shell and would otherwise never read `~/.bashrc`.
+
+`.inputrc` is what makes the command line vi-mode, and it works unchanged under
+Git Bash: its one conditional picks the mode indicator on `$TERM`, not on the
+OS, so mintty takes the same DECSCUSR cursor-shape branch a Linux terminal
+emulator does — beam for insert, block for command.
+
+Real symlinks, not copies, so `~/.bashrc` *is* the repo file and `git pull` is
+the update mechanism. Windows only lets an ordinary user create those with
+Developer Mode on (Settings > System > For developers), so the script checks up
+front and stops with that instruction rather than silently falling back to
+copying, which is what MSYS does by default.
+
+`.bashrc` keys the few genuine differences — `sdn`, `PNPM_HOME`, and where
+git-prompt/git-completion live — off `$machine`, which `uname -s` sets to
+`windows` for MINGW, MSYS and Cygwin alike.
+
+`.gitattributes` pins the whole repo to LF. Git for Windows ships
+`core.autocrlf=true` in its system config, and since `~/.bashrc` is a symlink
+straight into this working tree, a CRLF checkout is the copy bash actually runs
+— and bash chokes on the `\r`.
+
 ### What gets installed
 
 `roles/arch-workstation` and `roles/ubuntu-workstation` install the CLI

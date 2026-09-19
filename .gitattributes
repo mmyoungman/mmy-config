@@ -1,0 +1,7 @@
+# Git for Windows ships core.autocrlf=true in its system config, so a clone
+# there checks every file out with CRLF. Everything in this repo is read by
+# something that wants LF: bash chokes on the \r in a CRLF .bashrc, and on
+# Windows ~/.bashrc is a symlink straight into this working tree, so the
+# checked-out form is the form that runs. The index has always been LF; this
+# just stops the worktree diverging from it.
+* text=auto eol=lf
