@@ -57,6 +57,15 @@ Git Bash: its one conditional picks the mode indicator on `$TERM`, not on the
 OS, so mintty takes the same DECSCUSR cursor-shape branch a Linux terminal
 emulator does — beam for insert, block for command.
 
+`~/.gitconfig` is generated rather than linked, exactly as `roles/dotfiles`
+does it and for the same reason — the rendered file carries the real email
+address, so linking it would write that address back into this public repo. The
+script renders the playbook's own `templates/gitconfig.j2` rather than keeping
+a second copy of it, and reassembles the address from `workstation.yml` the way
+the `gitemail` var does. There is no Jinja in a bash script, so it fills in the
+one expression that template uses and stops with a named error if the template
+ever grows another.
+
 Real symlinks, not copies, so `~/.bashrc` *is* the repo file and `git pull` is
 the update mechanism. Windows only lets an ordinary user create those with
 Developer Mode on (Settings > System > For developers), so the script checks up

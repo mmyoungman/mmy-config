@@ -128,5 +128,63 @@ done <<EOF
 $config_links
 EOF
 
+# ~/.gitconfig, generated rather than linked -- the same choice roles/dotfiles
+# makes and for the same reason: the rendered file carries the real address, so
+# linking it would write that address back into a public repo.
+#
+# Rendered from the playbook's own template rather than from a copy of it here.
+# A second copy would drift the first time either was edited, and the drift
+# would be invisible -- Windows would just quietly stop matching Linux.
+gitconfig_template="$repo/roles/dotfiles/templates/gitconfig.j2"
+[ -f "$gitconfig_template" ] || {
+    echo "bootstrap-gitbash.sh: missing $gitconfig_template" >&2
+    exit 1
+}
+
+# There is no Jinja here, so this fills in the one expression the template
+# actually uses -- and checks that it is still the only one, rather than
+# writing out a ~/.gitconfig with an unrendered {{ ... }} left in it.
+domain=youngman.info
+gitemail_expr="{{ gitemail | replace('[domain]', '$domain') }}"
+found_expr=$(grep -o '{{[^}]*}}' "$gitconfig_template" | sort -u)
+if [ "$found_expr" != "$gitemail_expr" ]; then
+    echo "bootstrap-gitbash.sh: $gitconfig_template no longer renders with just" >&2
+    echo "the one expression this script knows how to fill in. It now wants:" >&2
+    printf '  %s\n' "$found_expr" >&2
+    echo "Update the gitconfig step here to match." >&2
+    exit 1
+fi
+
+# workstation.yml keeps the address split so the literal never sits in a public
+# repo; reassemble it exactly as the playbook does.
+gitemail=$(sed -n 's/^[[:space:]]*gitemail:[[:space:]]*"\([^"]*\)".*/\1/p' "$repo/workstation.yml")
+case "$gitemail" in
+    *'[domain]'*) ;;
+    *)
+        echo "bootstrap-gitbash.sh: could not read gitemail from" >&2
+        echo "$repo/workstation.yml -- expected a line like: gitemail: \"user@[domain]\"" >&2
+        exit 1
+        ;;
+esac
+
+rendered=$(cat "$gitconfig_template")
+rendered=${rendered//"$gitemail_expr"/"${gitemail/'[domain]'/$domain}"}
+
+gitconfig="$HOME/.gitconfig"
+# Older installs symlinked this into the repo; the write below would then put
+# the real address straight into a tracked file.
+[ -L "$gitconfig" ] && rm -f -- "$gitconfig"
+if [ -e "$gitconfig" ] && [ "$(cat "$gitconfig")" = "$rendered" ]; then
+    echo "ok       ~/.gitconfig"
+else
+    if [ -e "$gitconfig" ]; then
+        backup="$gitconfig.$(date +%F)"
+        mv --backup=numbered -- "$gitconfig" "$backup"
+        echo "backed up ~/.gitconfig -> $backup"
+    fi
+    printf '%s\n' "$rendered" > "$gitconfig"
+    echo "wrote    ~/.gitconfig"
+fi
+
 echo
 echo "Done. Open a new Git Bash window to pick up the new ~/.bashrc."
