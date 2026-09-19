@@ -1,0 +1,152 @@
+{
+  "ShortcutSettingsDictionary": {
+    "4b55bcab-8eb4-46b5-8730-4d582374432d": {
+      "Id": "4b55bcab-8eb4-46b5-8730-4d582374432d",
+      "Shortcut": {
+        "OriginalKeys": "20",
+        "TargetKeys": "27",
+        "TargetApp": "",
+        "OperationType": 0,
+        "TargetText": "",
+        "ProgramPath": "",
+        "ProgramArgs": "",
+        "StartInDirectory": "",
+        "Elevation": 0,
+        "IfRunningAction": 0,
+        "Visibility": 0,
+        "UriToOpen": ""
+      },
+      "Profiles": [],
+      "IsActive": true
+    },
+    "fd6582a2-ff39-4ae1-8063-e80a97a12b85": {
+      "Id": "fd6582a2-ff39-4ae1-8063-e80a97a12b85",
+      "Shortcut": {
+        "OriginalKeys": "27",
+        "TargetKeys": "20",
+        "TargetApp": "",
+        "OperationType": 0,
+        "TargetText": "",
+        "ProgramPath": "",
+        "ProgramArgs": "",
+        "StartInDirectory": "",
+        "Elevation": 0,
+        "IfRunningAction": 0,
+        "Visibility": 0,
+        "UriToOpen": ""
+      },
+      "Profiles": [],
+      "IsActive": true
+    },
+    "31a918a2-13e3-4260-9d6c-2564c240256e": {
+      "Id": "31a918a2-13e3-4260-9d6c-2564c240256e",
+      "Shortcut": {
+        "OriginalKeys": "162;164;72",
+        "TargetKeys": "91;160;37",
+        "TargetApp": "",
+        "OperationType": 0,
+        "TargetText": "",
+        "ProgramPath": "",
+        "ProgramArgs": "",
+        "StartInDirectory": "",
+        "Elevation": 0,
+        "IfRunningAction": 0,
+        "Visibility": 0,
+        "UriToOpen": ""
+      },
+      "Profiles": [],
+      "IsActive": true
+    },
+    "6b98854a-828e-4b59-a6fa-8016204ac3f2": {
+      "Id": "6b98854a-828e-4b59-a6fa-8016204ac3f2",
+      "Shortcut": {
+        "OriginalKeys": "162;164;76",
+        "TargetKeys": "91;160;39",
+        "TargetApp": "",
+        "OperationType": 0,
+        "TargetText": "",
+        "ProgramPath": "",
+        "ProgramArgs": "",
+        "StartInDirectory": "",
+        "Elevation": 0,
+        "IfRunningAction": 0,
+        "Visibility": 0,
+        "UriToOpen": ""
+      },
+      "Profiles": [],
+      "IsActive": true
+    },
+    "da1fc543-56ce-441f-995f-5503725de71a": {
+      "Id": "da1fc543-56ce-441f-995f-5503725de71a",
+      "Shortcut": {
+        "OriginalKeys": "162;164;65",
+        "TargetKeys": "91",
+        "TargetApp": "",
+        "OperationType": 0,
+        "TargetText": "",
+        "ProgramPath": "",
+        "ProgramArgs": "",
+        "StartInDirectory": "",
+        "Elevation": 0,
+        "IfRunningAction": 0,
+        "Visibility": 0,
+        "UriToOpen": ""
+      },
+      "Profiles": [],
+      "IsActive": true
+    },
+    "760c3cdf-2a7b-479b-a21b-8512110214ff": {
+      "Id": "760c3cdf-2a7b-479b-a21b-8512110214ff",
+      "Shortcut": {
+        "OriginalKeys": "162;164;66",
+        "TargetKeys": "162;164;66",
+        "TargetApp": "",
+        "OperationType": 1,
+        "TargetText": "",
+        "ProgramPath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "ProgramArgs": "",
+        "StartInDirectory": "",
+        "Elevation": 0,
+        "IfRunningAction": 0,
+        "Visibility": 0,
+        "UriToOpen": ""
+      },
+      "Profiles": [],
+      "IsActive": true
+    },
+    "7c3d53e0-099c-45d0-9ec1-24042dcbad4f": {
+      "Id": "7c3d53e0-099c-45d0-9ec1-24042dcbad4f",
+      "Shortcut": {
+        "OriginalKeys": "162;164;84",
+        "TargetKeys": "162;164;84",
+        "TargetApp": "",
+        "OperationType": 1,
+        "TargetText": "",
+        "ProgramPath": "C:\\Program Files\\Git\\git-bash.exe",
+        "ProgramArgs": "",
+        "StartInDirectory": "C:\\Users\\whydo",
+        "Elevation": 0,
+        "IfRunningAction": 1,
+        "Visibility": 0,
+        "UriToOpen": ""
+      },
+      "Profiles": [],
+      "IsActive": true
+    }
+  },
+  "ProfileDictionary": {},
+  "ShortcutsByOperationType": {
+    "RemapShortcut": [
+      "4b55bcab-8eb4-46b5-8730-4d582374432d",
+      "fd6582a2-ff39-4ae1-8063-e80a97a12b85",
+      "31a918a2-13e3-4260-9d6c-2564c240256e",
+      "6b98854a-828e-4b59-a6fa-8016204ac3f2",
+      "da1fc543-56ce-441f-995f-5503725de71a"
+    ],
+    "RunProgram": [
+      "760c3cdf-2a7b-479b-a21b-8512110214ff",
+      "7c3d53e0-099c-45d0-9ec1-24042dcbad4f"
+    ]
+  },
+  "ActiveProfile": ""
+}

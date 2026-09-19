@@ -81,6 +81,38 @@ git-prompt/git-completion live — off `$machine`, which `uname -s` sets to
 straight into this working tree, a CRLF checkout is the copy bash actually runs
 — and bash chokes on the `\r`.
 
+### PowerToys
+
+`windows/powertoys-config.sh save` copies the live PowerToys config into
+`windows/powertoys/`; `restore` copies it back. The config is authored in the
+PowerToys UI rather than in a file here, so `save` is how a change reaches the
+repo at all — which is why this is a two-way script of its own rather than a
+step in the bootstrap.
+
+Copies, not symlinks, which is the one place this repo knowingly breaks its own
+rule. PowerToys does not write through a symlink: with `default.json` pointed at
+a file here, the Keyboard Manager editor still updated its own
+`editorSettings.json` and still showed a new remap as saved, while
+`default.json` was never written at all and the engine went on running the old
+config. Nothing reported a problem. Putting a real file back and repeating the
+same save wrote both, which is what rules the symlink out.
+
+`editorSettings.json` is tracked beside `default.json` for the same reason. It
+is the editor's own model and the editor writes both files from it, so restoring
+`default.json` alone holds only until the next edit in the UI writes the stale
+model back over it.
+
+A restore needs PowerToys stopped, since it holds the config in memory and
+writes it back out on exit. The script refuses while it is running rather than
+killing it — a tray app the user is using is not this script's to close, and
+folding it into the bootstrap would have meant aborting a whole run over
+`~/.bashrc` because that app happened to be open.
+
+`.gitattributes` exempts `windows/powertoys/**` from the repo-wide LF rule:
+these are read by PowerToys rather than bash and copied rather than linked, and
+PowerToys writes `editorSettings.json` with CRLF, so normalising would mean a
+whole-file diff every time it saved.
+
 ### What gets installed
 
 `roles/arch-workstation` and `roles/ubuntu-workstation` install the CLI

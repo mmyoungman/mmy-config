@@ -5,3 +5,11 @@
 # checked-out form is the form that runs. The index has always been LF; this
 # just stops the worktree diverging from it.
 * text=auto eol=lf
+
+# The exception. These are read by PowerToys rather than by bash, and they are
+# copied into place by powertoys-config.sh rather than symlinked, so nothing
+# here needs LF. PowerToys writes editorSettings.json with CRLF and none of
+# them with a trailing newline; normalising would mean a whole-file diff every
+# time PowerToys saved, which is the opposite of why they are tracked. -text
+# leaves them exactly as written.
+windows/powertoys/** -text
