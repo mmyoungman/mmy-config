@@ -35,7 +35,59 @@ A `config_links` entry may carry its own `dir` to be linked from somewhere
 other than `config_files_dir`. Nothing in this repo uses it; it exists so a
 separate playbook can add machine-specific files without a second role call.
 
-### Windows / Git Bash
+### What gets installed
+
+`roles/arch-workstation` and `roles/ubuntu-workstation` install the CLI
+toolchain and the GUI applications. The playbook also sets bash as the login
+shell — CachyOS ships fish, and `.bashrc`/`.inputrc` assume bash.
+
+Neovim's config requires 0.12 for `vim.pack` and refuses to load below it.
+Plugins are pre-installed by a headless run at the end of the dotfiles role,
+pinned by `config_files/nvim/nvim-pack-lock.json`, and updated separately with
+`:lua vim.pack.update()`.
+
+### Security
+
+The playbook writes `/etc/sysctl.d/99-hardening.conf` and installs two
+reporting tools per OS family: `fwupd` plus `arch-audit` on Arch, `fwupd` plus
+`debsecan` on Debian. Both only report, which is why installing them
+unattended is safe — neither changes anything until run by hand.
+
+```
+fwupdmgr refresh && fwupdmgr get-updates   # UEFI/SSD/dock firmware
+arch-audit -u                              # Arch
+debsecan --suite <codename> --only-fixed   # Debian
+```
+
+### XFCE keyboard shortcuts
+
+The shortcuts live in `config_files/xfce4/xfce4-keyboard-shortcuts.xml`. They
+are copied rather than symlinked, because xfconfd rewrites the file on exit and
+would replace a symlink with a real file.
+
+Push the repo's shortcuts out to this machine (no `--ask-become-pass` needed;
+these tasks only touch `$HOME`):
+```
+ansible-playbook workstation.yml --tags xfce
+```
+
+Pull this machine's shortcuts back into the repo, after changing bindings in
+the XFCE settings GUI:
+```
+config_files/xfce4/capture.sh
+```
+
+Both stop xfconfd so it cannot flush stale settings over the new file. New
+bindings take effect after logging out and back in.
+
+### archive/
+
+Old configs kept for reference, not used by the playbook — Windows 10 keyboard
+and shell tweaks from before this was Ansible-managed.
+
+## Windows
+
+### Git Bash
 
 Ansible can't run as a controller on Windows, so `workstation.yml` is the Linux
 entry point only. `windows/bootstrap-gitbash.sh` is the Windows one — run it
@@ -112,53 +164,3 @@ folding it into the bootstrap would have meant aborting a whole run over
 these are read by PowerToys rather than bash and copied rather than linked, and
 PowerToys writes `editorSettings.json` with CRLF, so normalising would mean a
 whole-file diff every time it saved.
-
-### What gets installed
-
-`roles/arch-workstation` and `roles/ubuntu-workstation` install the CLI
-toolchain and the GUI applications. The playbook also sets bash as the login
-shell — CachyOS ships fish, and `.bashrc`/`.inputrc` assume bash.
-
-Neovim's config requires 0.12 for `vim.pack` and refuses to load below it.
-Plugins are pre-installed by a headless run at the end of the dotfiles role,
-pinned by `config_files/nvim/nvim-pack-lock.json`, and updated separately with
-`:lua vim.pack.update()`.
-
-### Security
-
-The playbook writes `/etc/sysctl.d/99-hardening.conf` and installs two
-reporting tools per OS family: `fwupd` plus `arch-audit` on Arch, `fwupd` plus
-`debsecan` on Debian. Both only report, which is why installing them
-unattended is safe — neither changes anything until run by hand.
-
-```
-fwupdmgr refresh && fwupdmgr get-updates   # UEFI/SSD/dock firmware
-arch-audit -u                              # Arch
-debsecan --suite <codename> --only-fixed   # Debian
-```
-
-### XFCE keyboard shortcuts
-
-The shortcuts live in `config_files/xfce4/xfce4-keyboard-shortcuts.xml`. They
-are copied rather than symlinked, because xfconfd rewrites the file on exit and
-would replace a symlink with a real file.
-
-Push the repo's shortcuts out to this machine (no `--ask-become-pass` needed;
-these tasks only touch `$HOME`):
-```
-ansible-playbook workstation.yml --tags xfce
-```
-
-Pull this machine's shortcuts back into the repo, after changing bindings in
-the XFCE settings GUI:
-```
-config_files/xfce4/capture.sh
-```
-
-Both stop xfconfd so it cannot flush stale settings over the new file. New
-bindings take effect after logging out and back in.
-
-### archive/
-
-Old configs kept for reference, not used by the playbook — Windows 10 keyboard
-and shell tweaks from before this was Ansible-managed.
