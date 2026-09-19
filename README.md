@@ -38,11 +38,11 @@ separate playbook can add machine-specific files without a second role call.
 ### Windows / Git Bash
 
 Ansible can't run as a controller on Windows, so `workstation.yml` is the Linux
-entry point only. `bootstrap-gitbash.sh` is the Windows one — run it once from
-Git Bash:
+entry point only. `windows/bootstrap-gitbash.sh` is the Windows one — run it
+once from Git Bash:
 
 ```
-./bootstrap-gitbash.sh
+./windows/bootstrap-gitbash.sh
 ```
 
 It mirrors `roles/dotfiles`: assert the sources exist, back up anything that

@@ -21,7 +21,9 @@ case "$(uname -s)" in
         ;;
 esac
 
-repo=$(cd -- "$(dirname -- "$0")" && pwd)
+# This script lives in windows/, so the repo root is one level up. Every
+# path below is still relative to that root, not to this directory.
+repo=$(cd -- "$(dirname -- "$0")/.." && pwd)
 config_files_dir="$repo/config_files"
 
 # Only what is known to work under Git Bash. tmux, .xprofile, .ideavimrc and
