@@ -7,6 +7,8 @@ if vim.fn.executable('fzf') == 0 then
   print("fzf not installed! fzf-lua won't work!")
 end
 
+local is_linux = vim.fn.has('linux') == 1
+
 -- Plugins are managed by `vim.pack` (see the Plugins section below), which
 -- landed in 0.12. There is no useful degraded mode without them, so bail here
 -- rather than part-loading a config whose `require()` calls would then error.
@@ -510,10 +512,11 @@ vim.lsp.config('roslyn_ls', {
   },
 })
 
+local lsp_servers = {
+  'lua_ls', 'pyright', 'robotframework_ls', 'roslyn_ls',
+}
+if is_linux then
+  vim.list_extend(lsp_servers, { 'gopls', 'templ', 'clangd', 'bashls' })
+end
 require('mason').setup({})
-require('mason-lspconfig').setup({
-  ensure_installed = {
-    'clangd', 'gopls', 'templ', 'pyright', 'lua_ls',
-    'bashls', 'robotframework_ls', 'roslyn_ls',
-  },
-})
+require('mason-lspconfig').setup({ ensure_installed = lsp_servers })
