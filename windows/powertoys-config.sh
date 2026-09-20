@@ -49,7 +49,7 @@ fi
 pt_root="$localappdata/Microsoft/PowerToys"
 
 # Paths relative to the PowerToys config root, mirrored under the same relative
-# paths in config_files/powertoys. Mirroring the real layout keeps this list to
+# paths in windows/powertoys. Mirroring the real layout keeps this list to
 # bare relative names; adding a module means adding one line here and both
 # directions pick it up.
 #
@@ -124,7 +124,7 @@ EOF
     if [ "$changed" -eq 0 ]; then
         echo "Nothing changed; the repo already matches the live config."
     else
-        echo "Saved into config_files/powertoys. Review and commit:"
+        echo "Saved into windows/powertoys. Review and commit:"
         echo "  git -C \"$repo\" diff -- windows/powertoys"
     fi
 }
