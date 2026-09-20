@@ -51,28 +51,40 @@
   loop_control:
     label: "{{ (home + '/' + item.dest) | dirname }}"
 
-# --backup=numbered so a second backup on the same date bumps the older
-# one to .~1~ rather than clobbering it. The 'is not link' check below
-# is what makes this idempotent: after the first run every dest is a
-# symlink, so this only fires again if something replaces one with a
-# real file.
-#
-# Not named 'target': server.yml takes the host to run against as
-# `-e target=<host>`, and extra vars outrank task vars, so the path here would
-# resolve to the hostname. Every 'is exists' would then be false, the backup
-# would silently skip, and the link task below would force: yes over a real
-# file with nothing kept.
-- name: Back up config that isn't already a symlink
-  command:
-    cmd: mv --backup=numbered -- "{{ link_path }}" "{{ link_path }}.{{ ansible_facts.date_time.date }}"
-  vars:
-    link_path: "{{ home }}/{{ item.dest }}"
-  when:
-    - link_path is exists
-    - link_path is not link
+# stat, not `is exists` / `is not link` on the path. Jinja tests are templating,
+# and templating runs on the controller -- so those would answer for the
+# controller's filesystem while the mv below runs on the target. On a pushed run
+# that is always the wrong filesystem, and wrong in both directions: a
+# controller whose own ~/.bashrc is already a symlink (every workstation here)
+# skips the backup, and so does a target whose home dir the controller does not
+# have at all. Either way the link task below still applies force: yes, so a
+# fresh box's real /etc/skel/.bashrc goes with nothing kept.
+- name: Check what's at each link destination
+  stat:
+    path: "{{ home }}/{{ item.dest }}"
   loop: "{{ config_links }}"
   loop_control:
     label: "{{ item.dest }}"
+  register: link_dests
+
+# --backup=numbered so a second backup on the same date bumps the older
+# one to .~1~ rather than clobbering it. The islnk check is what makes this
+# idempotent: after the first run every dest is a symlink, so this only fires
+# again if something replaces one with a real file.
+#
+# Not named 'target': the homelab playbook that shares this role takes the host
+# to run against as `-e target=<host>`, and extra vars outrank task vars.
+- name: Back up config that isn't already a symlink
+  command:
+    cmd: mv --backup=numbered -- "{{ dest_path }}" "{{ dest_path }}.{{ ansible_facts.date_time.date }}"
+  vars:
+    dest_path: "{{ home }}/{{ item.item.dest }}"
+  when:
+    - item.stat.exists
+    - not item.stat.islnk
+  loop: "{{ link_dests.results }}"
+  loop_control:
+    label: "{{ item.item.dest }}"
 
 - name: Symlink config into place
   file:
@@ -86,11 +98,19 @@
 
 # Older installs symlinked this into the repo; the template below would
 # write the real email address through the link and into git.
+#
+# stat for the same reason the backup above uses one: `is link` is templating,
+# so it would answer for the controller rather than the target.
+- name: Check whether ~/.gitconfig is a leftover symlink
+  stat:
+    path: "{{ home }}/.gitconfig"
+  register: gitconfig_dest
+
 - name: Drop ~/.gitconfig if it's a symlink
   file:
     path: "{{ home }}/.gitconfig"
     state: absent
-  when: (home + '/.gitconfig') is link
+  when: gitconfig_dest.stat.islnk | default(false)
 
 - name: Copy gitconfig template
   template:
