@@ -213,6 +213,18 @@ else
 fi
 path_add -p "$PNPM_HOME"
 
+# fnm, the Node version manager, is a Windows-only install for now. The eval is
+# what defines FNM_MULTISHELL_PATH and friends; without it `fnm use` fails with
+# "can't find the necessary environment variables". --use-on-cd switches Node to
+# whatever .nvmrc asks for on entering a directory, which EES pins exactly.
+if [ "$machine" = windows ]; then
+    if command -v fnm &> /dev/null; then
+        eval "$(fnm env --use-on-cd --shell bash)"
+    else
+        echo "bashrc: fnm is not installed" >&2
+    fi
+fi
+
 # List git worktrees by what's in them; cd into one by number or fuzzy name.
 # Aliased to gwl above.
 #   gwl          list every worktree of the current repo, most recently touched first
