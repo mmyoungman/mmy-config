@@ -132,6 +132,25 @@
       },
       "Profiles": [],
       "IsActive": true
+    },
+    "eae1221f-98ce-4724-bbdb-88883a93234f": {
+      "Id": "eae1221f-98ce-4724-bbdb-88883a93234f",
+      "Shortcut": {
+        "OriginalKeys": "162;164;70",
+        "TargetKeys": "162;164;70",
+        "TargetApp": "",
+        "OperationType": 1,
+        "TargetText": "",
+        "ProgramPath": "C:\\Windows\\explorer.exe",
+        "ProgramArgs": "",
+        "StartInDirectory": "C:\\Users\\whydo",
+        "Elevation": 0,
+        "IfRunningAction": 1,
+        "Visibility": 3,
+        "UriToOpen": ""
+      },
+      "Profiles": [],
+      "IsActive": true
     }
   },
   "ProfileDictionary": {},
@@ -145,7 +164,8 @@
     ],
     "RunProgram": [
       "760c3cdf-2a7b-479b-a21b-8512110214ff",
-      "7c3d53e0-099c-45d0-9ec1-24042dcbad4f"
+      "7c3d53e0-099c-45d0-9ec1-24042dcbad4f",
+      "eae1221f-98ce-4724-bbdb-88883a93234f"
     ]
   },
   "ActiveProfile": ""
