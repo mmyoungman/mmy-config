@@ -163,9 +163,10 @@ path_add() {
 # Roslyn -- which needs a design-time build to load a project at all -- answers
 # "go to definition" with silence rather than an error.
 #
-# The cost is that the SDKs under here become the only ones visible: install
-# every version this machine needs into it (dotnet-install.sh --channel N.0)
-# rather than expecting a fallback to the distro's.
+# The cost is that the SDKs under here become the only ones visible, with no
+# fallback to the distro's. mmy-config's workstation.yml is what populates this
+# tree, pinning one version against its published .sha512; a machine needing
+# another feature band gets it from there.
 if [ -x "$HOME/.dotnet/dotnet" ]; then
     export DOTNET_ROOT="$HOME/.dotnet"
     path_add -p "$DOTNET_ROOT"

@@ -71,9 +71,11 @@
     # name. Worse, the muxer looks for SDKs relative to the binary you invoke
     # rather than under DOTNET_ROOT, so a distro dotnet earlier on PATH hides
     # this tree completely however that variable is set. config_files/.bashrc
-    # prepends ~/.dotnet for that reason, which in turn means the versions
-    # here are the only ones anything will find: add each one this machine
-    # needs below rather than expecting a fallback to the distro's.
+    # prepends ~/.dotnet for that reason, which in turn means the one version
+    # pinned below is the only SDK anything will find -- there is no fallback
+    # to the distro's. A box needing a second feature band needs a second copy
+    # of this whole task, version and .sha512 both; the tarball lays down
+    # sdk/<version> alongside what is already there, so the two coexist.
     #
     # Unpacked directly rather than run through dotnet-install.sh. That script
     # is fetched over the wire and changes a dozen times a year, so pinning its
