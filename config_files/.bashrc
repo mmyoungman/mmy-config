@@ -226,6 +226,22 @@ if [ "$machine" = windows ]; then
     fi
 fi
 
+# Windows (Git Bash) only. Endpoint security on the work laptop blocks the
+# stub .exes that uv and pip generate (~/.local/bin/pipenv.exe, the launchers
+# in a venv's Scripts dir) with "Access is denied", while the real CPython
+# that uv manages runs fine. So never invoke the stubs: route python/pipenv
+# through `uv run`, which spawns the interpreter directly. Functions rather
+# than aliases, and exported, so the EES repo's scripts -- which call
+# `python`/`pipenv` by name from child shells -- pick them up too (aliases
+# don't expand in non-interactive shells). `--no-project` stops uv adopting
+# or creating a .venv/pyproject; the interpreter version comes from the
+# nearest .python-version file, falling back to uv's default.
+if [ "$machine" = windows ]; then
+    python() { uv run --no-project python "$@"; }
+    pipenv() { uv run --no-project --with pipenv python -m pipenv "$@"; }
+    export -f python pipenv
+fi
+
 # List git worktrees by what's in them; cd into one by number or fuzzy name.
 # Aliased to gwl above.
 #   gwl          list every worktree of the current repo, most recently touched first
