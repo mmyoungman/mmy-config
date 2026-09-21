@@ -513,10 +513,10 @@ vim.lsp.config('roslyn_ls', {
 })
 
 local lsp_servers = {
-  'lua_ls', 'pyright', 'robotframework_ls', 'roslyn_ls',
+  'lua_ls', 'pyright', 'roslyn_ls',
 }
 if is_linux then
-  vim.list_extend(lsp_servers, { 'gopls', 'templ', 'clangd', 'bashls' })
+  vim.list_extend(lsp_servers, { 'robotcode', 'gopls', 'templ', 'clangd', 'bashls' })
 end
 require('mason').setup({})
 require('mason-lspconfig').setup({ ensure_installed = lsp_servers })
