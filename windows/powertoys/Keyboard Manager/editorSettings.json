@@ -114,15 +114,15 @@
       "Profiles": [],
       "IsActive": true
     },
-    "7c3d53e0-099c-45d0-9ec1-24042dcbad4f": {
-      "Id": "7c3d53e0-099c-45d0-9ec1-24042dcbad4f",
+    "dfd7a50f-67ef-4564-98b6-b1ec5b77a767": {
+      "Id": "dfd7a50f-67ef-4564-98b6-b1ec5b77a767",
       "Shortcut": {
         "OriginalKeys": "162;164;84",
         "TargetKeys": "162;164;84",
         "TargetApp": "",
         "OperationType": 1,
         "TargetText": "",
-        "ProgramPath": "C:\\Program Files\\Git\\git-bash.exe",
+        "ProgramPath": "C:\\Users\\whydo\\AppData\\Local\\Microsoft\\WindowsApps\\wt.exe",
         "ProgramArgs": "",
         "StartInDirectory": "C:\\Users\\whydo",
         "Elevation": 0,
@@ -164,8 +164,8 @@
     ],
     "RunProgram": [
       "760c3cdf-2a7b-479b-a21b-8512110214ff",
-      "7c3d53e0-099c-45d0-9ec1-24042dcbad4f",
-      "eae1221f-98ce-4724-bbdb-88883a93234f"
+      "eae1221f-98ce-4724-bbdb-88883a93234f",
+      "dfd7a50f-67ef-4564-98b6-b1ec5b77a767"
     ]
   },
   "ActiveProfile": ""
