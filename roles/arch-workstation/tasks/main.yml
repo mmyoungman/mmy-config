@@ -13,6 +13,18 @@
       - xfce4-screenshooter
       - xfce4-clipman-plugin
 
+      # The system monitor panel in config_files/xfce4.
+      - xfce4-sensors-plugin
+      - lm_sensors
+      - xfce4-genmon-plugin # runs gpu-genmon.sh
+      - xfce4-cpugraph-plugin
+      - xfce4-cpufreq-plugin
+      - xfce4-systemload-plugin
+      - xfce4-netload-plugin
+      - xfce4-diskperf-plugin
+      - xfce4-fsguard-plugin
+      - mission-center # opened by clicking the GPU readout
+
 - name: Install general apps
   pacman:
     name:

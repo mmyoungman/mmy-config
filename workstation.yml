@@ -20,6 +20,8 @@
       - { src: .ideavimrc, dest: .ideavimrc }
       - { src: nvim, dest: .config/nvim }
       - { src: tmux, dest: .config/tmux }
+      # Run by the XFCE panel's genmon plugin; see config_files/xfce4.
+      - { src: xfce4/gpu-genmon.sh, dest: .local/bin/gpu-genmon.sh }
       - { src: vscode-settings.json, dest: .config/Code/User/settings.json }
       - { src: vscode-settings.json, dest: .config/Code - OSS/User/settings.json }
   tasks:
@@ -196,15 +198,18 @@
     # Copied rather than symlinked: xfconfd buffers changes in memory and
     # flushes on exit by renaming a temp file over the target, which would
     # replace the symlink with a real file and orphan the repo copy. New
-    # bindings show up after logging out and back in.
-    - name: Restore XFCE keyboard shortcuts
+    # bindings and the panel layout show up after logging out and back in.
+    - name: Restore XFCE keyboard shortcuts and panel layout
       when: xfconf_query.rc | default(1) == 0
       tags: [xfce]
       block:
-        - name: Make sure the xfconf channel dir exists
+        - name: Make sure the xfconf channel and panel dirs exist
           file:
-            path: "{{ home }}/.config/xfce4/xfconf/xfce-perchannel-xml"
+            path: "{{ home }}/.config/xfce4/{{ item }}"
             state: directory
+          loop:
+            - xfconf/xfce-perchannel-xml
+            - panel
 
         # Probe first so a re-run that changes nothing leaves xfconfd alone.
         # Killing it discards whatever the current desktop session has buffered
@@ -217,14 +222,72 @@
           check_mode: yes
           register: shortcuts
 
-        - name: Stop xfconfd so it can't flush stale settings over the new file
+        # A template only for {{ home }}: genmon's command is an absolute path
+        # and nothing expands ~ in an xfconf value. The script it points at is
+        # linked into ~/.local/bin by config_links above.
+        #
+        # This is the whole panel channel, not just the monitor panel. Plugins
+        # are numbered across every panel in one namespace, so merging one
+        # panel into whatever a fresh install shipped would mean renumbering
+        # around its defaults; replacing the lot is the only form that lands
+        # the same way twice.
+        #
+        # Not probed the way the shortcuts are, because the live file is never
+        # byte-identical to the repo's: it also carries the lists that
+        # panel-volatile.sed describes. Compared with those filtered out, so a
+        # panel that already matches is left alone and keeps them. A missing
+        # live file makes sed fail with nothing on stdout, which reads as a
+        # mismatch -- the right answer.
+        - name: Read the live panel file, minus what the repo doesn't track
+          command:
+            argv:
+              - sed
+              - -f
+              - "{{ playbook_dir }}/config_files/xfce4/panel-volatile.sed"
+              - "{{ home }}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+          register: live_panel
+          changed_when: false
+          failed_when: false
+          check_mode: no
+
+        - name: Check whether the panel file needs replacing
+          set_fact:
+            panel_changed: >-
+              {{ live_panel.stdout | trim
+                 != lookup('template', 'config_files/xfce4/xfce4-panel.xml.j2') | trim }}
+
+        - name: Stop xfconfd so it can't flush stale settings over the new files
           command: pkill -x xfconfd
           register: pkill_xfconfd
           changed_when: false
           # rc 1 just means it wasn't running.
           failed_when: pkill_xfconfd.rc not in [0, 1]
-          when: shortcuts.changed
+          when: shortcuts.changed or panel_changed
 
         - name: Copy keyboard shortcuts into place
           copy: *shortcuts
           when: shortcuts.changed
+
+        - name: Copy panel layout into place
+          template:
+            src: config_files/xfce4/xfce4-panel.xml.j2
+            dest: "{{ home }}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+            backup: yes
+          when: panel_changed
+
+        # Settings for the plugins that predate xfconf. The number in each
+        # name is the plugin-N id from the panel file, which is why these are
+        # only meaningful next to it. No daemon to stop: the plugin itself
+        # rewrites its rc when the panel exits, but only a plugin that is
+        # already running under that id -- and then it holds these same values,
+        # unless the panel has been rearranged since the last capture.sh.
+        #
+        # The sensors rc names hwmon chips by bus address and diskperf names a
+        # block device, so on different hardware those two come up showing
+        # nothing until they are pointed at what that machine has.
+        - name: Copy panel plugin settings into place
+          copy:
+            src: "{{ item }}"
+            dest: "{{ home }}/.config/xfce4/panel/{{ item | basename }}"
+            backup: yes
+          with_fileglob: config_files/xfce4/panel/*.rc
