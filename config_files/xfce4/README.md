@@ -21,8 +21,9 @@ gets overwritten.
   on capture and again when the playbook compares live against repo.
 - `panel/*.rc` — settings for the monitor plugins that don't use xfconf. The
   number in each filename is that plugin's id in the panel file.
-- `gpu-genmon.sh` — the GPU readout, linked into `~/.local/bin` with the rest
-  of the dotfiles. AMD only: it reads amdgpu's sysfs files.
+- `sys-genmon.sh` — the GPU, network, memory and swap readout, linked into
+  `~/.local/bin` with the rest of the dotfiles. The GPU part is AMD only: it
+  reads amdgpu's sysfs files, and shows `n/a` where there is no such card.
 
 The sensors plugin identifies chips by bus address and diskperf by device
 name, so on different hardware those two need pointing at what's there,

@@ -21,7 +21,7 @@
       - { src: nvim, dest: .config/nvim }
       - { src: tmux, dest: .config/tmux }
       # Run by the XFCE panel's genmon plugin; see config_files/xfce4.
-      - { src: xfce4/gpu-genmon.sh, dest: .local/bin/gpu-genmon.sh }
+      - { src: xfce4/sys-genmon.sh, dest: .local/bin/sys-genmon.sh }
       - { src: vscode-settings.json, dest: .config/Code/User/settings.json }
       - { src: vscode-settings.json, dest: .config/Code - OSS/User/settings.json }
   tasks:
