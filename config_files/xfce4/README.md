@@ -21,11 +21,17 @@ gets overwritten.
   on capture and again when the playbook compares live against repo.
 - `panel/*.rc` — settings for the monitor plugins that don't use xfconf. The
   number in each filename is that plugin's id in the panel file.
-- `sys-genmon.sh` — the GPU, network, memory and swap readout, linked into
-  `~/.local/bin` with the rest of the dotfiles. The GPU part is AMD only: it
-  reads amdgpu's sysfs files, and shows `n/a` where there is no such card.
+- `sys-genmon.sh` — the GPU, network, memory, swap and disk readout, linked
+  into `~/.local/bin` with the rest of the dotfiles. The GPU part is AMD only:
+  it reads amdgpu's sysfs files, and shows `n/a` where there is no such card.
+  Disk space and read/write rates are for whichever disk holds `/`; the space
+  figure turns yellow under 8% free and red under 2%.
 
-The sensors plugin identifies chips by bus address and diskperf by device
-name, so on different hardware those two need pointing at what's there,
-followed by a `capture.sh` — at which point the repo describes that machine
-instead.
+The memory, disk space and disk activity plugins used to be on the panel and
+were replaced by the script because they stop updating: fsguard's low-space
+warning is a modal dialog that blocks its own timer until dismissed, and
+systemload's memory bar sticks for a reason not tracked down.
+
+The sensors plugin identifies chips by bus address, so on different hardware
+it needs pointing at what's there, followed by a `capture.sh` — at which
+point the repo describes that machine instead.

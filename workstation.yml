@@ -282,9 +282,9 @@
         # already running under that id -- and then it holds these same values,
         # unless the panel has been rearranged since the last capture.sh.
         #
-        # The sensors rc names hwmon chips by bus address and diskperf names a
-        # block device, so on different hardware those two come up showing
-        # nothing until they are pointed at what that machine has.
+        # The sensors rc names hwmon chips by bus address, so on different
+        # hardware it comes up showing nothing until it is pointed at what
+        # that machine has.
         - name: Copy panel plugin settings into place
           copy:
             src: "{{ item }}"

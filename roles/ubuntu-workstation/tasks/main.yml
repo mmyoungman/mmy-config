@@ -21,8 +21,6 @@
       - xfce4-genmon-plugin # runs sys-genmon.sh
       - xfce4-cpugraph-plugin
       - xfce4-cpufreq-plugin
-      - xfce4-diskperf-plugin
-      - xfce4-fsguard-plugin
 
 - name: Install general apps
   apt:
