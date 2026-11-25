@@ -8,6 +8,11 @@
       "rev": "5be654f2232c10ddcad19c1607a67b6b4b78fc29",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
+    "jacket.nvim": {
+      "rev": "579ab91ba946be5afbc029f420b259f5664f001f",
+      "src": "https://github.com/matteopolak/jacket.nvim",
+      "version": "'v0.40.0'"
+    },
     "lazydev.nvim": {
       "rev": "ff2cbcba459b637ec3fd165a2be59b7bbaeedf0d",
       "src": "https://github.com/folke/lazydev.nvim"

@@ -123,6 +123,12 @@ require('project')
 -- [[ Plugins ]]
 local gh = function(repo) return 'https://github.com/' .. repo end
 
+-- jacket.nvim settings; must be set before the plugin loads. jailsp/jaic/jaifmt
+-- come from ~/.local/bin (Jacket's own installer), so never download a second
+-- toolchain. For code you didn't write, set trusted = false: by default jailsp
+-- runs #run blocks and build metaprograms just from opening a file.
+vim.g.jai = { toolchain = { auto_download = 'never' } }
+
 vim.pack.add({
   gh('tpope/vim-sleuth'),
 
@@ -133,6 +139,9 @@ vim.pack.add({
   gh('mason-org/mason.nvim'),
   gh('mason-org/mason-lspconfig.nvim'),
   gh('folke/lazydev.nvim'),
+  -- Jai (Jacket): syntax, jailsp LSP, :Jai format. Not in Mason. Pin to the
+  -- toolchain's version (`jaic --version`) and bump it after `jacket upgrade`.
+  { src = gh('matteopolak/jacket.nvim'), version = 'v0.40.0' },
 
   gh('folke/which-key.nvim'),
 
@@ -344,6 +353,9 @@ vim.keymap.set('n', ']d', function() vim.diagnostic.jump({ count = 1, float = tr
   { desc = 'Go to next diagnostic message' })
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
+
+-- No underline for Hint diagnostics
+vim.diagnostic.config({ underline = { severity = { min = vim.diagnostic.severity.INFO } } })
 
 -- [[ Configure LSP ]]
 vim.api.nvim_create_autocmd('LspAttach', {
